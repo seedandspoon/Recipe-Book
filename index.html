@@ -504,14 +504,20 @@ function indexAliments(){
   });
   idx.sort((a,b) => b.mot.length - a.mot.length);
 
-  // dernier recours : le nom de tête (« green pea » → « pea »), testé seulement si rien d'autre ne colle
+  // dernier recours : le nom de tête (« green pea » → « pea »), testé seulement si rien d'autre ne colle.
+  // Exception : un dernier mot précédé de « non »/« sans » est nié par la phrase (« lait non sucré »
+  // ne parle pas de sucre) et ne doit surtout pas devenir un synonyme de cet aliment.
   const tetes = [];
   const vus = {};
+  const NEGATIONS = ["non", "sans"];
   ALIMENTS.forEach(a => {
     [a.en, a.fr].forEach(nom => {
       const mots = normAli(nom).split(" ");
       const tete = mots[mots.length - 1];
-      if(tete && tete.length > 3 && !vus[tete]){ vus[tete] = 1; tetes.push({mot:tete, ali:a}); }
+      const precedent = mots[mots.length - 2];
+      if(tete && tete.length > 3 && !vus[tete] && NEGATIONS.indexOf(precedent) < 0){
+        vus[tete] = 1; tetes.push({mot:tete, ali:a});
+      }
     });
   });
   IDX_ALI = {plein: idx, tetes: tetes.sort((a,b) => b.mot.length - a.mot.length)};
