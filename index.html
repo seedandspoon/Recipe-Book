@@ -124,6 +124,24 @@ header.top{
 }
 .week-btn.on{background:var(--accent); color:#fff}
 .stars{color:var(--warn); font-size:12.5px; letter-spacing:1px}
+.portions-row{
+  display:flex; align-items:center; justify-content:space-between; gap:7px;
+  margin-top:2px; padding-top:9px; border-top:1px solid var(--line2);
+}
+.portions-label{font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em}
+.stepper{
+  display:inline-flex; align-items:stretch; border:1px solid var(--line); border-radius:9px;
+  overflow:hidden;
+}
+.stepper button{
+  width:28px; border:none; background:var(--card); color:var(--accent-d);
+  font-size:15px; line-height:1; cursor:pointer;
+}
+.stepper button:active{background:var(--soft)}
+.stepper-val{
+  min-width:26px; display:flex; align-items:center; justify-content:center;
+  font-size:13.5px; font-weight:650; color:var(--ink); background:var(--line2);
+}
 
 /* ---------- Sections ---------- */
 .section{margin:26px 0 0}
@@ -824,6 +842,7 @@ function normalize(r){
     cuisson: num(r.cuisson),
     portions: num(r.portions),
     semaine: !!r.semaine,
+    semainePortions: num(r.semainePortions),
     kcal: num(r.kcal), prot: num(r.prot), gluc: num(r.gluc), lip: num(r.lip),
     ingredients: Array.isArray(r.ingredients)
       ? r.ingredients.map(i => typeof i === "string" ? {txt:i, alg:false} : {txt:(i.txt||""), alg:!!i.alg}).filter(i=>i.txt.trim())
@@ -1016,10 +1035,11 @@ function renderTabs(){
 /* =========================================================
    6. VUES LISTE
    ========================================================= */
-function carte(r){
+function carte(r, opts){
+  opts = opts || {};
   const meta = [];
   if(total(r)) meta.push("⏱ " + fmtMin(total(r)));
-  if(r.portions) meta.push("👥 " + r.portions);
+  if(r.portions && !opts.hidePortions) meta.push("👥 " + r.portions);
   if(r.diff) meta.push(esc(r.diff));
   const img = r.image
     ? '<img src="' + esc(r.image) + '" alt="" loading="lazy">'
@@ -1036,6 +1056,7 @@ function carte(r){
         ? '<div class="fit">' + PHASES_BASE[db.phaseActuelle].emo + ' ' + scorePhase(r, db.phaseActuelle) + ' ingrédient' +
           (scorePhase(r, db.phaseActuelle) > 1 ? "s" : "") + ' de ta phase</div>' : "") +
       (meta.length ? '<div class="card-meta">' + meta.map(m => "<span>" + m + "</span>").join("") + '</div>' : "") +
+      (opts.footer || "") +
     '</div>' +
   '</article>';
 }
@@ -1043,6 +1064,21 @@ function carte(r){
 function grille(list){
   if(!list.length) return '<div class="empty"><span class="big">🍋</span>Aucune recette ne correspond.</div>';
   return '<div class="grid">' + list.map(carte).join("") + '</div>';
+}
+
+/* carte + réglage du nombre de personnes pour cette semaine (page « Cette semaine » uniquement) :
+   remplace le badge portions générique de la carte plutôt que de le doubler */
+function carteAvecPortions(r){
+  const val = r.semainePortions || r.portions || 4;
+  const footer = '<div class="portions-row">' +
+      '<span class="portions-label">Portions</span>' +
+      '<div class="stepper">' +
+        '<button type="button" data-portions-moins="' + r.id + '" title="Moins">−</button>' +
+        '<span class="stepper-val">' + val + '</span>' +
+        '<button type="button" data-portions-plus="' + r.id + '" title="Plus">+</button>' +
+      '</div>' +
+    '</div>';
+  return carte(r, {footer: footer, hidePortions: true});
 }
 
 function viewGalerie(){
@@ -1083,7 +1119,7 @@ function viewSemaine(){
     return html + '<div class="empty"><span class="big">🛒</span>Aucune recette sélectionnée.<br>' +
       'Appuie sur <b>＋</b> en haut d\'une vignette pour l\'ajouter ici.</div>';
   }
-  html += grille(list);
+  html += '<div class="grid">' + list.map(carteAvecPortions).join("") + '</div>';
   const n = construireCourses().reduce((t, g) => t + g.lignes.length, 0);
   html += '<div class="section"><div class="panel" style="display:flex; align-items:center; gap:12px; flex-wrap:wrap">' +
     '<div style="flex:1; min-width:170px"><b>🧺 Liste de courses</b>' +
@@ -1484,7 +1520,7 @@ function vide(){
   return {
     id:null, nom:"", url:"", description:"", image:"", statut:"🟡 Brouillon",
     cuisines:[], meal:"", tags:[], seasons:[], cycles:[],
-    diff:"", note:0, prep:0, cuisson:0, portions:0, semaine:false,
+    diff:"", note:0, prep:0, cuisson:0, portions:0, semaine:false, semainePortions:0,
     kcal:0, prot:0, gluc:0, lip:0,
     ingredients:[{txt:"",alg:false}], etapes:[], allergenes:"", ingredientCle:"", groupe:""
   };
@@ -2066,6 +2102,7 @@ function fusionner(d){
   d.statut  = ex.statut;
   d.note    = ex.note;
   d.semaine = ex.semaine;
+  d.semainePortions = ex.semainePortions;
   d.cycles  = ex.cycles.slice();
   d.diff    = ex.diff || d.diff;
   d.meal    = ex.meal || d.meal;
@@ -2440,7 +2477,25 @@ function onAppClick(e){
   if(w){
     e.stopPropagation();
     const r = getRecette(w.dataset.week);
-    if(r){ r.semaine = !r.semaine; r.maj = Date.now(); save(); toast(r.semaine ? "Ajouté à cette semaine ✓" : "Retiré de cette semaine"); render(); }
+    if(r){
+      r.semaine = !r.semaine;
+      // par défaut, les portions de la recette elle-même ; ajustable ensuite depuis « Cette semaine »
+      if(r.semaine && !r.semainePortions) r.semainePortions = r.portions || 4;
+      r.maj = Date.now(); save(); toast(r.semaine ? "Ajouté à cette semaine ✓" : "Retiré de cette semaine"); render();
+    }
+    return;
+  }
+  // ajuster les portions de la semaine pour une recette
+  const pm = t.closest("[data-portions-moins]");
+  if(pm){
+    const r = getRecette(pm.dataset.portionsMoins);
+    if(r){ r.semainePortions = Math.max(1, (r.semainePortions || r.portions || 4) - 1); save(); render(); }
+    return;
+  }
+  const pp = t.closest("[data-portions-plus]");
+  if(pp){
+    const r = getRecette(pp.dataset.portionsPlus);
+    if(r){ r.semainePortions = (r.semainePortions || r.portions || 4) + 1; save(); render(); }
     return;
   }
   // ouvrir une fiche
@@ -2632,7 +2687,14 @@ function onAppClick(e){
     return;
   }
   // « cette semaine » dans le formulaire
-  if(id === "d-semaine"){ syncDraft(); state.formDraft.semaine = !state.formDraft.semaine; t.closest("button").classList.toggle("on"); return; }
+  if(id === "d-semaine"){
+    syncDraft();
+    const d = state.formDraft;
+    d.semaine = !d.semaine;
+    if(d.semaine && !d.semainePortions) d.semainePortions = d.portions || 4;
+    t.closest("button").classList.toggle("on");
+    return;
+  }
 
   // allergène / suppression de ligne d'ingrédient
   const alg = t.closest("[data-alg]");
