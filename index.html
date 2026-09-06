@@ -654,6 +654,10 @@ function construireCourses(){
   const lignes = {};   // clé → { nom, ali, rayon, parts:{fam:{qte,aff}}, sansQte:[], recettes:[] }
 
   recettes.forEach(r => {
+    // portions choisies cette semaine vs. portions de base de la recette :
+    // sans base connue, impossible de savoir à quoi rapporter le nombre choisi,
+    // donc on ne touche pas aux quantités telles qu'écrites.
+    const echelle = (r.portions && r.semainePortions) ? (r.semainePortions / r.portions) : 1;
     (r.ingredients || []).forEach(ing => {
       const p = parseIngredient(ing.txt);
       const ali = trouverAliment(p.nom) || trouverAliment(ing.txt);
@@ -680,10 +684,10 @@ function construireCourses(){
       if(p.qte !== null && p.unite){
         const f = p.unite.fam;
         if(!L.parts[f]) L.parts[f] = {qte:0, aff:p.unite.aff};
-        L.parts[f].qte += p.qte * p.unite.vers;
+        L.parts[f].qte += p.qte * p.unite.vers * echelle;
       }else if(p.qte !== null){
         if(!L.parts["piece"]) L.parts["piece"] = {qte:0, aff:""};
-        L.parts["piece"].qte += p.qte;
+        L.parts["piece"].qte += p.qte * echelle;
       }else{
         L.sansQte++;
       }
@@ -718,7 +722,9 @@ function afficheQte(L){
     let q = p.qte, aff = p.aff;
     if(aff === "g" && q >= 1000){ q = q / 1000; aff = "kg"; }
     else if(aff === "ml" && q >= 1000){ q = q / 1000; aff = "l"; }
-    q = Math.round(q * 100) / 100;
+    // un ingrédient compté à la pièce ne s'achète pas en fraction : la mise à
+    // l'échelle par portions peut produire « 4.5 œufs », qu'on arrondit au-dessus
+    q = (f === "piece") ? Math.ceil(q - 1e-9) : Math.round(q * 100) / 100;
     bouts.push(aff ? (q + " " + aff) : String(q));
   });
   if(!bouts.length && L.sansQte) return L.sansQte > 1 ? "×" + L.sansQte : "";
