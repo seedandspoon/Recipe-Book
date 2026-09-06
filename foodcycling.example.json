@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "kind": "recipe-book-foodcycling",
+  "exportedAt": "2026-01-01",
+  "_readme": [
+    "Template for the Food Cycling layer. Nothing here is prescriptive:",
+    "fill it with your own associations, or build them from ⚙ Settings inside the app.",
+    "phases : free-text notes per phase. Any field can be left empty.",
+    "assoc  : food (English name, as used in the app catalogue) → phases it belongs to.",
+    "         Valid phases: Folliculaire, Ovulatoire, Lutéale, Menstruelle.",
+    "aliments : foods missing from the built-in catalogue, added by you."
+  ],
+  "phases": {
+    "Folliculaire": {
+      "humeur": "",
+      "sport": "",
+      "cuisson": "",
+      "graines": "",
+      "physio": "",
+      "manger": ""
+    },
+    "Ovulatoire": {
+      "humeur": "",
+      "sport": "",
+      "cuisson": "",
+      "graines": "",
+      "physio": "",
+      "manger": ""
+    },
+    "Lutéale": {
+      "humeur": "",
+      "sport": "",
+      "cuisson": "",
+      "graines": "",
+      "physio": "",
+      "manger": ""
+    },
+    "Menstruelle": {
+      "humeur": "",
+      "sport": "",
+      "cuisson": "",
+      "graines": "",
+      "physio": "",
+      "manger": ""
+    }
+  },
+  "assoc": {
+    "Broccoli": [
+      "Folliculaire"
+    ],
+    "Sweet potato": [
+      "Lutéale"
+    ],
+    "Blueberry": [
+      "Menstruelle"
+    ]
+  },
+  "aliments": [
+    {
+      "en": "Nettle tea",
+      "fr": "Tisane d'ortie",
+      "cat": "O",
+      "gi": "",
+      "pest": "",
+      "phases": [
+        "Menstruelle"
+      ]
+    }
+  ]
+}

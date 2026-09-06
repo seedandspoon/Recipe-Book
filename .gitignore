@@ -1,0 +1,6 @@
+# Personal notes and data — never goes to GitHub (see PUBLISHING.md workflow).
+PUBLISHING.md
+foodcycling.private.json
+*.private.json
+backup*.json
+recipes*.json
