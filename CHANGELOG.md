@@ -4,6 +4,13 @@ All notable changes to Recipe Book. The version number is visible in the browser
 
 ---
 
+## [2.2] — 2026-09-06
+
+### Added
+- **Grocery list: per-recipe detail.** When a recipe writes an ingredient more precisely than the aggregated name it's grouped under (e.g. "midi cucumber" grouped under "Concombre"), that recipe's exact wording, its calculated portion, and the recipe it comes from now appear as a small line underneath — only when the wording actually differs, so most lines stay unchanged.
+
+---
+
 ## [2.1] — 2026-07-31
 
 ### Changed

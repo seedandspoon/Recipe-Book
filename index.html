@@ -288,6 +288,7 @@ p.txt{margin:0; font-size:15px; line-height:1.62}
 li.done .tagali{opacity:.5}
 .qte{font-size:13px; color:var(--accent-d); font-weight:600; margin-left:6px; white-space:nowrap}
 .src{display:block; font-size:11.5px; color:var(--muted); margin-top:2px}
+.src-detail{display:block; font-size:11px; color:var(--muted); margin-top:1px; padding-left:9px; opacity:.85}
 ul.ing li .mini{width:30px; height:30px; font-size:13px; margin-top:-2px}
 
 /* ---------- éditeur d'aliments ---------- */
@@ -680,22 +681,36 @@ function construireCourses(){
           parts: {},
           sansQte: 0,
           alg: false,
-          recettes: []
+          recettes: [],
+          details: []   // occurrences où le libellé de la recette diffère de l'aliment agrégé
         };
       }
       const L = lignes[cle];
       if(L.recettes.indexOf(r.nom) < 0) L.recettes.push(r.nom);
       if(ing.alg) L.alg = true;
 
+      let qteAff = "";
       if(p.qte !== null && p.unite){
         const f = p.unite.fam;
         if(!L.parts[f]) L.parts[f] = {qte:0, aff:p.unite.aff};
         L.parts[f].qte += p.qte * p.unite.vers * echelle;
+        qteAff = formatUneQte(p.qte * p.unite.vers * echelle, p.unite.aff, false);
       }else if(p.qte !== null){
         if(!L.parts["piece"]) L.parts["piece"] = {qte:0, aff:""};
         L.parts["piece"].qte += p.qte * echelle;
+        qteAff = formatUneQte(p.qte * echelle, "", true);
       }else{
         L.sansQte++;
+      }
+
+      // détail seulement si le nom tapé dans la recette (« midi cucumber ») ne
+      // correspond pas mot pour mot à l'aliment sous lequel on regroupe (« cucumber » /
+      // « concombre ») — sans aliment reconnu, la clé regroupe déjà par nom normalisé
+      // identique, donc il n'y a jamais rien de plus précis à montrer.
+      const norm = normAli(p.nom);
+      const correspond = ali ? (norm === normAli(ali.en) || norm === normAli(ali.fr)) : true;
+      if(!correspond && p.nom){
+        L.details.push({texte: p.nom, qte: qteAff, recette: r.nom});
       }
     });
   });
@@ -705,7 +720,7 @@ function construireCourses(){
     const p = parseIngredient(a.txt);
     const cle = "m:" + i;
     lignes[cle] = {cle:cle, nom:a.txt, ali:null, rayon:a.rayon || rayonDe(p.nom, null),
-                   parts:{}, sansQte:0, alg:false, recettes:[], manuel:true};
+                   parts:{}, sansQte:0, alg:false, recettes:[], details:[], manuel:true};
   });
 
   // regroupement par rayon, dans l'ordre du magasin
@@ -720,18 +735,22 @@ function construireCourses(){
   }));
 }
 
-/* « 1,5 kg » plutôt que « 1500 g » */
+/* « 1,5 kg » plutôt que « 1500 g » — partagé entre le total agrégé et le détail par recette */
+function formatUneQte(qte, aff, piece){
+  let q = qte;
+  if(aff === "g" && q >= 1000){ q = q / 1000; aff = "kg"; }
+  else if(aff === "ml" && q >= 1000){ q = q / 1000; aff = "l"; }
+  // un ingrédient compté à la pièce ne s'achète pas en fraction : la mise à
+  // l'échelle par portions peut produire « 4.5 œufs », qu'on arrondit au-dessus
+  q = piece ? Math.ceil(q - 1e-9) : Math.round(q * 100) / 100;
+  return aff ? (q + " " + aff) : String(q);
+}
+
 function afficheQte(L){
   const bouts = [];
   Object.keys(L.parts).forEach(f => {
     const p = L.parts[f];
-    let q = p.qte, aff = p.aff;
-    if(aff === "g" && q >= 1000){ q = q / 1000; aff = "kg"; }
-    else if(aff === "ml" && q >= 1000){ q = q / 1000; aff = "l"; }
-    // un ingrédient compté à la pièce ne s'achète pas en fraction : la mise à
-    // l'échelle par portions peut produire « 4.5 œufs », qu'on arrondit au-dessus
-    q = (f === "piece") ? Math.ceil(q - 1e-9) : Math.round(q * 100) / 100;
-    bouts.push(aff ? (q + " " + aff) : String(q));
+    bouts.push(formatUneQte(p.qte, p.aff, f === "piece"));
   });
   if(!bouts.length && L.sansQte) return L.sansQte > 1 ? "×" + L.sansQte : "";
   if(L.sansQte) bouts.push("+ " + L.sansQte + " sans quantité");
@@ -739,7 +758,7 @@ function afficheQte(L){
 }
 
 const KEY = "base-recettes-v1";
-const APP_VERSION = "2.1";   // affichée dans l'onglet Safari : permet de vérifier qu'on lit bien le fichier à jour
+const APP_VERSION = "2.2";   // affichée dans l'onglet Safari : permet de vérifier qu'on lit bien le fichier à jour
 
 /* =========================================================
    2. ÉTAT + PERSISTANCE
@@ -1289,6 +1308,9 @@ function viewCourses(){
           (L.ali && L.ali.pest === "D" ? '<span class="tagali bio">bio</span>' : "") +
           (L.alg ? '<span class="alg" style="margin-left:6px">allergène</span>' : "") +
           (L.recettes.length ? '<span class="src">' + esc(L.recettes.join(" · ")) + '</span>' : "") +
+          (L.details && L.details.length ? L.details.map(d =>
+            '<span class="src-detail">' + esc(d.texte) + (d.qte ? " · " + esc(d.qte) : "") + " — " + esc(d.recette) + '</span>'
+          ).join("") : "") +
           '</span>' +
           '<button class="mini" data-rayon="' + esc(L.cle) + '" title="Changer de rayon">⇄</button>' +
           '<button class="mini" data-delcourse="' + esc(L.cle) + '" title="Retirer">✕</button>' +
