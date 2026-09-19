@@ -1084,10 +1084,10 @@ function carte(r, opts){
     '<div class="card-body">' +
       '<div class="card-title">' + esc(r.nom) + '</div>' +
       (r.note ? '<div class="stars">' + stars(r.note) + '</div>' : "") +
-      (meta.length ? '<div class="card-meta">' + meta.map(m => "<span>" + m + "</span>").join("") + '</div>' : "") +
       (db.fc.actif && db.phaseActuelle && scorePhase(r, db.phaseActuelle)
         ? '<div class="fit">' + PHASES_BASE[db.phaseActuelle].emo + ' ' + scorePhase(r, db.phaseActuelle) + ' ingrédient' +
           (scorePhase(r, db.phaseActuelle) > 1 ? "s" : "") + ' de ta phase</div>' : "") +
+      (meta.length ? '<div class="card-meta">' + meta.map(m => "<span>" + m + "</span>").join("") + '</div>' : "") +
       (opts.footer || "") +
     '</div>' +
   '</article>';
