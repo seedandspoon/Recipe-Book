@@ -1070,8 +1070,9 @@ function carte(r, opts){
   opts = opts || {};
   const meta = [];
   if(total(r)) meta.push("⏱ " + fmtMin(total(r)));
-  if(r.portions && !opts.hidePortions) meta.push("👥 " + r.portions);
   if(r.diff) meta.push(esc(r.diff));
+  if(r.kcal) meta.push("🔥 " + r.kcal + " kcal");
+  if(r.prot) meta.push("🥩 " + r.prot + " g");
   const img = r.image
     ? '<img src="' + esc(r.image) + '" alt="" loading="lazy">'
     : (MEAL_EMO[r.meal] || "🍳");
@@ -1097,8 +1098,7 @@ function grille(list){
   return '<div class="grid">' + list.map(carte).join("") + '</div>';
 }
 
-/* carte + réglage du nombre de personnes pour cette semaine (page « Cette semaine » uniquement) :
-   remplace le badge portions générique de la carte plutôt que de le doubler */
+/* carte + réglage du nombre de personnes pour cette semaine (page « Cette semaine » uniquement) */
 function carteAvecPortions(r){
   const val = r.semainePortions || r.portions || 4;
   const footer = '<div class="portions-row">' +
@@ -1109,7 +1109,7 @@ function carteAvecPortions(r){
         '<button type="button" data-portions-plus="' + r.id + '" title="Plus">+</button>' +
       '</div>' +
     '</div>';
-  return carte(r, {footer: footer, hidePortions: true});
+  return carte(r, {footer: footer});
 }
 
 function viewGalerie(){
