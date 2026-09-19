@@ -602,7 +602,7 @@ function lireNombre(s){
   if(m) return +m[1] + (+m[2]) / (+m[3]);
   m = s.match(/^(\d+)\/(\d+)$/);                     // 3/4
   if(m) return (+m[1]) / (+m[2]);
-  m = s.match(/^(\d+(?:\.\d+)?)$/);
+  m = s.match(/^(\d*\.\d+|\d+)$/);
   return m ? +m[1] : null;
 }
 
@@ -616,7 +616,7 @@ function parseIngredient(ligne){
   if(par){ res.note = par[1].trim(); t = t.slice(0, par.index).trim(); }
 
   // 1. quantité en tête
-  const m = t.match(/^(\d+(?:[.,]\d+)?\s+\d+\/\d+|\d+\/\d+|\d+(?:[.,]\d+)?|[½¼¾⅓⅔])\s*(.*)$/);
+  const m = t.match(/^((?:\d*[.,]\d+|\d+)\s+\d+\/\d+|\d+\/\d+|\d*[.,]\d+|\d+|[½¼¾⅓⅔])\s*(.*)$/);
   if(!m){ res.nom = nettoyerNom(t) || t; return res; }
   const q = lireNombre(m[1]);
   if(q === null){ res.nom = nettoyerNom(t) || t; return res; }
@@ -1148,7 +1148,7 @@ function viewSemaine(){
   '</div>';
   if(!list.length){
     return html + '<div class="empty"><span class="big">🛒</span>Aucune recette sélectionnée.<br>' +
-      'Appuie sur <b>＋</b> en haut d\'une vignette pour l\'ajouter ici.</div>';
+      'Appuie sur <b>＋</b> en haut d\'une recette pour l\'ajouter ici.</div>';
   }
   html += '<div class="grid">' + list.map(carteAvecPortions).join("") + '</div>';
   const n = construireCourses().reduce((t, g) => t + g.lignes.length, 0);
@@ -1286,8 +1286,8 @@ function viewCourses(){
   '</div>';
 
   if(!nLignes){
-    return html + '<div class="empty"><span class="big">🛒</span>Aucune recette cochée « cette semaine ».<br>' +
-      'Appuie sur <b>＋</b> en haut d\'une vignette pour commencer.</div>';
+    return html + '<div class="empty"><span class="big">🛒</span>Aucune recette sélectionnée.<br>' +
+      'Appuie sur <b>＋</b> en haut d\'une recette pour l\'ajouter ici.</div>';
   }
 
   html += '<div class="fbar" style="margin-bottom:6px">' +
@@ -2505,6 +2505,10 @@ function bind(){
 
 function onAppClick(e){
   const t = e.target;
+
+  // bouton de navigation vers un onglet (ex. « Ouvrir » la liste de courses)
+  const nav = t.closest("[data-tab]");
+  if(nav){ go(nav.dataset.tab); return; }
 
   // vignette semaine
   const w = t.closest("[data-week]");
