@@ -1953,22 +1953,36 @@ function ldNombre(x){
   return m ? parseFloat(m[0]) : 0;
 }
 
-/* cherche récursivement un objet @type Recipe (gère tableaux et @graph) */
-function ldTrouverRecette(node, prof){
-  prof = prof || 0;
-  if(!node || prof > 8) return null;
-  if(Array.isArray(node)){
-    for(const n of node){ const r = ldTrouverRecette(n, prof+1); if(r) return r; }
-    return null;
+function ldNormUrl(u){ return String(u || "").replace(/[?#].*$/, "").replace(/\/+$/, "").toLowerCase(); }
+function ldUrlNode(n){
+  if(!n) return "";
+  if(typeof n.url === "string") return n.url;
+  const id = n["@id"];
+  return id ? String(id).split("#")[0] : "";
+}
+
+/* cherche récursivement TOUS les objets @type Recipe (gère tableaux et @graph) —
+   une page peut en exposer plusieurs (widgets "recettes associées") — puis
+   renvoie celui dont l'url/@id correspond à la page réellement visitée quand
+   on la connaît ; sinon le premier trouvé, comme avant */
+function ldTrouverRecette(node, urlPage){
+  const trouves = [];
+  (function w(n, prof){
+    if(!n || prof > 8) return;
+    if(Array.isArray(n)){ n.forEach(x => w(x, prof + 1)); return; }
+    if(typeof n !== "object") return;
+    const t = n["@type"];
+    if(t && (t === "Recipe" || (Array.isArray(t) && t.indexOf("Recipe") >= 0))){ trouves.push(n); return; }
+    if(n["@graph"]) w(n["@graph"], prof + 1);
+    ["mainEntity","mainEntityOfPage","itemListElement","hasPart"].forEach(k => { if(n[k]) w(n[k], prof + 1); });
+  })(node, 0);
+  if(!trouves.length) return null;
+  if(urlPage){
+    const pu = ldNormUrl(urlPage);
+    const meilleur = trouves.find(r => ldNormUrl(ldUrlNode(r)) === pu);
+    if(meilleur) return meilleur;
   }
-  if(typeof node !== "object") return null;
-  const t = node["@type"];
-  if(t && (t === "Recipe" || (Array.isArray(t) && t.indexOf("Recipe") >= 0))) return node;
-  if(node["@graph"]) return ldTrouverRecette(node["@graph"], prof+1);
-  for(const k of ["mainEntity","mainEntityOfPage","itemListElement","hasPart"]){
-    if(node[k]){ const r = ldTrouverRecette(node[k], prof+1); if(r) return r; }
-  }
-  return null;
+  return trouves[0];
 }
 
 /* objet Recipe (ou payload du bookmarklet) → brouillon de formulaire */
@@ -2124,14 +2138,14 @@ function payloadVersDraft(o){
   state.etapesReparees = 0;
 
   if(o && o.ld){
-    const rec = ldTrouverRecette(o.ld) || o.ld;
+    const rec = ldTrouverRecette(o.ld, o.url) || o.ld;
     const d = ldVersDraft(rec, o.url || "");
     if((!d.nom || d.nom === "Sans titre") && o.titre){
       d.nom = String(o.titre).split(/\s+[|·—–-]\s+/)[0].trim();
     }
     return fusionner(d);
   }
-  const rec = ldTrouverRecette(o);
+  const rec = ldTrouverRecette(o, o.url);
   if(rec) return fusionner(ldVersDraft(rec, o.url || ""));
 
   // payload d'un ancien bookmarklet : étapes déjà (mal) découpées → on rattrape
@@ -2222,13 +2236,17 @@ function nettoyerHash(){
    Il ne fait qu'une chose : trouver le bloc schema.org/Recipe de la page et le
    transmettre TEL QUEL. Toute l'interprétation se fait dans l'app, pour ne plus
    jamais avoir à remplacer le bouton dans la barre de favoris. */
-const BM_VERSION = 2;
+const BM_VERSION = 3;
 const BM_TROUVE = [
-"var R=null;",
-"function W(n,p){if(!n||R||p>8)return;",
+// on ramasse TOUTES les fiches Recipe de la page (certains sites en exposent
+// aussi pour les recettes « associées » d'un widget) — sans choisir : c'est
+// l'app qui décidera laquelle correspond à la page, donc ce bouton n'a pas
+// besoin d'être remplacé si cette logique de tri évolue plus tard.
+"var R=[];",
+"function W(n,p){if(!n||p>8)return;",
 "if(n instanceof Array){for(var i=0;i<n.length;i++)W(n[i],p+1);return}",
 "if(typeof n!=='object')return;var t=n['@type'];",
-"if(t&&(t==='Recipe'||(t instanceof Array&&t.indexOf('Recipe')>=0))){R=n;return}",
+"if(t&&(t==='Recipe'||(t instanceof Array&&t.indexOf('Recipe')>=0))){R.push(n);return}",
 "if(n['@graph'])W(n['@graph'],p+1);",
 "var k=['mainEntity','mainEntityOfPage','itemListElement','hasPart'];",
 "for(var j=0;j<k.length;j++)if(n[k[j]])W(n[k[j]],p+1);}",
@@ -2245,7 +2263,7 @@ const BM_TROUVE = [
 
 const BM_BODY = [
 BM_TROUVE,
-"if(!R){alert('Aucune donnée de recette (JSON-LD) sur cette page. Copie le texte de la recette et utilise l\\'onglet Coller du texte.');return}",
+"if(!R.length){alert('Aucune donnée de recette (JSON-LD) sur cette page. Copie le texte de la recette et utilise l\\'onglet Coller du texte.');return}",
 "var s=JSON.stringify({v:2,url:location.href,titre:document.title,ld:C(R,0)});",
 "var u=APP+'#import='+encodeURIComponent(s);",
 "function fin(){if(/^https?:/.test(APP)){window.open(u,'_blank')}",
@@ -2261,7 +2279,7 @@ function bookmarkletSrc(){
 
 const IOS_JS = [
 BM_TROUVE,
-"if(!R){var B=document.body;var TX=(B&&(B.innerText||B.textContent))||'';",
+"if(!R.length){var B=document.body;var TX=(B&&(B.innerText||B.textContent))||'';",
 "completion(JSON.stringify({v:2,url:location.href,nom:document.title,texte:TX.slice(0,8000)}))}",
 "else{completion(JSON.stringify({v:2,url:location.href,titre:document.title,ld:C(R,0)}))}"
 ].join("");
