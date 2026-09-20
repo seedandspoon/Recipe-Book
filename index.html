@@ -927,23 +927,55 @@ function chipsHTML(group, options, selected, extra){
     ).join("") + (extra || "") + '</div>';
 }
 
-/* lecture + compression d'une image */
-function readImage(file, cb){
-  const fr = new FileReader();
-  fr.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      const max = 700;
-      const s = Math.min(1, max / Math.max(img.width, img.height));
-      const c = document.createElement("canvas");
-      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+/* redimensionne (max 700px) + compresse une image déjà chargée en data:/blob: URL */
+function versDataURL(src, cb){
+  const img = new Image();
+  img.onload = () => {
+    const max = 700;
+    const s = Math.min(1, max / Math.max(img.width, img.height));
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+    try{
       c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
       cb(c.toDataURL("image/jpeg", 0.72));
-    };
-    img.onerror = () => toast("Image illisible");
-    img.src = e.target.result;
+    }catch(e){ cb(null); }   // canvas souillé (image cross-origin sans en-tête CORS)
   };
+  img.onerror = () => cb(null);
+  img.src = src;
+}
+
+/* lecture + compression d'une image choisie par l'utilisateur */
+function readImage(file, cb){
+  const fr = new FileReader();
+  fr.onload = e => versDataURL(e.target.result, data => { if(data) cb(data); else toast("Image illisible"); });
   fr.readAsDataURL(file);
+}
+
+/* télécharge la photo d'une recette importée et la fige en base64 : si le site
+   source disparaît ou change son URL d'image plus tard, la photo reste. Best-effort —
+   beaucoup de sites bloquent le téléchargement cross-origin ; dans ce cas cb(null)
+   et on garde simplement le lien externe comme avant. */
+function securiserImage(url, cb){
+  if(!/^https?:/i.test(url || "")){ cb(null); return; }
+  fetch(url).then(r => { if(!r.ok) throw 0; return r.blob(); })
+    .then(blob => {
+      const fr = new FileReader();
+      fr.onload = e => versDataURL(e.target.result, cb);
+      fr.onerror = () => cb(null);
+      fr.readAsDataURL(blob);
+    })
+    .catch(() => cb(null));
+}
+
+/* tente de sécuriser la photo d'un brouillon (import ou édition) ; n'écrase rien
+   si le brouillon a changé entretemps ou si le téléchargement a échoué */
+function securiserPhotoDraft(d){
+  if(!/^https?:/i.test(d.image || "")) return;
+  const urlOrigine = d.image;
+  securiserImage(urlOrigine, data => {
+    if(state.formDraft !== d || d.image !== urlOrigine) return;
+    if(data){ d.image = data; toast("Photo mise à l'abri ✓"); render(); }
+  });
 }
 
 /* =========================================================
@@ -1627,7 +1659,10 @@ function viewForm(){
           (d.image ? '<img src="' + esc(d.image) + '" alt="">' : "🍳") + '</div>' +
         '<div style="flex:1"><input type="file" id="in-img" accept="image/*">' +
         (d.image ? '<button class="btn sm ghost" id="rm-img" style="margin-top:7px">Retirer la photo</button>' : "") +
-        '</div></div></div>' +
+        (/^https?:/i.test(d.image || "") ? '<button class="btn sm ghost" id="secure-img" style="margin-top:7px">🔒 Sécuriser cette photo</button>' : "") +
+        '</div></div>' +
+        (/^https?:/i.test(d.image || "") ? '<p class="hint" style="margin:6px 0 0">Cette photo est encore liée au site source — si le site disparaît, elle disparaît avec. Clique pour la copier définitivement ici.</p>' : "") +
+        '</div>' +
   '</div>';
 
   html += '<div class="panel">' +
@@ -2446,6 +2481,7 @@ function appliquerImport(txt){
   toast(state.majExistante ? "Recette déjà connue — prête à être mise à jour"
                            : "Recette pré-remplie — vérifie puis enregistre");
   render();
+  securiserPhotoDraft(d);
 }
 
 function copier(txt, msg){
@@ -2636,6 +2672,11 @@ function onAppClick(e){
       return;
     }
     case "rm-img": syncDraft(); state.formDraft.image = ""; render(); return;
+    case "secure-img":
+      syncDraft();
+      toast("Sécurisation de la photo…");
+      securiserPhotoDraft(state.formDraft);
+      return;
     case "do-parse":     appliquerImport($("#paste-src").value); return;
     case "do-webimport": appliquerImport($("#web-src").value); return;
     case "copy-bm":      copier(bookmarkletSrc(), "Bookmarklet copié ✓"); return;
