@@ -682,6 +682,10 @@ body.immersif.a-minuteurs .toast{bottom:calc(env(safe-area-inset-bottom) + 146px
 details.grp{border-top:none; padding:0}
 details.grp > summary{font-size:15px; color:var(--ink); font-weight:680}
 details.grp[open] > summary{margin-bottom:14px}
+.alerte-save{position:sticky; top:0; z-index:45; background:var(--danger-soft); color:var(--danger); border-bottom:1px solid var(--danger-line);
+  padding:calc(10px + env(safe-area-inset-top)) 16px 10px; font-size:14px; line-height:1.45; text-align:center}
+.alerte-save[hidden]{display:none}
+.alerte-save .btn{margin-left:6px}
 .toast-act{border:none; background:none; color:var(--accent); font-weight:700; margin-left:12px; cursor:pointer; padding:0; font-size:14px}
 .toast.act{pointer-events:auto}
 </style>
@@ -699,6 +703,7 @@ details.grp[open] > summary{margin-bottom:14px}
   </div>
 </header>
 
+<div class="alerte-save" id="alerte-save" hidden>⚠️ <b>Mémoire du navigateur pleine</b> : tes dernières modifications ne sont pas enregistrées. <button type="button" class="btn sm" id="alerte-export">⇩ Exporter une sauvegarde</button></div>
 <main class="wrap" id="app"></main>
 
 <nav class="tabbar" id="tabbar" aria-label="Navigation"></nav>
@@ -1206,6 +1211,7 @@ let db = {
   plan: [],              // repas planifiés : {id, rid, sem (lundi ISO), jour (0-6, -1 = sans jour), portions, fait}
   courses: {},           // par semaine : {coches:{}, ajouts:[{id, txt, rayon}], retires:[]}
   placard: [],           // clés d'articles que j'ai toujours chez moi : rangés à part dans la liste
+  placardNoms: {},       // clé → nom lisible, pour les afficher dans ⚙ Réglages
   prefs: { portions: 0, theme: "auto" }   // portions : 0 = celles de la recette
 };
 
@@ -1239,22 +1245,34 @@ let state = {
   erreurImport: ""       // message précis quand un collage n'est pas exploitable
 };
 
+let saveEchoue = false;
 function save(){
   try{
     localStorage.setItem(KEY, JSON.stringify(db));
+    if(saveEchoue){ saveEchoue = false; majAlerteSave(); }
     return true;
   }catch(e){
-    toast("⚠️ Sauvegarde impossible (mémoire pleine ?)");
+    // un toast passe trop vite : un bandeau reste tant que rien n'est enregistré
+    saveEchoue = true; majAlerteSave();
+    toast("⚠️ Pas enregistré : la mémoire du navigateur est pleine");
     return false;
   }
+}
+function majAlerteSave(){ const b = document.getElementById("alerte-save"); if(b) b.hidden = !saveEchoue; }
+
+/* un identifiant finit dans des attributs HTML : on n'accepte que des caractères sans danger */
+function idSur(id){
+  const s = String(id == null ? "" : id);
+  return /^[\w.:-]{1,80}$/.test(s) ? s : uid();
 }
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
     if(!raw) return;
     const parsed = JSON.parse(raw);
-    const brutes = Array.isArray(parsed.recettes) ? parsed.recettes : [];
-    db.recettes   = brutes.map(normalize);
+    const brutes = (Array.isArray(parsed.recettes) ? parsed.recettes : []).filter(b => b && typeof b === "object");
+    const remap = {};   // identifiants refusés par idSur → leur remplaçant, pour ne pas perdre le planning
+    db.recettes   = brutes.map(b => { const r = normalize(b); if(b.id != null && String(b.id) !== r.id) remap[b.id] = r.id; return r; });
     db.cuisines   = Array.isArray(parsed.cuisines) && parsed.cuisines.length ? parsed.cuisines : CUISINES_DEF.slice();
     db.tags       = Array.isArray(parsed.tags) && parsed.tags.length ? parsed.tags : TAGS_DEF.slice();
     // les tags déjà utilisés dans les recettes rejoignent la liste
@@ -1276,9 +1294,11 @@ function load(){
     }
     db.synonymes      = parsed.synonymes || {};
     db.rayons         = parsed.rayons || {};
-    db.plan    = Array.isArray(parsed.plan) ? parsed.plan.map(normEntree).filter(Boolean) : [];
+    db.plan    = Array.isArray(parsed.plan) ? parsed.plan
+      .map(e => (e && remap[e.rid]) ? Object.assign({}, e, {rid: remap[e.rid]}) : e).map(normEntree).filter(Boolean) : [];
     db.courses = (parsed.courses && typeof parsed.courses === "object" && !Array.isArray(parsed.courses)) ? parsed.courses : {};
     db.placard = arr(parsed.placard);
+    db.placardNoms = (parsed.placardNoms && typeof parsed.placardNoms === "object") ? parsed.placardNoms : {};
     db.prefs   = Object.assign({portions:0, theme:"auto"}, parsed.prefs || {});
 
     // reprise de la v2 : « cette semaine » était un drapeau posé sur chaque recette,
@@ -1308,6 +1328,7 @@ function load(){
       save();
     }else{
       elaguer();
+      if(Object.keys(remap).length) save();
     }
   }catch(e){ console.warn("Lecture impossible", e); }
 }
@@ -1316,7 +1337,7 @@ function load(){
 function normEntree(e){
   if(!e || !e.rid || !/^\d{4}-\d{2}-\d{2}$/.test(String(e.sem || ""))) return null;
   const j = parseInt(e.jour, 10);
-  return {id: e.id || uid(), rid: String(e.rid), sem: lundiDe(dateDe(e.sem)),
+  return {id: idSur(e.id), rid: String(e.rid), sem: lundiDe(dateDe(e.sem)),
           jour: (j >= 0 && j <= 6) ? j : -1, portions: num(e.portions), fait: !!e.fait};
 }
 
@@ -1334,7 +1355,7 @@ function urlSure(u){ return /^https?:\/\//i.test(String(u||"").trim()) ? String(
 
 function normalize(r){
   return {
-    id: r.id || uid(),
+    id: idSur(r.id),
     nom: r.nom || "Sans titre",
     url: urlSure(r.url),
     description: r.description || "",
@@ -2407,6 +2428,7 @@ function trouverLigneCourses(cle, sem){
 }
 
 function libellePlacard(cle){
+  if(db.placardNoms[cle]) return db.placardNoms[cle];
   if(cle.indexOf("a:") === 0){
     const a = ALIMENTS.find(x => x.en === cle.slice(2));
     return a ? (a.fr || a.en) : cle.slice(2);
@@ -2936,7 +2958,8 @@ function saveRecette(){
     db.recettes.push(normalize(Object.assign({}, d, {cree:Date.now(), maj:Date.now()})));
     if(d.semaine && !estPlanifiee(getRecette(d.id))) planifier(d.id, semaineCourante(), -1);
   }
-  if(save()) toast("Recette enregistrée ✓");
+  if(!save()) return;   // le bandeau explique ; on reste sur le formulaire
+  toast("Recette enregistrée ✓");
   const id = d.id;
   state.formDraft = null;
   // modifiée depuis sa fiche : on y revient plutôt que d'empiler une seconde fiche
@@ -3418,19 +3441,42 @@ function fcImport(texte){
     toast("Ce fichier ne contient pas de données Food Cycling");
     return false;
   }
-  // les phases inconnues sont ignorées plutôt que d'introduire des libellés fantômes
-  const phases = {};
-  CYCLES.forEach(c => { if(p.phases && p.phases[c]) phases[c] = p.phases[c]; });
-
-  const assoc = {};
-  Object.keys(p.assoc || {}).forEach(k => {
-    const liste = arr(p.assoc[k]).filter(x => CYCLES.indexOf(x) >= 0);
-    if(liste.length) assoc[k] = liste;
+  const avant = JSON.stringify({fc: db.fc, perso: db.aliments.perso});
+  const n = fusionnerFC(p);
+  db.fc.actif = true;
+  construireAliments();
+  if(!save()) return true;
+  toast(n + " rattachement" + (n>1?"s":"") + " ajouté" + (n>1?"s":"") + " à tes associations · Food Cycling activé ✓", () => {
+    const a = JSON.parse(avant);
+    db.fc = a.fc; db.aliments.perso = a.perso;
+    construireAliments(); save(); render();
   });
+  return true;
+}
 
+/* ajoute un fichier Food Cycling à ce que j'ai déjà : rien de ce que j'ai saisi n'est écrasé.
+   Renvoie le nombre de rattachements (aliment, phase) nouveaux. */
+function fusionnerFC(p){
+  let n = 0;
+  // notes des phases : un champ que j'ai rempli garde ma version
+  CYCLES.forEach(c => {
+    const src = p.phases && p.phases[c];
+    if(!src || typeof src !== "object") return;
+    const loc = db.fc.phases[c] = Object.assign({}, db.fc.phases[c]);
+    Object.keys(src).forEach(k => { if(!loc[k] && src[k]) loc[k] = String(src[k]); });
+  });
+  // les phases inconnues sont ignorées plutôt que d'introduire des libellés fantômes
+  const rattacher = (en, phases) => {
+    arr(phases).filter(x => CYCLES.indexOf(x) >= 0).forEach(ph => {
+      const l = db.fc.assoc[en] = db.fc.assoc[en] || [];
+      if(l.indexOf(ph) < 0){ l.push(ph); n++; }
+    });
+  };
+  Object.keys(p.assoc || {}).forEach(k => rattacher(k, p.assoc[k]));
   // aliments personnalisés du fichier : rejoignent mon catalogue directement,
   // plutôt qu'une couche à part que rien ne relit (voir construireAliments)
   (Array.isArray(p.aliments) ? p.aliments : []).forEach(a => {
+    if(!a || typeof a !== "object") return;
     const en = String(a.en || a.fr || "").trim();
     if(!en) return;
     const connu = db.aliments.perso.find(x => normLibelle(x.en) === normLibelle(en)) ||
@@ -3443,16 +3489,9 @@ function fcImport(texte){
         pest: (a.pest === "D" || a.pest === "C") ? a.pest : ""
       });
     }
-    const ph = arr(a.phases).filter(x => CYCLES.indexOf(x) >= 0);
-    if(ph.length) assoc[en] = ph;
+    rattacher(en, a.phases);
   });
-
-  db.fc = {actif: true, phases: phases, assoc: assoc};
-  construireAliments();
-  save();
-  const n = Object.keys(assoc).length;
-  toast(n + " aliment" + (n>1?"s":"") + " rattaché" + (n>1?"s":"") + " · Food Cycling activé ✓");
-  return true;
+  return n;
 }
 
 /* ---------- export / import ---------- */
@@ -3472,22 +3511,38 @@ function importJSON(text, remplacer){
   let p;
   try{ p = JSON.parse(text); }
   catch(e){ toast("JSON invalide"); return; }
-  const list = Array.isArray(p) ? p : (Array.isArray(p.recettes) ? p.recettes : null);
+  const list = Array.isArray(p) ? p : (p && Array.isArray(p.recettes) ? p.recettes : null);
   if(!list){ toast("Aucune recette trouvée dans ce fichier"); return; }
+  const brutes = list.filter(b => b && typeof b === "object" && !Array.isArray(b));
+  if(list.length && !brutes.length){ toast("Aucune recette lisible dans ce fichier"); return; }
 
   if(remplacer) db.recettes = [];
-  const existants = {};
-  db.recettes.forEach(r => existants[r.id] = true);
   const clef = u => String(u || "").replace(/[?#].*$/, "").replace(/\/+$/, "").toLowerCase();
+  const memeNom = (a, b) => normLibelle(a.nom) === normLibelle(b.nom);
   const idsFichier = {};   // id dans le fichier → id dans ma base, pour raccrocher le planning
   const sem = semaineCourante();
   let n = 0, maj = 0, planif = 0;
-  list.forEach(brute => {
+  brutes.forEach(brute => {
     const rec = normalize(brute);
-    const idFichier = rec.id;
+    // ma propre sauvegarde (même identifiant, même recette) : la version la plus récente gagne,
+    // et réimporter deux fois le même fichier ne crée jamais de doublon
+    const j = db.recettes.findIndex(x => x.id === rec.id &&
+      (memeNom(x, rec) || x.cree === rec.cree || (x.url && clef(x.url) === clef(rec.url))));
     // même URL déjà en base → mise à jour plutôt que doublon
-    const i = rec.url ? db.recettes.findIndex(x => x.url && clef(x.url) === clef(rec.url)) : -1;
-    if(i >= 0){
+    const i = j >= 0 ? -1 : rec.url ? db.recettes.findIndex(x => x.url && clef(x.url) === clef(rec.url)) : -1;
+    if(j >= 0){
+      const anc = db.recettes[j];
+      const neuf = (rec.maj || 0) >= (anc.maj || 0) ? rec : anc, vieux = neuf === rec ? anc : rec;
+      const r = Object.assign({}, neuf, {id: anc.id});
+      r.note = neuf.note || vieux.note;
+      r.tags = Array.from(new Set(neuf.tags.concat(vieux.tags)));
+      r.cuisines = Array.from(new Set(neuf.cuisines.concat(vieux.cuisines)));
+      r.notesPerso = neuf.notesPerso || vieux.notesPerso;
+      r.cuisinee = Math.max(rec.cuisinee, anc.cuisinee);
+      r.derniereFois = Math.max(rec.derniereFois, anc.derniereFois);
+      db.recettes[j] = r; maj++;
+      rec.id = anc.id;
+    }else if(i >= 0){
       const anc = db.recettes[i];
       rec.id = anc.id;
       rec.note = rec.note || anc.note;
@@ -3500,10 +3555,10 @@ function importJSON(text, remplacer){
       rec.derniereFois = Math.max(rec.derniereFois, anc.derniereFois);
       db.recettes[i] = rec; maj++;
     }else{
-      if(existants[rec.id]) rec.id = uid();
-      db.recettes.push(rec); existants[rec.id] = true; n++;
+      if(getRecette(rec.id)) rec.id = uid();
+      db.recettes.push(rec); n++;
     }
-    idsFichier[idFichier] = rec.id;
+    if(brute.id != null) idsFichier[brute.id] = rec.id;
     // sauvegarde d'avant la v3 : « cette semaine » était un drapeau sur la recette
     if(brute && brute.semaine && !estPlanifiee(rec, sem)){
       db.plan.push({id: uid(), rid: rec.id, sem: sem, jour: -1,
@@ -3514,6 +3569,7 @@ function importJSON(text, remplacer){
   if(!Array.isArray(p)){
     if(Array.isArray(p.cuisines) && p.cuisines.length) db.cuisines = Array.from(new Set(db.cuisines.concat(p.cuisines)));
     if(p.cycleNotes) CYCLES.forEach(c => { if(p.cycleNotes[c]) db.cycleNotes[c] = p.cycleNotes[c]; });
+    restaurerReglages(p);
     // planning d'une sauvegarde v3 : seules la semaine en cours et les suivantes voyagent
     if(Array.isArray(p.plan)) p.plan.map(normEntree).filter(Boolean).forEach(e => {
       const rid = idsFichier[e.rid];
@@ -3523,14 +3579,59 @@ function importJSON(text, remplacer){
       db.plan.push(e); planif++;
     });
   }
-  // enrichit la liste des cuisines avec celles trouvées
+  // enrichit les listes de cuisines et de collections avec celles trouvées
   db.recettes.forEach(r => r.cuisines.forEach(c => { if(db.cuisines.indexOf(c) < 0) db.cuisines.push(c); }));
-  save();
+  db.recettes.forEach(r => r.tags.forEach(t => { if(db.tags.indexOf(t) < 0) db.tags.push(t); }));
+  if(!save()){ state.formDraft = null; onglet("galerie"); return; }
   toast((n ? (n + " recette" + (n>1?"s":"") + " importée" + (n>1?"s":"") + (maj ? ", " + maj + " mise" + (maj>1?"s":"") + " à jour" : ""))
            : (maj + " recette" + (maj>1?"s":"") + " mise" + (maj>1?"s":"") + " à jour")) +
         (planif ? " · " + planif + " au planning" : "") + " ✓");
   state.formDraft = null;
   onglet("galerie");
+}
+
+/* sauvegarde complète : tout ce qui n'est pas une recette revient aussi (Mac ↔ iPhone).
+   On complète, on n'écrase jamais ce qui existe déjà ici. */
+function restaurerReglages(p){
+  const objet = x => x && typeof x === "object" && !Array.isArray(x);
+  arr(p.tags).forEach(t => { if(!db.tags.some(x => normLibelle(x) === normLibelle(t))) db.tags.push(t); });
+  if(objet(p.fc)){
+    fusionnerFC(p.fc);
+    if(p.fc.actif) db.fc.actif = true;
+  }
+  if(objet(p.aliments)){
+    fusionnerFC({aliments: Array.isArray(p.aliments.perso) ? p.aliments.perso : []});
+    if(objet(p.aliments.modifs)) Object.keys(p.aliments.modifs).forEach(k => {
+      if(!db.aliments.modifs[k] && objet(p.aliments.modifs[k])) db.aliments.modifs[k] = p.aliments.modifs[k];
+    });
+    arr(p.aliments.masques).forEach(k => { if(db.aliments.masques.indexOf(k) < 0) db.aliments.masques.push(k); });
+  }
+  if(objet(p.synonymes)) Object.keys(p.synonymes).forEach(k => { if(!(k in db.synonymes)) db.synonymes[k] = String(p.synonymes[k]); });
+  if(objet(p.rayons)) Object.keys(p.rayons).forEach(k => {
+    if(!(k in db.rayons) && RAYONS.indexOf(p.rayons[k]) >= 0) db.rayons[k] = p.rayons[k];
+  });
+  arr(p.placard).forEach(k => { if(db.placard.indexOf(k) < 0) db.placard.push(k); });
+  if(objet(p.placardNoms)) Object.keys(p.placardNoms).forEach(k => { if(!db.placardNoms[k]) db.placardNoms[k] = String(p.placardNoms[k]); });
+  if(objet(p.prefs)){
+    if(!db.prefs.portions && num(p.prefs.portions) > 0) db.prefs.portions = num(p.prefs.portions);
+    if((db.prefs.theme || "auto") === "auto" && (p.prefs.theme === "clair" || p.prefs.theme === "sombre")) db.prefs.theme = p.prefs.theme;
+  }
+  if(!db.phaseActuelle && CYCLES.indexOf(p.phaseActuelle) >= 0) db.phaseActuelle = p.phaseActuelle;
+  // listes de courses en cours et à venir, si je n'en ai pas déjà une pour ces semaines
+  const cur = semaineCourante();
+  const listes = objet(p.courses) ? p.courses
+    : (p.coursesCoches || p.coursesAjouts) ? {[cur]: {coches: p.coursesCoches, ajouts: p.coursesAjouts, retires: p.coursesRetires}} : {};
+  Object.keys(listes).forEach(s => {
+    const ici = db.courses[s];
+    const occupee = ici && (Object.keys(ici.coches || {}).length || (ici.ajouts || []).length || (ici.retires || []).length);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(s) || s < cur || occupee || !objet(listes[s])) return;
+    const L = listes[s];
+    db.courses[s] = {coches: objet(L.coches) ? L.coches : {},
+      ajouts: (Array.isArray(L.ajouts) ? L.ajouts : []).filter(objet).map(a => ({id: idSur(a.id), txt: String(a.txt || ""), rayon: RAYONS.indexOf(a.rayon) >= 0 ? a.rayon : ""})).filter(a => a.txt),
+      retires: arr(L.retires)};
+  });
+  construireAliments();
+  appliquerTheme();
 }
 
 /* =========================================================
@@ -3564,7 +3665,7 @@ function viewReglages(){
 
   '<div class="panel"><div class="section-head"><h3>Apparence</h3></div><div class="chips">' +
     [["auto","Automatique"],["clair","☀️ Clair"],["sombre","🌙 Sombre"]].map(([v, l]) =>
-      '<button type="button" class="chip' + ((db.prefs.theme || "auto") === v ? " on" : "") + '" data-theme="' + v + '">' + l + '</button>').join("") +
+      '<button type="button" class="chip' + ((db.prefs.theme || "auto") === v ? " on" : "") + '" data-apparence="' + v + '">' + l + '</button>').join("") +
     '</div><p class="hint">Automatique suit le réglage du téléphone ou du Mac.</p>' +
   '</div>' +
 
@@ -3576,7 +3677,9 @@ function viewReglages(){
       '<label class="btn" style="cursor:pointer">⇪ Importer un fichier' +
         '<input type="file" id="set-import" accept=".json,application/json" style="display:none"></label>' +
     '</div>' +
-    '<p class="hint">L\'import ajoute les recettes à celles déjà présentes.</p>' +
+    '<p class="hint">L\'import complète ta base : une recette déjà présente est mise à jour, jamais dupliquée. ' +
+    'Une sauvegarde complète ramène aussi le planning, Food Cycling, le placard et tes préférences.</p>' +
+    placeUtilisee() +
   '</div>' +
 
   '<div class="panel"><div class="section-head"><h3>Aliments</h3>' +
@@ -3637,6 +3740,17 @@ function viewReglages(){
     '<b>⇧ Maj</b> et en cliquant sur ↻ (ou ⌥⌘R) : Safari garde parfois l\'ancienne version d\'un fichier local en mémoire.</p>' +
   '</div>' +
   '<div style="height:30px"></div>';
+}
+
+/* Safari garde environ 5 Mo par site ; les photos en prennent l'essentiel */
+function placeUtilisee(){
+  const Mo = n => (n * 2 / 1e6).toLocaleString("fr-FR", {maximumFractionDigits: 1}) + " Mo";   // UTF-16 : 2 octets par caractère
+  const tout = JSON.stringify(db).length;
+  const photos = db.recettes.reduce((t, r) => t + (/^data:/.test(r.image) ? r.image.length : 0), 0);
+  const pct = Math.round(100 * tout * 2 / 5e6);
+  return '<p class="hint"' + (pct >= 70 ? ' style="color:var(--danger)"' : '') + '>Espace utilisé : ' + Mo(tout) +
+    (photos ? ' (photos : ' + Mo(photos) + ')' : '') + ' sur environ 5 Mo' +
+    (pct >= 70 ? ' — bientôt plein : exporte une sauvegarde et allège quelques photos.' : '.') + '</p>';
 }
 
 function appliquerTheme(){
@@ -4319,6 +4433,8 @@ function faireAction(a){
     // un article de la liste
     case "ar-placard": {
       const cle = f.cle;
+      const L = trouverLigneCourses(cle, f.sem);
+      if(L) db.placardNoms[cle] = L.nom;
       if(db.placard.indexOf(cle) < 0) db.placard.push(cle);
       save(); fermerFeuille(); render();
       toast("Rangé dans « Mes placards » 🏠", () => { db.placard = db.placard.filter(k => k !== cle); save(); render(); });
@@ -4390,6 +4506,7 @@ function bind(){
     save(); render();
   };
   $("#fab").onclick = () => ouvrirFeuille({type:"nouvelle"});
+  $("#alerte-export").onclick = () => exportJSON();
 
   // un onglet déjà ouvert : on remonte en haut, comme sur iPhone
   $("#tabbar").addEventListener("click", e => {
@@ -4559,15 +4676,15 @@ function onAppClick(e){
   const cy = t.closest("[data-cycle]");
   if(cy){ state.cycle = cy.dataset.cycle; render(); return; }
 
-  // réglages
+  // réglages (pas « data-theme » : <html data-theme> est un ancêtre de tout, closest() le trouverait)
   const pr = t.closest("[data-prefportions]");
   if(pr){
     db.prefs.portions = num(pr.dataset.prefportions); state.portions = {}; save(); render();
     toast(db.prefs.portions ? "Recettes proposées pour " + db.prefs.portions + " ✓" : "Portions de chaque recette ✓");
     return;
   }
-  const th = t.closest("[data-theme]");
-  if(th){ db.prefs.theme = th.dataset.theme; save(); appliquerTheme(); render(); return; }
+  const th = t.closest("[data-apparence]");
+  if(th){ db.prefs.theme = th.dataset.apparence; save(); appliquerTheme(); render(); return; }
   const rp = t.closest("[data-rmplacard]");
   if(rp){ db.placard = db.placard.filter(k => k !== rp.dataset.rmplacard); save(); render(); return; }
 
@@ -4918,7 +5035,7 @@ function onAppInput(e){
   if(t.id === "f-temps"){ state.filters.tempsMax = num(t.value); clearTimeout(notesT); notesT = setTimeout(render, 400); return; }
   if(t.id === "cycle-notes"){
     db.cycleNotes[state.cycle] = t.value;
-    clearTimeout(notesT); notesT = setTimeout(() => { save(); const s = $("#notes-state"); if(s) s.textContent = "Enregistré ✓"; }, 600);
+    clearTimeout(notesT); notesT = setTimeout(() => { const ok = save(); const s = $("#notes-state"); if(s) s.textContent = ok ? "Enregistré ✓" : "⚠️ Non enregistré (mémoire pleine)"; }, 600);
     return;
   }
   if(t.id === "notes-perso"){
@@ -4926,7 +5043,7 @@ function onAppInput(e){
     if(!r) return;
     r.notesPerso = t.value;
     clearTimeout(notesPersoT);
-    notesPersoT = setTimeout(() => { save(); const s = $("#np-state"); if(s) s.textContent = "Enregistré ✓"; }, 600);
+    notesPersoT = setTimeout(() => { const ok = save(); const s = $("#np-state"); if(s) s.textContent = ok ? "Enregistré ✓" : "⚠️ Non enregistré (mémoire pleine)"; }, 600);
     return;
   }
   if(t.id === "in-prep" || t.id === "in-cuisson"){

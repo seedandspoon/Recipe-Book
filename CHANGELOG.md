@@ -32,6 +32,12 @@ The recipe book becomes a pocket cooking app: find what to cook, plan the week, 
 - **Recipes for my phase** now include the recipes tagged with that phase in their "Cycle" field, not only those whose ingredients are attached to the phase. With Food Cycling on, the home screen opens with "Pour ta phase…" (or a phase picker when none is set, or a short how-to when nothing matches yet); the library gets a "Ma phase" shortcut; cards say "De ta phase"; the Cycle page lists both tagged and ingredient-rich recipes; and auto-fill favours them.
 
 ### Fixed
+- Importing a backup twice, or an old backup into a base that already has those recipes, no longer creates duplicates: a recipe with the same identity is updated (the most recent version wins, cook history and tags are merged).
+- A full backup now restores everything it contains when moved to another device: Food Cycling associations and phase notes, current phase, custom foods and synonyms, aisle corrections, pantry, household size, appearance, unused tags, and the current shopping list — without overwriting anything already set there.
+- Importing a Food Cycling file adds to your own associations and phase notes instead of replacing them, and can be undone.
+- When the browser's storage is full, nothing pretends to be saved anymore: a banner stays until saving works again, with a one-tap export; the recipe form stays open; notes say "Non enregistré". Settings show how much space is used, photos included.
+- Recipe identifiers from imported files are sanitised (a crafted file could inject markup).
+- Malformed import files are rejected cleanly instead of failing silently or creating empty recipes.
 - An aisle chosen for a recognised ingredient (e.g. moving "Oignon" to another aisle) was saved under one key and looked up under another, so it never stuck. It now does.
 
 ---
