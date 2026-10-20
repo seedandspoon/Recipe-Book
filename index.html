@@ -1455,9 +1455,13 @@ const ONGLETS = ["accueil", "galerie", "planning", "courses", "cycle"];
 let pile = [];
 let historique = true;   // pushState disponible ? sinon le retour se fait à la main
 
-function instantane(){ return {view: state.view, ficheId: state.ficheId, cycle: state.cycle, y: window.scrollY}; }
+function instantane(){
+  return {view: state.view, ficheId: state.ficheId, cycle: state.cycle, y: window.scrollY,
+          rails: $$(".rail").map(r => r.scrollLeft)};   // les carrousels gardent aussi leur position
+}
 
 function afficher(view, opts){
+  if(view === "cycle" && !db.fc.actif) view = "accueil";   // Food Cycling désactivé entre-temps
   Object.assign(state, {view}, opts || {});
   if(ONGLETS.indexOf(view) >= 0) state.onglet = view;
   fermerFeuille();
@@ -1477,8 +1481,12 @@ function go(view, opts){
 /* remplace l'écran courant sans l'empiler (ex. formulaire enregistré → fiche) */
 function remplacer(view, opts){ afficher(view, opts); window.scrollTo(0, 0); }
 function onglet(view, opts){
+  // revenir à l'entrée racine de l'historique : sinon les écrans empilés restent derrière,
+  // et le premier geste retour ne ferait rien
+  const n = (history.state && history.state.n) || 0;
   pile = [];
-  try{ history.replaceState({n: 0}, ""); }catch(e){}
+  if(n > 0 && historique){ try{ history.go(-n); }catch(e){} }
+  else{ try{ history.replaceState({n: 0}, ""); }catch(e){} }
   afficher(view, opts);
   window.scrollTo(0, 0);
 }
@@ -1493,12 +1501,15 @@ function depiler(n){
   if(!snap) return;
   afficher(snap.view, {ficheId: snap.ficheId, cycle: snap.cycle});
   const y = snap.y || 0;
-  window.scrollTo(0, y);
-  requestAnimationFrame(() => window.scrollTo(0, y));
+  const rails = snap.rails || [];
+  const remettre = () => { window.scrollTo(0, y); $$(".rail").forEach((r, i) => { if(rails[i]) r.scrollLeft = rails[i]; }); };
+  remettre();
+  requestAnimationFrame(remettre);
 }
 function brouillonModifie(){
   if(state.view !== "form" || !state.formDraft) return false;
   syncDraft();
+  if(state.formEmpreinte) return JSON.stringify(state.formDraft) !== state.formEmpreinte;
   return !!(state.formDraft.nom || state.formDraft.id);
 }
 
@@ -1563,6 +1574,8 @@ function filtrer(list){
     if(!matchAny(f.season, r.seasons)) return false;
     if(!matchAny(f.diff, r.diff ? [r.diff] : [])) return false;
     if(!matchAny(f.statut, [r.statut])) return false;
+    // les recettes archivées ne s'affichent que si on les demande
+    if(r.statut === ARCHIVE && f.statut.indexOf(ARCHIVE) < 0) return false;
     if(f.noteMin && num(r.note) < f.noteMin) return false;
     if(f.tempsMax && (total(r) === 0 || total(r) > f.tempsMax)) return false;
     if(f.semaine && !estPlanifiee(r, cur)) return false;
@@ -1688,8 +1701,13 @@ function scoreReco(r){
 /* un repas, pas un dessert : les plats principaux d'abord, puis les plats « pour recevoir »,
    puis les accompagnements. Petit-déjeuner, desserts, encas et boissons ne sont jamais proposés. */
 const PALIERS_REPAS = [["Main course", ""], ["Entertaining"], ["Side dish"]];
-function poolSuggestions(exclure){
+function poolSuggestions(exclure, meal){
   const vivantes = db.recettes.filter(r => r.statut !== ARCHIVE && exclure.indexOf(r.id) < 0);
+  // 🔀 sur un petit-déjeuner ou un dessert : une autre recette du même type
+  if(meal && meal !== "Main course" && MEALS.indexOf(meal) >= 0){
+    const meme = vivantes.filter(r => r.meal === meal);
+    if(meme.length) return meme;
+  }
   for(const palier of PALIERS_REPAS){
     const pool = vivantes.filter(r => palier.indexOf(r.meal) >= 0 || (palier[0] === "Main course" && MEALS.indexOf(r.meal) < 0));
     if(pool.length) return pool;
@@ -1861,6 +1879,7 @@ function render(){
     bind();
     $("#fab").style.display = (state.view === "accueil" || state.view === "galerie") ? "" : "none";
     garderEcranAllume(state.view === "cuisine");
+    memoriserCuisson();
     if(state.focusQ){
       state.focusQ = false;
       const q = $("#q"); if(q) q.focus();
@@ -1894,7 +1913,7 @@ function renderTabbar(){
   const items = [["accueil","Accueil","maison"], ["galerie","Recettes","livre"],
                  ["planning","Planning","calendrier"], ["courses","Courses","panier"]];
   if(db.fc.actif) items.push(["cycle","Cycle","lune"]);
-  const restants = articlesRestants(state.semCourses || semaineCourante());
+  const restants = articlesRestants(semaineCoursesParDefaut());
   const aujourdhuiPrevu = entreesSemaine(semaineCourante()).some(e => e.jour === indexJour() && !e.fait);
   $("#tabbar").innerHTML = '<div class="tabbar-in">' + items.map(([v, l, i]) =>
     '<button type="button" class="tb' + (state.onglet === v ? " on" : "") + '" data-tab="' + v + '">' + ico(i) +
@@ -1964,10 +1983,19 @@ function viewAccueil(){
   const vivantes = db.recettes.filter(r => r.statut !== ARCHIVE);
   const cur = semaineCourante();
   const nRepas = entreesSemaine(cur).length;
-  const restants = articlesRestants(state.semCourses || cur);
+  const restants = articlesRestants(semaineCoursesParDefaut());
 
   let html = '<div class="hello"><div class="hello-sub">' + salut + ' 👋</div><h1>Qu\'est-ce qu\'on mange ?</h1></div>' +
     '<button class="fakesearch" data-go="search">' + ico("loupe", "sm") + 'Rechercher une recette, un ingrédient…</button>';
+
+  if(state.reprise && getRecette(state.reprise.rid)){
+    const rp = getRecette(state.reprise.rid), k = state.reprise.etape;
+    html += '<div class="notice" style="margin-top:16px; display:flex; align-items:center; gap:10px; flex-wrap:wrap">' +
+      '<span style="flex:1; min-width:180px">👩‍🍳 <b>Cuisson en cours</b> : ' + esc(rp.nom) +
+      (k >= 0 && k < rp.etapes.length ? ' — étape ' + (k + 1) + ' sur ' + rp.etapes.length : '') + '</span>' +
+      '<button class="btn sm primary" data-act="reprendre">Reprendre</button>' +
+      '<button class="btn sm ghost" data-act="reprise-non">Terminer</button></div>';
+  }
 
   html += blocAujourdhui();
 
@@ -2098,8 +2126,10 @@ function viewGalerie(){
 
   const list = filtrer(db.recettes);
   const n = list.length;
+  const archivees = state.filters.statut.indexOf(ARCHIVE) < 0 ? db.recettes.filter(r => r.statut === ARCHIVE).length : 0;
   html += '<div class="fbar" style="margin-top:14px"><span class="count">' + n + ' recette' + (n > 1 ? "s" : "") +
-    (n !== db.recettes.length ? " sur " + db.recettes.length : "") + '</span>' +
+    (n !== db.recettes.length - archivees ? " sur " + (db.recettes.length - archivees) : "") +
+    (archivees ? " · " + archivees + " archivée" + (archivees > 1 ? "s" : "") + " masquée" + (archivees > 1 ? "s" : "") : "") + '</span>' +
     '<select class="tri-sel" id="tri" aria-label="Trier">' + TRIS.map(([v, l]) =>
       '<option value="' + v + '"' + (state.tri === v ? " selected" : "") + '>' + l + '</option>').join("") + '</select></div>';
 
@@ -2126,7 +2156,8 @@ function resultatsFrigo(){
     return '<div class="empty"><span class="big">🥕</span>Tape ce que tu as sous la main, séparé par des virgules.' +
       '<br><span class="hint">Les recettes qui en utilisent le plus remontent en premier.</span></div>';
   }
-  const res = db.recettes.filter(r => r.statut !== ARCHIVE)
+  // les autres filtres (favoris, temps, collection…) s'appliquent aussi
+  const res = filtrer(db.recettes).filter(r => r.statut !== ARCHIVE)
     .map(r => ({r: r, s: scoreFrigo(r, termes)})).filter(x => x.s.n > 0)
     .sort((a,b) => (b.s.n - a.s.n) || (a.s.autres - b.s.autres) || (b.r.note - a.r.note));
   if(!res.length) return '<div class="empty"><span class="big">🤷</span>Aucune recette n\'utilise ' + esc(termes.join(", ")) + '.</div>';
@@ -2327,10 +2358,10 @@ function barreRecherche(){
   if(state.showFilters){
     html += '<div class="panel filters">' +
       (db.fc.actif ? champFiltre("cycle", "Cycle", CYCLES, f.cycle) : "") +
-      champFiltre("meal", "Meal Type", MEALS, f.meal) +
+      champFiltre("meal", "Type de plat", MEALS, f.meal) +
       champFiltre("cuisine", "Cuisine", db.cuisines, f.cuisine) +
       champFiltre("tags", "Collections (tags)", db.tags, f.tags) +
-      champFiltre("season", "Season", SEASONS, f.season) +
+      champFiltre("season", "Saison", SEASONS, f.season) +
       champFiltre("diff", "Difficulté", DIFFS, f.diff) +
       champFiltre("statut", "Statut", STATUTS, f.statut) +
       '<div class="row">' +
@@ -2338,7 +2369,7 @@ function barreRecherche(){
           [0,1,2,3,4,5].map(v => '<option value="' + v + '"' + (f.noteMin===v?" selected":"") + '>' +
             (v ? stars(v) : "Toutes") + '</option>').join("") + '</select></div>' +
         '<div class="field"><label>Temps total max (min)</label>' +
-          '<input id="f-temps" type="number" min="0" step="5" inputmode="numeric" placeholder="ex. 30" value="' + (f.tempsMax || "") + '"></div>' +
+          '<input id="f-temps" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="ex. 30" value="' + (f.tempsMax || "") + '"></div>' +
       '</div>' +
       '<div class="field" style="margin-bottom:0"><label>Autres</label>' +
         '<div class="chips"><button type="button" class="chip' + (f.semaine ? " on" : "") + '" id="f-semaine">🗓 Au planning cette semaine</button>' +
@@ -2395,7 +2426,7 @@ function viewCourses(){
   });
 
   if(groupes.placard.length){
-    html += '<details class="placard"><summary>🏠 Dans mes placards (' + groupes.placard.length + ')</summary>' +
+    html += '<details class="placard"' + (state.placardOuvert ? " open" : "") + '><summary>🏠 Dans mes placards (' + groupes.placard.length + ')</summary>' +
       '<p class="hint" style="margin:6px 0 10px">Ce que j\'ai toujours chez moi : pas compté dans la liste. Vérifie quand même qu\'il en reste.</p>' +
       '<div class="panel"><ul class="ing">' + groupes.placard.map(L => ligneCourse(L, C, true)).join("") + '</ul></div></details>';
   }
@@ -2964,13 +2995,16 @@ function syncDraft(){
   if(!document.getElementById("in-nom")) return;
   d.nom = v("in-nom").trim();
   d.url = v("in-url").trim();
+  // « www.marmiton.org/… » tapé sans https:// : on le complète plutôt que de le perdre
+  if(d.url && !/^https?:\/\//i.test(d.url) && /^[\w-]+(\.[\w-]+)+(\/|$)/.test(d.url)) d.url = "https://" + d.url;
   d.description = v("in-desc").trim();
-  d.prep = num(v("in-prep")); d.cuisson = num(v("in-cuisson")); d.portions = num(v("in-portions"));
-  d.kcal = num(v("in-kcal")); d.prot = num(v("in-prot")); d.gluc = num(v("in-gluc")); d.lip = num(v("in-lip"));
+  const pos = id => Math.max(0, num(v(id)));
+  d.prep = pos("in-prep"); d.cuisson = pos("in-cuisson"); d.portions = pos("in-portions");
+  d.kcal = pos("in-kcal"); d.prot = pos("in-prot"); d.gluc = pos("in-gluc"); d.lip = pos("in-lip");
   d.allergenes = v("in-allergenes").trim();
   d.ingredientCle = v("in-cle").trim();
   d.groupe = v("in-groupe").trim();
-  d.etapes = v("in-etapes").split("\n").map(s => s.replace(/^\s*\d+[.)]\s*/, "").trim()).filter(Boolean);
+  d.etapes = v("in-etapes").split("\n").map(s => s.replace(/^\s*\d+[.)](?!\d)\s*/, "").trim()).filter(Boolean);
   d.ingredients = $$("#ings .ing-row").map((row, k) => ({
     txt: row.querySelector(".ing-txt").value.trim(),
     alg: row.querySelector("[data-alg]").classList.contains("on")
@@ -3004,45 +3038,61 @@ function saveRecette(){
 function parseTexte(txt){
   const d = vide();
   const lines = txt.replace(/\r/g,"").split("\n").map(l => l.trim());
-  const isIngHead = l => /^(ingr[ée]dients?|ingredients?)\b/i.test(l);
-  const isStepHead = l => /^(pr[ée]paration|instructions?|[ée]tapes?|m[ée]thode|method|directions?|r[ée]alisation|pr[ée]parer)\b/i.test(l);
+  const RE_ING = /^(ingr[ée]dients?|ingredients?)\b/i;
+  const RE_ETAPES = /^(pr[ée]paration|instructions?|[ée]tapes?|m[ée]thode|method|directions?|r[ée]alisation|steps?)\b/i;
+  const RE_PERS = /(\d+)\s*(?:personnes?|pers\.?|portions?|parts?|servings?|people|couverts?)\b/i;
+  const intitule = l => l.length <= 40 && !/[.!?]$/.test(l);   // un intitulé, pas une phrase
 
-  let mode = "head", nom = "", ings = [], steps = [];
-  for(let raw of lines){
-    const l = raw;
+  let mode = "head", nom = "", ings = [], steps = [], desc = [], totalMin = 0;
+  for(const l of lines){
     if(!l) continue;
     const url = l.match(/https?:\/\/\S+/);
     if(url && !d.url){ d.url = url[0]; if(/^https?:\/\/\S+$/.test(l)) continue; }
 
-    let m = l.match(/pr[ée]paration\s*:?\s*(\d+)\s*(?:min|mn|minutes)/i);
-    if(m){ d.prep = num(m[1]); continue; }
-    m = l.match(/(?:cuisson|cook(?:ing)?\s*time)\s*:?\s*(\d+)\s*(?:min|mn|minutes)?/i);
-    if(m){ d.cuisson = num(m[1]); continue; }
-    m = l.match(/(?:pour|serves?|portions?|parts?)\s*:?\s*(\d+)\s*(?:personnes?|pers\.?|portions?|parts?)?/i);
-    if(m && num(m[1]) > 0 && num(m[1]) < 30 && /personne|portion|part|serve|pour/i.test(l)){ d.portions = num(m[1]); continue; }
-
-    if(isIngHead(l)){ mode = "ing"; continue; }
-    if(isStepHead(l)){ mode = "step"; continue; }
+    // temps et portions : seulement sur une ligne qui commence par le mot-clé, et jamais
+    // pendant les étapes — « laisser reposer 5 minutes » reste une étape
+    if(mode !== "step"){
+      const min = minutesDe(l);
+      if(min && /^(temps de )?pr[ée]paration\b|^prep(aration)?\b/i.test(l)){ d.prep = min; continue; }
+      if(min && /^(temps de )?cuisson\b|^cook(ing)?\b/i.test(l)){ d.cuisson = min; continue; }
+      if(min && /^(temps )?total\b/i.test(l)){ totalMin = min; continue; }
+      const pm = l.match(/(\d+)/);
+      if(pm && l.length < 60 && /^(pour|serves?|portions?|parts?|yield|rendement|makes)\b/i.test(l) && num(pm[1]) > 0 && num(pm[1]) < 50){
+        d.portions = num(pm[1]); continue;
+      }
+    }
+    if(RE_ING.test(l) && intitule(l)){
+      mode = "ing";
+      const pp = l.match(RE_PERS);   // « Ingrédients (pour 6 personnes) »
+      if(pp && !d.portions) d.portions = num(pp[1]);
+      continue;
+    }
+    if(mode !== "step" && RE_ETAPES.test(l) && intitule(l)){ mode = "step"; continue; }
 
     if(mode === "head"){
       if(!nom){ nom = l.replace(/^#+\s*/,""); continue; }
-      // heuristique : ligne qui ressemble à un ingrédient
-      if(/^[-•*·]|^\d+([.,]\d+)?\s*(g|kg|ml|cl|l|c\.|cs|cc|cuill|tbsp|tsp|oz|lb|pcs?)\b/i.test(l)){ mode = "ing"; ings.push(l); continue; }
+      // ligne qui ressemble à un ingrédient : une puce, une quantité
+      if(/^[-•*·]|^\d|^[½¼¾⅓⅔]/.test(l) && l.length <= 140){ mode = "ing"; ings.push(l); continue; }
       if(l.length > 90){ mode = "step"; steps.push(l); continue; }
+      desc.push(l);   // le reste de l'en-tête devient la description, au lieu d'être perdu
       continue;
     }
     if(mode === "ing"){
       if(l.length > 140){ mode = "step"; steps.push(l); continue; }
+      if(/:$/.test(l) && l.length < 60) continue;   // « Pour la sauce : » est un intitulé, pas un ingrédient
       ings.push(l);
     }else{
+      if(/^([ée]tape|step)\s*\d+\s*[:.]?$/i.test(l)) continue;   // « Étape 2 » seul sur sa ligne
       steps.push(l);
     }
   }
+  if(!d.prep && !d.cuisson && totalMin) d.prep = totalMin;
+  if(desc.length) d.description = desc.join(" ").slice(0, 400);
   // un « titre » de 200 caractères n'en est pas un (JSON collé, paragraphe entier…)
   d.nom = (nom && nom.length <= 160) ? nom : "Sans titre";
   d.ingredients = ings.map(t => ({ txt: t.replace(/^[-•*·]\s*/,"").trim(), alg:false })).filter(i => i.txt);
   if(!d.ingredients.length) d.ingredients = [{txt:"",alg:false}];
-  d.etapes = steps.map(s => s.replace(/^\s*(?:\d+\s*[.)-]|[-•*·])\s*/,"").trim()).filter(Boolean);
+  d.etapes = steps.map(s => s.replace(/^\s*(?:\d+\s*[.)-](?!\d)|[-•*·])\s*/,"").trim()).filter(Boolean);
   return d;
 }
 
@@ -3051,7 +3101,7 @@ function ldFirst(x){ return (x && typeof x !== "string" && x.length) ? x[0] : x;
 
 function ldTexte(x){
   if(x == null) return "";
-  if(typeof x === "string") return x.replace(/<[^>]*>/g," ").replace(/&nbsp;/g," ").replace(/\s+/g," ").trim();
+  if(typeof x === "string") return decodeEntites(x.replace(/<[^>]*>/g," ").replace(/&nbsp;/g," ")).replace(/\s+/g," ").trim();
   if(typeof x === "number") return String(x);
   if(Array.isArray(x)) return ldTexte(x[0]);
   if(x.text) return ldTexte(x.text);
@@ -3067,7 +3117,7 @@ function ldTexteMulti(x){
     return x.replace(/<br\s*\/?>/gi, "\n")
             .replace(/<\/(p|li|div|h[1-6])>/gi, "\n")
             .replace(/<[^>]*>/g, " ")
-            .replace(/&nbsp;/g, " ")
+            .replace(/&nbsp;/g, " ").replace(/&[#a-z0-9]+;/gi, e => decodeEntites(e))
             .replace(/[ \t ]+/g, " ")
             .replace(/ *\n+ */g, "\n")
             .trim();
@@ -3118,9 +3168,27 @@ function ldImage(x){
 function ldDuree(s){
   if(!s) return 0;
   if(typeof s === "number") return s;
-  const m = /^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?)?/.exec(String(s).trim());
-  if(!m) return num(String(s).match(/\d+/));
-  return num(m[1])*1440 + num(m[2])*60 + num(m[3]);
+  const m = /^P(?:(\d+)D)?(?:T(?:(\d+(?:[.,]\d+)?)H)?(?:(\d+(?:[.,]\d+)?)M)?)?/i.exec(String(s).trim());
+  if(!m || !(m[1] || m[2] || m[3])) return minutesDe(s) || num(String(s).match(/\d+/));
+  const n = x => num(String(x || "").replace(",", "."));
+  return Math.round(n(m[1])*1440 + n(m[2])*60 + n(m[3]));
+}
+
+/* « &amp; », « caram&eacute;lis&eacute;e », « &#8211; » → texte ; un textarea décode sans rien exécuter */
+function decodeEntites(s){
+  if(!/&[#a-z0-9]+;/i.test(s)) return s;
+  const ta = document.createElement("textarea");
+  ta.innerHTML = s;
+  return ta.value;
+}
+
+/* « 1 h 30 », « 1h15 », « 2 heures », « 45 min », « 1 hour » → minutes */
+function minutesDe(s){
+  const m = String(s).match(/(\d+(?:[.,]\d+)?)\s*(?:h|heures?|hours?|hrs?)\b\s*(\d{1,2})?|(\d+(?:[.,]\d+)?)\s*(?:h)(\d{1,2})|(\d+)\s*(?:minutes?|mins?|min|mn)\b/i);
+  if(!m) return 0;
+  if(m[1]) return Math.round(num(m[1].replace(",", ".")) * 60) + num(m[2]);
+  if(m[3]) return Math.round(num(m[3].replace(",", ".")) * 60) + num(m[4]);
+  return num(m[5]);
 }
 function ldNombre(x){
   if(x == null) return 0;
@@ -3355,7 +3423,8 @@ function fusionner(d){
   d.allergenes    = ex.allergenes || d.allergenes;
   d.ingredientCle = ex.ingredientCle || d.ingredientCle;
   d.groupe        = ex.groupe || d.groupe;
-  d.image         = d.image || ex.image;
+  d.nom           = (ex.nom && ex.nom !== "Sans titre") ? ex.nom : d.nom;
+  d.image         = /^data:/.test(ex.image) ? ex.image : (d.image || ex.image);   // une photo à moi gagne sur celle du site
   d.description   = d.description || ex.description;
   d.tags     = Array.from(new Set(ex.tags.concat(d.tags)));
   d.cuisines = Array.from(new Set(ex.cuisines.concat(d.cuisines)));
@@ -3377,6 +3446,7 @@ function lireHashImport(){
     payload = decodeURIComponent(payload);
     const o = JSON.parse(payload);
     state.formDraft = payloadVersDraft(o);
+    state.formEmpreinte = "";
     state.formTab = "manuel";
     state.view = "form";
     nettoyerHash();
@@ -3798,7 +3868,7 @@ function appliquerTheme(){
 function appliquerImport(txt){
   if(!txt || !txt.trim()){ toast("Colle d'abord quelque chose"); return; }
   state.vieuxBM = false; state.majExistante = false; state.etapesReparees = 0;
-  state.erreurImport = "";
+  state.erreurImport = ""; state.formEmpreinte = "";
   const d = importerContenu(txt);
   if(!d){ toast(state.erreurImport || "Contenu non reconnu"); return; }
   state.formDraft = d;
@@ -3930,12 +4000,16 @@ function listeChoix(f){
   let list = db.recettes.filter(r => r.statut !== ARCHIVE);
   let html = "";
   if(q){
-    list = list.filter(r => normRech(r.nom + " " + r.ingredients.map(i => i.txt).join(" ") + " " +
-      r.tags.join(" ") + " " + r.cuisines.join(" ")).indexOf(q) >= 0);
+    const mots = q.split(/\s+/).filter(Boolean);
+    list = list.filter(r => {
+      const h = normRech(r.nom + " " + r.ingredients.map(i => i.txt).join(" ") + " " + r.tags.join(" ") + " " + r.cuisines.join(" "));
+      return mots.every(m => h.indexOf(m) >= 0);
+    });
   }else{
     const idees = (f.idees || []).map(getRecette).filter(Boolean);
     if(idees.length) html += '<div class="kicker">✨ Idées pour ce jour</div>' + idees.map(r => ligneChoix(r, dans)).join("");
     html += '<div class="kicker">Toutes mes recettes</div>';
+    list = list.filter(r => idees.indexOf(r) < 0);
   }
   list = trier(list, "meilleures");
   return html + (list.length ? list.map(r => ligneChoix(r, dans)).join("") : '<p class="hint">Aucune recette ne correspond.</p>');
@@ -3971,7 +4045,7 @@ function feuilleSemaine(f){
     (f.sem >= semaineCourante() ? opt("pl-auto", "✨", "Compléter la semaine", "Une idée pour chaque jour encore vide") : "") +
     (prec ? opt("sm-copier", "⧉", "Reprendre la semaine précédente", prec + " repas, aux mêmes jours") : "") +
     opt("pl-courses", "🧺", "Liste de courses de cette semaine") +
-    (n ? opt("sm-vider", "🧹", "Vider la semaine", n + " repas retirés (annulable)", "danger") : "") +
+    (n ? opt("sm-vider", "🧹", "Vider la semaine", n + " repas retiré" + (n > 1 ? "s" : "") + " (annulable)", "danger") : "") +
   '</div>';
 }
 
@@ -4016,11 +4090,16 @@ function ridCourant(){ return state.view === "cuisine" && state.cuisine ? state.
 function demarrerCuisine(rid, entreeId){
   const r = getRecette(rid);
   if(!r) return;
+  // lancé depuis un repas du planning : ses portions. Depuis la fiche : celles que je viens de choisir.
   let e = entreeId ? entree(entreeId) : null;
-  if(!e) e = db.plan.find(x => x.rid === rid && x.sem === semaineCourante() && x.jour === indexJour() && !x.fait) || null;
   if(e && e.portions && r.portions) state.portions[rid] = e.portions;
+  // le repas à cocher en fin de cuisson : celui d'aujourd'hui, sinon celui « sans jour » — jamais un autre jour
+  if(!e){
+    const cands = db.plan.filter(x => x.rid === rid && x.sem === semaineCourante() && !x.fait);
+    e = cands.find(x => x.jour === indexJour()) || cands.find(x => x.jour < 0) || null;
+  }
   initAudio();
-  state.cuisine = {rid: rid, etape: -1, entree: e ? e.id : null, marque: false};
+  state.cuisine = {rid: rid, etape: -1, entree: e ? e.id : null, marque: !!(e && e.fait)};
   go("cuisine");
 }
 
@@ -4062,9 +4141,12 @@ function viewCuisine(){
     html += '<div class="kicker">Étape ' + (k + 1) + '</div><p class="step-txt">' + esc(txt) + '</p>';
     const mins = minuteursEtape(txt);
     if(mins.length){
-      html += '<div>' + mins.map(m => '<button type="button" class="tbtn" data-timer="' + m.sec + '" data-timerlib="' +
-        esc(r.nom.slice(0, 22) + " · ét. " + (k + 1)) + '" data-timeretape="' + k + '">' + ico("minuteur") + ' ' + esc(m.lib) +
-        (m.plage ? ' <small>(' + esc(m.plage) + ')</small>' : "") + '</button>').join("") + '</div>';
+      html += '<div>' + mins.map(m => {
+        const tourne = minuteurs.some(x => !x.fini && x.rid === r.id && x.etape === k && x.sec === m.sec);
+        return '<button type="button" class="tbtn' + (tourne ? " on" : "") + '" data-timer="' + m.sec + '" data-timerlib="' +
+          esc("Ét. " + (k + 1) + " · " + m.lib) + '" data-timeretape="' + k + '">' + ico("minuteur") + ' ' + esc(m.lib) +
+          (tourne ? ' <small>· en cours</small>' : m.plage ? ' <small>(' + esc(m.plage) + ')</small>' : "") + '</button>';
+      }).join("") + '</div>';
     }
     const ings = ingredientsEtape(r, txt);
     if(ings.length){
@@ -4091,14 +4173,15 @@ function viewCuisine(){
   return html;
 }
 
+/* renvoie false si ce repas était déjà noté (coché depuis le planning) : on ne compte pas deux fois */
 function marquerCuisinee(r, entreeId){
-  // le repas qu'on vient de faire : celui d'aujourd'hui, sinon celui « sans jour », sinon le plus proche
-  const cands = db.plan.filter(x => x.rid === r.id && x.sem === semaineCourante() && !x.fait).sort((a,b) => a.jour - b.jour);
-  const e = (entreeId && entree(entreeId)) || cands.find(x => x.jour === indexJour()) || cands.find(x => x.jour < 0) || cands[0];
+  const e = entreeId ? entree(entreeId) : null;
+  if(e && e.fait) return false;
   if(e) e.fait = true;
   r.cuisinee = (r.cuisinee || 0) + 1;
   r.derniereFois = Date.now();
   save();
+  return true;
 }
 
 /* mots qui ne disent rien de l'ingrédient : « 2 c. à soupe d'huile d'olive » → huile, olive */
@@ -4129,7 +4212,7 @@ function ingredientsEtape(r, etape){
 
 /* « 20-25 minutes », « 1 h 30 », « 45 sec » → minuteurs ; pour une plage, la borne basse :
    on vérifie la cuisson plutôt que de la rater */
-const RE_DUREE = /(\d+(?:[.,]\d+)?)(?:\s*(?:-|–|à|to|ou|or)\s*(\d+(?:[.,]\d+)?))?\s*(heures?|hours?|hrs?|minutes?|mins?|mn|secondes?|seconds?|secs?|h(?=\s*\d)|h\b|s\b)(?:\s*(\d{1,2})\b(?!\s*[°%]))?/gi;
+const RE_DUREE = /(\d+(?:[.,]\d+)?)(?:\s*(?:-|–|à|to|ou|or)\s*(\d+(?:[.,]\d+)?))?\s*(heures?|hours?|hrs?|minutes?|mins?|mn|secondes?|seconds?|secs?|h(?=\s*\d)|h\b|s\b)(?:\s*(\d{1,2})\b(?!\s*[°%])(\s*(?:s|sec|secondes?|seconds?)\b)?)?/gi;
 function minuteursEtape(txt){
   const vus = {}, out = [];
   let m;
@@ -4139,6 +4222,8 @@ function minuteursEtape(txt){
     const mult = /^h/.test(u) ? 3600 : /^s/.test(u) ? 1 : 60;
     let sec = Math.round(num(m[1].replace(",", ".")) * mult);
     if(mult === 3600 && m[4]) sec += num(m[4]) * 60;
+    // des secondes après des minutes : seulement si elles sont dites, ou en fin de phrase (« 3 minutes 30. »)
+    else if(mult === 60 && m[4] && (m[5] || /^\s*([.,;)!]|$)/.test(String(txt).slice(RE_DUREE.lastIndex)))) sec += num(m[4]);
     if(sec < 5 || sec > 86400 || vus[sec]) continue;
     vus[sec] = 1;
     const max = m[2] ? Math.round(num(m[2].replace(",", ".")) * mult) : 0;
@@ -4198,17 +4283,22 @@ function bip(){
 }
 function lancerMinuteur(sec, lib, rid, etape){
   initAudio();
-  minuteurs.push({id: uid(), lib: lib || fmtDuree(sec), rid: rid, etape: etape, fin: Date.now() + sec * 1000, fini: false, alertes: 0, derniere: 0});
+  if(minuteurs.some(m => !m.fini && m.rid === rid && m.etape === etape && m.sec === sec)){ toast("Ce minuteur tourne déjà"); return; }
+  const r = getRecette(rid);
+  minuteurs.push({id: uid(), lib: lib || fmtDuree(sec), titre: r ? r.nom : "", rid: rid, etape: etape, sec: sec,
+                  fin: Date.now() + sec * 1000, fini: false, alertes: 0, derniere: 0});
   if(!tickT) tickT = setInterval(tic, 1000);
   renderMinuteurs();
+  memoriserCuisson();
   toast("⏱ Minuteur lancé : " + fmtDuree(sec));
+  if(state.view === "cuisine") render();
 }
 function tic(){
   const now = Date.now();
   minuteurs.forEach(m => {
     if(!m.fini && now >= m.fin){
       m.fini = true; m.derniere = now; m.alertes = 1;
-      bip(); toast("⏰ " + m.lib + " — c'est l'heure !");
+      bip(); toast("⏰ " + (m.titre ? m.titre.slice(0, 24) + " · " : "") + m.lib + " — c'est l'heure !");
     }else if(m.fini && m.alertes < 6 && now - m.derniere >= 10000){
       m.derniere = now; m.alertes++; bip();   // rappel toutes les 10 s, une minute au plus
     }
@@ -4219,18 +4309,56 @@ function tic(){
 function arreterMinuteur(id){
   minuteurs = minuteurs.filter(m => m.id !== id);
   renderMinuteurs();
+  memoriserCuisson();
+  if(state.view === "cuisine") render();
 }
 function fmtRebours(ms){
   const s = Math.max(0, Math.ceil(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), ss = s % 60;
   return (h ? h + ":" + pad2(m) : m) + ":" + pad2(ss);
 }
+/* on ne reconstruit les pastilles que si la liste change : un clic de souris à cheval sur
+   la seconde suivante ne doit pas tomber dans le vide */
+let signatureMinuteurs = "";
 function renderMinuteurs(){
   const now = Date.now();
   document.body.classList.toggle("a-minuteurs", minuteurs.length > 0);
+  const sig = minuteurs.map(m => m.id + (m.fini ? "!" : "")).join("|");
+  if(sig === signatureMinuteurs){
+    minuteurs.forEach(m => { const el = document.querySelector('[data-rebours="' + m.id + '"]'); if(el) el.textContent = m.fini ? "⏰ Fini" : fmtRebours(m.fin - now); });
+    return;
+  }
+  signatureMinuteurs = sig;
   $("#timers").innerHTML = minuteurs.map(m =>
-    '<div class="timer' + (m.fini ? " fini" : "") + '" data-timergo="' + m.id + '" title="' + esc(m.lib) + '">' +
-      '<span>' + (m.fini ? "⏰ Fini" : fmtRebours(m.fin - now)) + '</span><small>' + esc(m.lib) + '</small>' +
+    '<div class="timer' + (m.fini ? " fini" : "") + '" data-timergo="' + m.id + '" title="' + esc((m.titre ? m.titre + " · " : "") + m.lib) + '">' +
+      '<span data-rebours="' + m.id + '">' + (m.fini ? "⏰ Fini" : fmtRebours(m.fin - now)) + '</span><small>' + esc(m.lib) + '</small>' +
       '<button type="button" data-timerstop="' + m.id + '" aria-label="Arrêter le minuteur">' + ico("x") + '</button></div>').join("");
+}
+
+/* Safari recharge parfois un onglet resté en arrière-plan : la cuisson en cours et ses
+   minuteurs (des heures de fin, pas des comptes à rebours) survivent au rechargement */
+const KEY_CUISSON = "recipe-book-cuisson";
+function memoriserCuisson(){
+  try{
+    if(!minuteurs.length && state.view !== "cuisine"){ localStorage.removeItem(KEY_CUISSON); return; }
+    localStorage.setItem(KEY_CUISSON, JSON.stringify({t: Date.now(), enCours: state.view === "cuisine", cuisine: state.cuisine,
+      portions: state.cuisine ? state.portions[state.cuisine.rid] || 0 : 0,
+      minuteurs: minuteurs.map(m => ({id: m.id, lib: m.lib, titre: m.titre, rid: m.rid, etape: m.etape, sec: m.sec, fin: m.fin}))}));
+  }catch(e){}
+}
+function relireCuisson(){
+  try{
+    const o = JSON.parse(localStorage.getItem(KEY_CUISSON) || "null");
+    if(!o || Date.now() - o.t > 6 * 3600e3) return;
+    (o.minuteurs || []).forEach(m => {
+      if(m && m.fin && Date.now() - m.fin < 15 * 60e3) minuteurs.push(Object.assign({fini: false, alertes: 0, derniere: 0}, m));
+    });
+    if(minuteurs.length && !tickT) tickT = setInterval(tic, 1000);
+    if(o.enCours && o.cuisine && getRecette(o.cuisine.rid)){
+      state.reprise = o.cuisine;
+      if(o.portions) state.portions[o.cuisine.rid] = o.portions;
+    }
+    renderMinuteurs();
+  }catch(e){}
 }
 function allerAuMinuteur(id){
   const m = minuteurs.find(x => x.id === id);
@@ -4276,7 +4404,14 @@ function basculerFait(id){
 function autreIdee(id){
   const e = entree(id);
   if(!e) return;
-  const r = tirer(poolSuggestions(entreesSemaine(e.sem).map(x => x.rid)));
+  const avantR = getRecette(e.rid);
+  const pool = poolSuggestions(entreesSemaine(e.sem).map(x => x.rid), avantR && avantR.meal);
+  // un petit-déjeuner ne devient pas un plat du soir : s'il n'y a pas d'autre recette de ce type, on le dit
+  if(avantR && avantR.meal && avantR.meal !== "Main course" && MEALS.indexOf(avantR.meal) >= 0 && !pool.some(x => x.meal === avantR.meal)){
+    toast("Pas d'autre recette « " + avantR.meal + " » à proposer");
+    return;
+  }
+  const r = tirer(pool);
   if(!r){ toast("Pas d'autre idée : ajoute des recettes !"); return; }
   const avant = e.rid;
   e.rid = r.id; e.fait = false; save(); render();
@@ -4286,10 +4421,11 @@ function completerSemaine(sem){
   const cur = semaineCourante();
   if(sem < cur){ toast("Cette semaine est passée"); return; }
   const ajoutes = [];
+  let vides = 0;
   for(let j = (sem === cur ? indexJour() : 0); j < 7; j++){
     if(entreesSemaine(sem).some(e => e.jour === j)) continue;
     const r = tirer(poolSuggestions(entreesSemaine(sem).map(e => e.rid)));
-    if(!r) break;
+    if(!r){ vides++; continue; }
     ajoutes.push(planifier(r.id, sem, j));
   }
   if(!ajoutes.length){
@@ -4297,7 +4433,8 @@ function completerSemaine(sem){
     return;
   }
   render();
-  toast("✨ " + ajoutes.length + " idée" + (ajoutes.length > 1 ? "s" : "") + " au menu — 🔀 pour en changer",
+  toast("✨ " + ajoutes.length + " idée" + (ajoutes.length > 1 ? "s" : "") + " au menu" +
+    (vides ? " · " + vides + " jour" + (vides > 1 ? "s" : "") + " sans idée : plus assez de plats principaux" : " — 🔀 pour en changer"),
     () => { db.plan = db.plan.filter(e => ajoutes.indexOf(e) < 0); save(); render(); });
 }
 
@@ -4329,7 +4466,10 @@ function modifierRecette(rid){
   if(!r) return;
   state.formDraft = JSON.parse(JSON.stringify(r));
   state.vieuxBM = false; state.majExistante = false; state.etapesReparees = 0;
+  state.formEmpreinte = "";
   go("form", {editId: r.id});
+  syncDraft();   // l'empreinte se prend sur le brouillon tel que le formulaire le relit
+  state.formEmpreinte = JSON.stringify(state.formDraft);
 }
 function dupliquerRecette(rid){
   const r = getRecette(rid);
@@ -4371,7 +4511,7 @@ function voirTout(v){
   resetFiltres();
   state.tri = "categorie";
   switch(v){
-    case "meilleures": state.tri = "meilleures"; break;
+    case "meilleures": state.tri = "meilleures"; state.filters.noteMin = 4; break;
     case "rapides":    state.tri = "rapides"; state.filters.tempsMax = 30; break;
     case "saison":     state.tri = "meilleures"; state.filters.season = [saisonActuelle()]; break;
     case "phase":      state.filters.maPhase = true; break;
@@ -4384,7 +4524,7 @@ function voirTout(v){
 function raccourci(k){
   const f = state.filters;
   switch(k){
-    case "frigo":    state.frigo = !state.frigo; state.focusQ = true; break;
+    case "frigo":    state.frigo = !state.frigo; state.q = ""; state.focusQ = true; break;
     case "fav":      f.fav = !f.fav; break;
     case "rapide":   f.tempsMax = f.tempsMax === 30 ? 0 : 30; break;
     case "top":      f.noteMin = f.noteMin === 4 ? 0 : 4; break;
@@ -4399,9 +4539,16 @@ function faireAction(a){
   const act = a.dataset.act;
   const f = state.feuille || {};
   switch(act){
+    case "reprendre":
+      initAudio();
+      state.cuisine = state.reprise; state.reprise = null;
+      go("cuisine");
+      return;
+    case "reprise-non": state.reprise = null; render(); memoriserCuisson(); return;
+
     // nouvelle recette
     case "new-manuel": case "new-web": case "new-coller": case "new-json":
-      state.formDraft = vide();
+      state.formDraft = vide(); state.formEmpreinte = "";
       state.formTab = {"new-manuel":"manuel", "new-web":"web", "new-coller":"coller", "new-json":"json"}[act];
       state.vieuxBM = false; state.majExistante = false; state.etapesReparees = 0;
       go("form", {editId:null});
@@ -4454,10 +4601,12 @@ function faireAction(a){
     }
     case "sm-copier": {
       const sem = state.semPlan;
-      const copies = entreesSemaine(ajouterJours(sem, -7)).map(e =>
-        ({id: uid(), rid: e.rid, sem: sem, jour: e.jour, portions: e.portions, fait: false}));
+      const deja = entreesSemaine(sem);
+      const copies = entreesSemaine(ajouterJours(sem, -7))
+        .filter(e => !deja.some(x => x.rid === e.rid && x.jour === e.jour))
+        .map(e => ({id: uid(), rid: e.rid, sem: sem, jour: e.jour, portions: e.portions, fait: false, mult: e.mult}));
       fermerFeuille();
-      if(!copies.length){ toast("La semaine précédente est vide"); return; }
+      if(!copies.length){ toast(entreesSemaine(ajouterJours(sem, -7)).length ? "Ces repas sont déjà repris ✓" : "La semaine précédente est vide"); return; }
       db.plan = db.plan.concat(copies); save(); render();
       toast(copies.length + " repas repris ✓", () => { db.plan = db.plan.filter(e => copies.indexOf(e) < 0); save(); render(); });
       return;
@@ -4521,7 +4670,8 @@ function faireAction(a){
    8g. ÉVÉNEMENTS
    ========================================================= */
 let bound = false;
-let notesT, notesPersoT, toucheX = null, toucheY = 0;
+let notesT, notesPersoT, rechT, toucheX = null, toucheY = 0;
+let semaineVue = "";   // semaine courante au dernier passage : l'app peut rester ouverte d'un lundi à l'autre
 
 function bind(){
   if(bound) return;
@@ -4535,6 +4685,7 @@ function bind(){
   $("#btn-settings").onclick = () => go("reglages");
   $("#phase-sel").onchange = e => {
     db.phaseActuelle = e.target.value || "";
+    if(!db.phaseActuelle) state.filters.maPhase = false;
     if(db.phaseActuelle) state.cycle = db.phaseActuelle;
     save(); render();
   };
@@ -4546,6 +4697,10 @@ function bind(){
     const t = e.target.closest("[data-tab]");
     if(!t) return;
     if(t.dataset.tab === state.view){ window.scrollTo({top:0, behavior:"smooth"}); return; }
+    // depuis la barre, Planning et Courses rouvrent sur la semaine utile, pas la dernière consultée
+    if(t.dataset.tab === "planning") state.semPlan = semaineCourante();
+    if(t.dataset.tab === "courses") state.semCourses = semaineCoursesParDefaut();
+    if(t.dataset.tab === "cycle" && db.phaseActuelle) state.cycle = db.phaseActuelle;
     onglet(t.dataset.tab);
   });
 
@@ -4603,11 +4758,27 @@ function bind(){
     else if(e.key === "ArrowLeft"){ e.preventDefault(); changerEtape(-1); }
     else if(e.key === "Escape") retour();
   });
-  document.addEventListener("visibilitychange", () => { if(state.view === "cuisine") garderEcranAllume(true); });
+  document.addEventListener("visibilitychange", () => {
+    if(state.view === "cuisine") garderEcranAllume(true);
+    if(document.visibilityState !== "visible") return;
+    const cur = semaineCourante();
+    if(cur !== semaineVue){
+      if(state.semPlan === semaineVue) state.semPlan = cur;
+      state.semCourses = semaineCoursesParDefaut();
+      semaineVue = cur;
+      if(state.view !== "form") render();
+    }
+  });
 
   // geste retour du navigateur : on dépile l'écran précédent
   window.addEventListener("popstate", e => {
     const n = (e.state && e.state.n) || 0;
+    // une feuille ouverte : le geste retour la ferme, sans quitter l'écran
+    if(state.feuille){
+      fermerFeuille();
+      if(n < pile.length){ try{ history.pushState({n: pile.length}, ""); }catch(_){} }
+      return;
+    }
     if(n >= pile.length) return;
     if(brouillonModifie() && !confirm("Abandonner les modifications ?")){
       try{ history.pushState({n: pile.length}, ""); }catch(_){}
@@ -4620,6 +4791,8 @@ function bind(){
 
 function onAppClick(e){
   const t = e.target;
+
+  if(t.closest("details.placard > summary")) state.placardOuvert = !state.placardOuvert;
 
   const act = t.closest("[data-act]");
   if(act){ faireAction(act); return; }
@@ -4778,7 +4951,7 @@ function onAppClick(e){
     case "cook-next": changerEtape(1); return;
     case "cook-done": {
       const c = state.cuisine, r = c && getRecette(c.rid);
-      if(r && !c.marque){ marquerCuisinee(r, c.entree); c.marque = true; render(); toast("Bravo ! 👩‍🍳 C'est noté"); }
+      if(r && !c.marque){ const compte = marquerCuisinee(r, c.entree); c.marque = true; render(); toast(compte ? "Bravo ! 👩‍🍳 C'est noté" : "Déjà noté dans ton historique"); }
       return;
     }
     case "save-recette": saveRecette(); return;
@@ -4832,7 +5005,7 @@ function onAppClick(e){
     case "fc-export": fcExport(); return;
     case "fc-toggle":
       db.fc.actif = !db.fc.actif;
-      if(!db.fc.actif) state.filters.maPhase = false;
+      if(!db.fc.actif){ state.filters.maPhase = false; state.filters.cycle = []; if(state.onglet === "cycle") state.onglet = "accueil"; }
       save(); toast(db.fc.actif ? "Food Cycling activé" : "Food Cycling désactivé");
       render();
       return;
@@ -4921,6 +5094,7 @@ function onAppClick(e){
   if(sp){
     const c = sp.dataset.setphase;
     db.phaseActuelle = (db.phaseActuelle === c) ? "" : c;
+    if(!db.phaseActuelle) state.filters.maPhase = false;
     save(); toast(db.phaseActuelle ? "Phase " + c.toLowerCase() + " activée" : "Phase désactivée");
     render();
     return;
@@ -5052,10 +5226,15 @@ function onChip(chip, group){
 function onAppInput(e){
   const t = e.target;
   if(t.id === "q"){
+    // on attend une courte pause dans la frappe : une grande base ne ralentit plus le clavier
     state.q = t.value;
-    const pos = t.selectionStart;
-    render();
-    const q = $("#q"); if(q){ q.focus(); try{ q.setSelectionRange(pos,pos); }catch(_){} }
+    clearTimeout(rechT);
+    rechT = setTimeout(() => {
+      const el = $("#q"), avaitFocus = !!el && el === document.activeElement, pos = el ? el.selectionStart : null;
+      render();
+      const q = $("#q");
+      if(q && avaitFocus){ q.focus(); try{ if(pos !== null) q.setSelectionRange(pos, pos); }catch(_){} }
+    }, 140);
     return;
   }
   if(t.id === "q-ali"){
@@ -5065,7 +5244,16 @@ function onAppInput(e){
     const el = $("#q-ali"); if(el){ el.focus(); try{ el.setSelectionRange(pos,pos); }catch(_){} }
     return;
   }
-  if(t.id === "f-temps"){ state.filters.tempsMax = num(t.value); clearTimeout(notesT); notesT = setTimeout(render, 400); return; }
+  if(t.id === "f-temps"){
+    state.filters.tempsMax = num(t.value);
+    clearTimeout(notesT);
+    notesT = setTimeout(() => {
+      render();
+      const el = $("#f-temps");
+      if(el){ el.focus(); const n = el.value.length; try{ el.setSelectionRange(n, n); }catch(_){} }
+    }, 600);
+    return;
+  }
   if(t.id === "cycle-notes"){
     db.cycleNotes[state.cycle] = t.value;
     clearTimeout(notesT); notesT = setTimeout(() => { const ok = save(); const s = $("#notes-state"); if(s) s.textContent = ok ? "Enregistré ✓" : "⚠️ Non enregistré (mémoire pleine)"; }, 600);
@@ -5132,13 +5320,14 @@ function onAppPaste(e){
   if(lignes.length < 2) return;
   e.preventDefault();
   let row = t.closest(".ing-row");
+  const ajoutes = lignes.length - (t.value.trim() ? 0 : 1);
   if(!t.value.trim()) t.value = lignes.shift();
   lignes.forEach(l => {
     row.insertAdjacentHTML("afterend", ingRow({txt: l, alg:false}, $$("#ings .ing-row").length));
     row = row.nextElementSibling;
   });
   row.querySelector(".ing-txt").focus();
-  toast(($$("#ings .ing-row").length) + " ingrédients ✓");
+  toast((ajoutes + 1) + " ingrédients collés ✓");
 }
 
 /* =========================================================
@@ -5148,8 +5337,9 @@ load();
 construireAliments();
 appliquerTheme();
 if(db.phaseActuelle) state.cycle = db.phaseActuelle;   // on ouvre sur ma phase du moment
-state.semPlan = semaineCourante();
+state.semPlan = semaineVue = semaineCourante();
 state.semCourses = semaineCoursesParDefaut();
+relireCuisson();
 document.title = "Recipe book " + APP_VERSION;
 const _v = document.getElementById("ver"); if(_v) _v.textContent = APP_VERSION;
 try{ history.replaceState({n: 0}, ""); }catch(e){ historique = false; }
