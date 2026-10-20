@@ -4,6 +4,37 @@ All notable changes to Recipe Book. The version number is visible in the browser
 
 ---
 
+## [3.0] — 2026-10-20
+
+The recipe book becomes a pocket cooking app: find what to cook, plan the week, shop, and cook step by step — with your own recipes.
+
+### Added
+- **Bottom tab bar**: Accueil · Recettes · Planning · Courses (· Cycle when Food Cycling is on). Re-tapping the current tab scrolls back to the top. The browser's back gesture now works inside the app, and going back restores where you were in the list.
+- **Home feed**: what's on the menu today with a one-tap "Cuisiner", quick tiles (planning, shopping, 🎲 surprise me, fridge search), and carousels — best recipes, ready in 30 min, in season, for your phase, not yet tested, to cook again soon, recently added — plus your tags shown as **collections**.
+- **"Avec ce que j'ai"**: type the ingredients you have ("poulet, courgette, riz"); recipes using the most of them come first, with a ✓ 2/3 badge. Recognises French and English names through the food catalogue.
+- **Library**: always-visible search (accent-insensitive, every word must match), one-tap shortcuts (favourites, 30 min max, 4★+, planned, to test, meal types) and **sorting** (best rated, quickest, newest, most cooked, highest protein, A→Z).
+- **Portions on the recipe page**: a +/− stepper rescales every ingredient quantity live, written the way a cookbook would ("1½ oignon", "335 g", "2 à 3" → "4 à 6"). Recipes without base portions scale by ×½ … ×4.
+- **Cook mode**: one step per screen in large type, a mise en place checklist, the ingredients used in each step at the chosen quantity, **timers detected from the text** ("20-25 minutes", "1 h 30") that keep running across screens and ring when done, swipe or ← → to move, and the screen stays awake (Safari 16.4+). The last screen lets you rate the dish and log it as cooked.
+- **Weekly planner**: real dated weeks, a slot per day plus "sans jour précis", portions per meal, 🔀 swap for another idea, ✨ fill the empty days from your favourites (seasonal, not cooked in the last 10 days), copy last week, clear a week — all with undo.
+- **Shopping list per week**, built from the planner: progress bar, inline add (↵ to chain items), checked items sink to the bottom of their aisle, aisle changes and removal from a bottom sheet, share or copy what's left to buy.
+- **Mon placard**: mark staples you always have (salt, oil, spices…) and they move to a collapsed "Dans mes placards" section instead of cluttering every list.
+- **Cook history and notes**: each recipe tracks how many times you cooked it and when; a "Mes notes" field keeps your tweaks and is shown again at the start of cook mode.
+- **Favourites** with a heart on the recipe page (reuses the existing "❤️ Favorite" cuisine, so earlier favourites carry over) and inline star rating.
+- **Settings**: household size (default portions when opening or planning a recipe), pantry list, and light / dark / automatic appearance.
+- **Dark mode**, following the phone or Mac unless set otherwise.
+- **Recipe form**: essentials first (name, photo, portions, times), then ingredients and steps, then classification; nutrition and source fold away. ↵ in an ingredient opens the next line, and pasting a whole ingredient list fills one line per ingredient. A sticky save bar stays in reach.
+- Bottom sheets replace the old `prompt()` dialogs for planning, aisles and the "new recipe" menu.
+
+### Changed
+- "Cette semaine" is now the planner. Existing data migrates automatically on first launch: recipes that were in "this week" become meals of the current week with their chosen portions, and the shopping list keeps its ticks and manual items.
+- The JSON backup now carries the planner (current and future weeks), cook history and notes; importing a pre-3.0 backup turns its "this week" recipes into planned meals.
+- Re-importing a recipe from the web keeps your notes and cook history in addition to rating, status and tags.
+
+### Fixed
+- An aisle chosen for a recognised ingredient (e.g. moving "Oignon" to another aisle) was saved under one key and looked up under another, so it never stuck. It now does.
+
+---
+
 ## [2.2] — 2026-09-06
 
 ### Added

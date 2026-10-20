@@ -12,9 +12,13 @@
 <meta name="apple-mobile-web-app-title" content="Recipe book">
 <style>
 :root{
+  color-scheme:light;
   --bg:#faf8f5;
+  --bg-glass:rgba(250,248,245,.9);
   --card:#ffffff;
+  --glass:rgba(255,255,255,.88);
   --ink:#2b2622;
+  --on-ink:#ffffff;
   --muted:#8b8177;
   --line:#e9e3db;
   --line2:#f2ede6;
@@ -22,17 +26,58 @@
   --accent-d:#a25b2e;
   --soft:#f7ece3;
   --ok:#4f8a5b;
+  --ok-soft:#e8f3ea;
+  --ok-ink:#3f7a4d;
   --warn:#c9a227;
+  --warn-soft:#fdf6e3;
+  --warn-line:#e2c563;
+  --warn-ink:#7a5c11;
   --danger:#b4453a;
+  --danger-soft:#fdeeec;
+  --danger-line:#ecd6d3;
+  --gim-bg:#fbf1d8; --gim:#8a6d18;
+  --gih-bg:#fbe6e3; --gih:#a8443a;
+  --bio-bg:#eaf4e9; --bio:#4a7c43;
+  --code-bg:#fbf9f7;
   --r:14px;
   --shadow:0 1px 2px rgba(43,38,34,.05), 0 6px 18px rgba(43,38,34,.05);
+  --shadow-lg:0 12px 40px rgba(43,38,34,.2);
+}
+/* sombre : suit le réglage du téléphone, sauf choix contraire dans ⚙ Réglages */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="clair"]){
+    color-scheme:dark;
+    --bg:#161311; --bg-glass:rgba(22,19,17,.88); --card:#221d1a; --glass:rgba(34,29,26,.86);
+    --ink:#f2ece5; --on-ink:#161311; --muted:#a39689; --line:#3a322c; --line2:#2a2420;
+    --accent:#d9824d; --accent-d:#eb9a68; --soft:#3a271c;
+    --ok:#6db07a; --ok-soft:#1e3123; --ok-ink:#93d19f;
+    --warn:#e3bb3e; --warn-soft:#33290f; --warn-line:#6e5916; --warn-ink:#efd48b;
+    --danger:#e47a6e; --danger-soft:#3a1f1b; --danger-line:#5c2e28;
+    --gim-bg:#3a2f12; --gim:#e8ca66; --gih-bg:#3c201c; --gih:#f29d92; --bio-bg:#1e3220; --bio:#93d08c;
+    --code-bg:#1c1815;
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 6px 18px rgba(0,0,0,.25);
+    --shadow-lg:0 12px 40px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="sombre"]{
+  color-scheme:dark;
+  --bg:#161311; --bg-glass:rgba(22,19,17,.88); --card:#221d1a; --glass:rgba(34,29,26,.86);
+  --ink:#f2ece5; --on-ink:#161311; --muted:#a39689; --line:#3a322c; --line2:#2a2420;
+  --accent:#d9824d; --accent-d:#eb9a68; --soft:#3a271c;
+  --ok:#6db07a; --ok-soft:#1e3123; --ok-ink:#93d19f;
+  --warn:#e3bb3e; --warn-soft:#33290f; --warn-line:#6e5916; --warn-ink:#efd48b;
+  --danger:#e47a6e; --danger-soft:#3a1f1b; --danger-line:#5c2e28;
+  --gim-bg:#3a2f12; --gim:#e8ca66; --gih-bg:#3c201c; --gih:#f29d92; --bio-bg:#1e3220; --bio:#93d08c;
+  --code-bg:#1c1815;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 6px 18px rgba(0,0,0,.25);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.5);
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
   background:var(--bg); color:var(--ink);
   font:16px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  padding-bottom:calc(90px + env(safe-area-inset-bottom));
+  padding-bottom:calc(92px + env(safe-area-inset-bottom));
   -webkit-text-size-adjust:100%;
 }
 h1,h2,h3,h4{margin:0; font-weight:650; letter-spacing:-.01em}
@@ -51,7 +96,7 @@ textarea{min-height:110px; resize:vertical; line-height:1.55}
 
 /* ---------- Header ---------- */
 header.top{
-  position:sticky; top:0; z-index:40; background:rgba(250,248,245,.92);
+  position:sticky; top:0; z-index:40; background:var(--bg-glass);
   backdrop-filter:saturate(180%) blur(12px); -webkit-backdrop-filter:saturate(180%) blur(12px);
   border-bottom:1px solid var(--line); padding-top:env(safe-area-inset-top);
 }
@@ -66,7 +111,7 @@ header.top{
   flex:0 0 auto; border:1px solid var(--line); background:var(--card); color:var(--muted);
   padding:7px 14px; border-radius:999px; font-size:14px; font-weight:550; cursor:pointer;
 }
-.tab.on{background:var(--ink); border-color:var(--ink); color:#fff}
+.tab.on{background:var(--ink); border-color:var(--ink); color:var(--on-ink)}
 
 /* ---------- Boutons ---------- */
 .btn{
@@ -78,14 +123,14 @@ header.top{
 .btn:active{transform:scale(.98)}
 .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff}
 .btn.ghost{background:transparent}
-.btn.danger{color:var(--danger); border-color:#ecd6d3}
+.btn.danger{color:var(--danger); border-color:var(--danger-line)}
 .btn.sm{padding:6px 10px; font-size:13px}
 .icon-btn{
   width:38px; height:38px; border-radius:10px; border:1px solid var(--line); background:var(--card);
   display:inline-flex; align-items:center; justify-content:center; cursor:pointer; font-size:17px;
 }
 .fab{
-  position:fixed; right:18px; bottom:calc(22px + env(safe-area-inset-bottom)); z-index:50;
+  position:fixed; right:18px; bottom:calc(80px + env(safe-area-inset-bottom)); z-index:50;
   width:56px; height:56px; border-radius:50%; border:none; background:var(--accent); color:#fff;
   font-size:30px; line-height:1; box-shadow:0 6px 20px rgba(192,112,63,.4); cursor:pointer;
 }
@@ -118,7 +163,7 @@ header.top{
 .card-meta{font-size:12px; color:var(--muted); display:flex; flex-wrap:wrap; gap:8px}
 .week-btn{
   position:absolute; top:8px; right:8px; width:32px; height:32px; border-radius:50%;
-  border:none; background:rgba(255,255,255,.9); backdrop-filter:blur(6px);
+  border:none; background:var(--glass); backdrop-filter:blur(6px); color:var(--ink);
   font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center;
   box-shadow:0 1px 5px rgba(0,0,0,.14);
 }
@@ -195,7 +240,7 @@ ul.ing li.done{color:var(--muted); text-decoration:line-through}
 .box{width:19px; height:19px; border:1.6px solid var(--line); border-radius:6px; flex:0 0 auto; margin-top:2px;
   display:flex; align-items:center; justify-content:center; font-size:12px; color:#fff}
 li.done .box{background:var(--accent); border-color:var(--accent)}
-.alg{font-size:11px; background:#fdeeec; color:var(--danger); border-radius:6px; padding:1px 6px; margin-left:auto; flex:0 0 auto}
+.alg{font-size:11px; background:var(--danger-soft); color:var(--danger); border-radius:6px; padding:1px 6px; margin-left:auto; flex:0 0 auto}
 ol.steps{margin:0; padding:0 0 0 4px; list-style:none; counter-reset:s}
 ol.steps li{counter-increment:s; display:flex; gap:12px; padding:9px 0; font-size:15px}
 ol.steps li::before{
@@ -210,14 +255,14 @@ ol.steps li::before{
 .ing-row input{flex:1}
 .mini{width:34px; height:34px; flex:0 0 auto; border-radius:9px; border:1px solid var(--line);
   background:var(--card); cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center}
-.mini.on{background:#fdeeec; border-color:#e9c3bd}
+.mini.on{background:var(--danger-soft); border-color:var(--danger-line)}
 .starpick{display:flex; gap:5px}
 .starpick button{border:none; background:none; font-size:25px; color:var(--line); cursor:pointer; padding:0}
 .starpick button.on{color:var(--warn)}
 .subtabs{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap}
 .toast{
-  position:fixed; left:50%; transform:translateX(-50%); bottom:calc(90px + env(safe-area-inset-bottom));
-  background:var(--ink); color:#fff; padding:11px 18px; border-radius:999px; font-size:14px;
+  position:fixed; left:50%; transform:translateX(-50%); bottom:calc(84px + env(safe-area-inset-bottom));
+  background:var(--ink); color:var(--on-ink); max-width:calc(100vw - 32px); text-align:center; padding:11px 18px; border-radius:999px; font-size:14px;
   z-index:90; opacity:0; pointer-events:none; transition:opacity .22s;
 }
 .toast.show{opacity:1}
@@ -240,7 +285,7 @@ summary::before{content:"› "; display:inline-block; transition:transform .15s}
 details[open] summary::before{content:"⌄ "}
 textarea.code{
   font:12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; min-height:120px;
-  background:#fbf9f7; margin:10px 0 8px; word-break:break-all;
+  background:var(--code-bg); margin:10px 0 8px; word-break:break-all;
 }
 ol.howto{margin:12px 0; padding-left:22px; font-size:14.5px; line-height:1.6}
 ol.howto li{margin-bottom:7px}
@@ -252,7 +297,7 @@ code{background:var(--line2); border-radius:5px; padding:1px 5px; font-size:12.5
   background:var(--soft); border:1px solid var(--accent); border-radius:12px;
   padding:13px 15px; margin:0 0 14px; font-size:14px; line-height:1.55; color:var(--accent-d);
 }
-.notice.warn{background:#fdf6e3; border-color:#e2c563; color:#7a5c11}
+.notice.warn{background:var(--warn-soft); border-color:var(--warn-line); color:var(--warn-ink)}
 .notice b{color:inherit}
 .bmver{font-size:12px; color:var(--muted); margin-left:auto}
 
@@ -281,10 +326,10 @@ p.txt{margin:0; font-size:15px; line-height:1.62}
   margin-left:6px; background:var(--line2); color:var(--muted); vertical-align:middle; white-space:nowrap;
 }
 .tagali.cible{background:var(--soft); color:var(--accent-d)}
-.tagali.giL{background:#e8f3ea; color:#3f7a4d}
-.tagali.giM{background:#fbf1d8; color:#8a6d18}
-.tagali.giH{background:#fbe6e3; color:#a8443a}
-.tagali.bio{background:#eaf4e9; color:#4a7c43}
+.tagali.giL{background:var(--ok-soft); color:var(--ok-ink)}
+.tagali.giM{background:var(--gim-bg); color:var(--gim)}
+.tagali.giH{background:var(--gih-bg); color:var(--gih)}
+.tagali.bio{background:var(--bio-bg); color:var(--bio)}
 li.done .tagali{opacity:.5}
 .qte{font-size:13px; color:var(--accent-d); font-weight:600; margin-left:6px; white-space:nowrap}
 .src{display:block; font-size:11.5px; color:var(--muted); margin-top:2px}
@@ -312,6 +357,333 @@ ul.ing li .mini{width:30px; height:30px; font-size:13px; margin-top:-2px}
   min-width:34px; padding:5px 8px; font-size:14px; line-height:1;
   display:inline-flex; align-items:center; justify-content:center;
 }
+
+/* =========================================================
+   v3 — l'app de poche
+   ========================================================= */
+.ico{width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex:0 0 auto; display:block}
+.ico.sm{width:17px; height:17px}
+.ico.plein{fill:currentColor; stroke:none}
+.ico.rempli{fill:currentColor}
+.icon-btn .ico{width:20px; height:20px}
+.fab{display:flex; align-items:center; justify-content:center}
+.fab .ico{width:28px; height:28px; stroke-width:2.2}
+#app.vin{animation:vin .22s ease}
+@keyframes vin{from{opacity:0} to{opacity:1}}
+@media (prefers-reduced-motion: reduce){ #app.vin{animation:none} }
+.btn.on{border-color:var(--accent); color:var(--accent-d); background:var(--soft)}
+.btn .ico.sm{margin:0 -1px}
+
+/* ---------- barre d'onglets du bas ---------- */
+.tabbar{
+  position:fixed; left:0; right:0; bottom:0; z-index:60;
+  display:flex; justify-content:center;
+  background:var(--bg-glass); backdrop-filter:saturate(180%) blur(14px); -webkit-backdrop-filter:saturate(180%) blur(14px);
+  border-top:1px solid var(--line); padding:0 6px env(safe-area-inset-bottom);
+}
+.tabbar-in{display:flex; width:100%; max-width:560px}
+.tb{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; position:relative;
+  border:none; background:none; color:var(--muted); cursor:pointer;
+  padding:8px 2px 7px; font-size:11px; font-weight:600; letter-spacing:.01em;
+}
+.tb .ico{width:24px; height:24px}
+.tb.on{color:var(--accent-d)}
+.tb.on .ico{stroke-width:2.1}
+.tb-badge{
+  position:absolute; top:3px; left:calc(50% + 5px); min-width:18px; height:18px; padding:0 5px;
+  border-radius:999px; background:var(--accent); color:#fff; font-size:10.5px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; border:2px solid var(--bg);
+}
+.tb-dot{position:absolute; top:6px; left:calc(50% + 9px); width:8px; height:8px; border-radius:50%; background:var(--accent); border:2px solid var(--bg)}
+body.immersif header.top, body.immersif .tabbar, body.immersif .fab,
+body.saisie .tabbar, body.saisie .fab{display:none !important}
+body.immersif{padding-bottom:0}
+body.saisie{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+body.sheet-open{overflow:hidden}
+
+/* ---------- titres de page ---------- */
+.page-head{display:flex; align-items:center; gap:10px; margin:22px 0 4px}
+.page-head h2{font-size:28px; letter-spacing:-.025em; line-height:1.1; flex:1}
+.page-head .count{font-size:14px}
+.round{
+  width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--card); color:var(--ink);
+  display:inline-flex; align-items:center; justify-content:center; cursor:pointer; flex:0 0 auto; padding:0;
+}
+.round.sm{width:32px; height:32px}
+.round.sm .ico{width:18px; height:18px}
+.voir{border:none; background:none; color:var(--accent-d); font-size:13.5px; font-weight:620; cursor:pointer; padding:2px 0; white-space:nowrap}
+.section-head .voir, .day-head .voir{margin-left:auto}
+.kicker{font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--accent-d)}
+.kicker.muted{color:var(--muted)}
+
+/* ---------- accueil ---------- */
+.hello{margin:22px 0 14px}
+.hello-sub{font-size:14.5px; color:var(--muted); font-weight:550}
+.hello h1{font-size:28px; letter-spacing:-.025em; line-height:1.15; margin-top:2px}
+.fakesearch{
+  width:100%; display:flex; align-items:center; gap:10px; text-align:left;
+  background:var(--card); border:1px solid var(--line); border-radius:12px; padding:11px 13px;
+  color:var(--muted); font-size:15px; cursor:pointer; box-shadow:var(--shadow);
+}
+.today{background:var(--card); border:1px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:var(--shadow); margin-top:16px}
+.today-img{height:168px; background:var(--soft); display:flex; align-items:center; justify-content:center; font-size:54px; cursor:pointer; overflow:hidden}
+.today-img img{width:100%; height:100%; object-fit:cover}
+.today-body{padding:14px 15px 15px}
+.today-title{font-size:20px; font-weight:680; margin:3px 0 5px; line-height:1.25; letter-spacing:-.01em; cursor:pointer}
+.today.vide .today-title{font-size:17px; cursor:default}
+.today .actions{margin-top:12px}
+.quick{display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin-top:14px}
+.qt{
+  display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center;
+  background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 3px 10px; cursor:pointer;
+  font-size:12.5px; font-weight:640; color:var(--ink); line-height:1.2;
+}
+.qt:active{transform:scale(.97)}
+.qt-emo{font-size:24px; line-height:1}
+.qt small{display:block; font-size:10.5px; color:var(--muted); font-weight:500; margin-top:1px}
+.rail{display:flex; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; scroll-padding:0 16px; margin:0 -16px; padding:2px 16px 10px; scrollbar-width:none; -webkit-overflow-scrolling:touch}
+.rail::-webkit-scrollbar{display:none}
+.rail > .card{flex:0 0 158px; scroll-snap-align:start}
+@media(min-width:700px){ .rail > .card{flex-basis:200px} }
+.rail .card-title{font-size:13.5px}
+.rail .card-meta{font-size:11.5px}
+.colls{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px}
+.coll{position:relative; border-radius:14px; overflow:hidden; aspect-ratio:16/10; background:var(--soft); cursor:pointer; border:none; padding:0; text-align:left; color:#fff}
+.coll img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.coll::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.66))}
+.coll > span{position:absolute; left:11px; bottom:9px; right:11px; z-index:1; font-weight:680; font-size:14.5px; line-height:1.2; text-shadow:0 1px 3px rgba(0,0,0,.35)}
+.coll small{display:block; font-weight:500; font-size:11.5px; opacity:.92}
+.coll .coll-emo{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:36px; padding-bottom:22px}
+.onb{text-align:center; padding:26px 10px 18px}
+.onb .big{font-size:54px; line-height:1}
+.onb h2{font-size:22px; margin:10px 0 6px}
+.onb p{color:var(--muted); margin:0 auto; max-width:420px; font-size:15px}
+
+/* ---------- cartes ---------- */
+.fav-dot{
+  position:absolute; top:8px; left:8px; width:28px; height:28px; border-radius:50%;
+  background:var(--glass); color:#e0245e; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 1px 5px rgba(0,0,0,.14);
+}
+.fav-dot .ico{width:16px; height:16px}
+.match{font-size:11.5px; font-weight:650; color:var(--ok-ink); background:var(--ok-soft); border-radius:6px; padding:2px 7px; align-self:flex-start}
+.match.part{color:var(--gim); background:var(--gim-bg)}
+
+/* ---------- recherche ---------- */
+.searchbar .btn{padding:0 13px; flex:0 0 auto}
+.search-in{flex:1; position:relative; display:flex; align-items:center; min-width:0}
+.search-in .ico{position:absolute; left:12px; color:var(--muted); pointer-events:none}
+.search-in input{padding-left:38px; border-radius:12px}
+.qchips{display:flex; gap:7px; overflow-x:auto; margin:12px -16px 0; padding:0 16px 2px; scrollbar-width:none}
+.qchips::-webkit-scrollbar{display:none}
+.qchips .chip{flex:0 0 auto; white-space:nowrap}
+.tri-sel{width:auto; padding:6px 30px 6px 11px; font-size:13.5px; border-radius:999px; background-color:var(--card)}
+
+/* ---------- fiche ---------- */
+.fiche-hero{
+  position:relative; margin:0 -16px; height:min(62vw, 400px); background:var(--soft);
+  display:flex; align-items:center; justify-content:center; font-size:68px; overflow:hidden;
+}
+.fiche-hero > img{width:100%; height:100%; object-fit:cover}
+.ov{position:absolute; top:12px; left:12px; right:12px; display:flex; gap:8px; pointer-events:none}
+.ov .sp{flex:1}
+.ov-btn{
+  pointer-events:auto; width:40px; height:40px; border-radius:50%; border:none; background:var(--glass); color:var(--ink);
+  display:inline-flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.15); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+}
+.ov-btn.fav{color:#e0245e}
+.fiche-head{position:relative; background:var(--bg); border-radius:22px 22px 0 0; margin:-22px -16px 0; padding:20px 16px 0}
+@media(min-width:720px){
+  .fiche-hero{margin:16px 0 0; border-radius:var(--r)}
+  .fiche-head{margin:0; padding:18px 0 0; border-radius:0}
+}
+.fiche-title{font-size:26px; line-height:1.18; letter-spacing:-.022em}
+.fiche-sub{display:flex; align-items:center; flex-wrap:wrap; gap:4px 12px; margin-top:7px; font-size:13.5px; color:var(--muted)}
+.metas{display:flex; flex-wrap:wrap; gap:7px; margin-top:13px}
+.meta{display:inline-flex; align-items:center; gap:5px; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:5px 11px; font-size:13px; font-weight:560}
+.rate{display:inline-flex; gap:1px}
+.rate button{border:none; background:none; padding:0 1px; font-size:21px; color:var(--line); cursor:pointer; line-height:1}
+.rate button.on{color:var(--warn)}
+.rate.big button{font-size:38px; padding:0 3px}
+.cta-row{display:flex; gap:9px; margin-top:16px}
+.cta{
+  flex:1; display:flex; align-items:center; justify-content:center; gap:9px; border:none; border-radius:14px;
+  padding:14px; background:var(--accent); color:#fff; font-size:16px; font-weight:650; cursor:pointer;
+  box-shadow:0 4px 14px rgba(192,112,63,.28);
+}
+.cta:active{transform:scale(.98)}
+.cta .ico{width:19px; height:19px}
+.cta.second{flex:0 0 auto; background:var(--card); color:var(--ink); border:1px solid var(--line); box-shadow:none; padding:14px 16px}
+.cta.second.on{background:var(--soft); border-color:var(--accent); color:var(--accent-d)}
+.plan-info{margin-top:10px; font-size:13.5px; color:var(--accent-d); background:var(--soft); border-radius:10px; padding:8px 12px}
+.portions-bar{display:flex; align-items:center; gap:12px; justify-content:space-between; padding-bottom:12px; margin-bottom:4px; border-bottom:1px solid var(--line2)}
+.portions-bar b{font-size:15.5px}
+.hint-scale{font-size:12.5px; color:var(--muted); margin-top:1px}
+.stepper.big button{width:42px; height:40px; font-size:21px}
+.stepper.big .stepper-val{min-width:46px; font-size:16px}
+.qa{color:var(--accent-d); font-weight:700}
+.fiche-foot{display:flex; gap:9px; flex-wrap:wrap; margin-top:22px}
+
+/* ---------- feuilles du bas ---------- */
+.sheet-bg{position:fixed; inset:0; background:rgba(20,16,12,.4); z-index:95; opacity:0; pointer-events:none; transition:opacity .22s}
+.sheet-bg.open{opacity:1; pointer-events:auto}
+.sheet{
+  position:fixed; left:0; right:0; bottom:0; z-index:96; margin:0 auto; max-width:560px;
+  background:var(--bg); border-radius:20px 20px 0 0; box-shadow:var(--shadow-lg);
+  max-height:88vh; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+  padding:8px 16px calc(20px + env(safe-area-inset-bottom));
+  transform:translateY(105%); visibility:hidden;
+  transition:transform .26s cubic-bezier(.2,.8,.2,1), visibility 0s .26s;
+}
+.sheet.open{transform:none; visibility:visible; transition:transform .26s cubic-bezier(.2,.8,.2,1), visibility 0s}
+@media (prefers-reduced-motion: reduce){ .sheet, .sheet.open{transition:none} }
+.grip{width:38px; height:5px; border-radius:3px; background:var(--line); margin:2px auto 14px}
+.sheet h3{font-size:19px; margin-bottom:2px}
+.sheet .sub{font-size:13.5px; color:var(--muted); margin:0 0 14px}
+.sheet .kicker{margin:18px 0 8px}
+.opts{display:flex; flex-direction:column; background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+.opt{
+  display:flex; align-items:center; gap:12px; padding:13px 14px; border:none; border-bottom:1px solid var(--line2);
+  background:none; text-align:left; cursor:pointer; font-size:15px; color:var(--ink); width:100%;
+}
+.opt:last-child{border-bottom:none}
+.opt:active{background:var(--line2)}
+.opt-emo{font-size:20px; width:26px; text-align:center; flex:0 0 auto}
+.opt small{display:block; font-size:12.5px; color:var(--muted); margin-top:1px}
+.opt.danger{color:var(--danger)}
+.opt.on{color:var(--accent-d); font-weight:650}
+.days{display:grid; grid-template-columns:repeat(4,1fr); gap:8px}
+.dayb{
+  border:1px solid var(--line); background:var(--card); border-radius:12px; padding:10px 4px; text-align:center;
+  cursor:pointer; font-size:14px; font-weight:640; color:var(--ink);
+}
+.dayb small{display:block; font-size:11.5px; color:var(--muted); font-weight:500; margin-top:1px}
+.dayb.passe{opacity:.45}
+.dayb.auj{border-color:var(--accent); color:var(--accent-d)}
+.dayb.has{background:var(--soft)}
+.pick{display:flex; align-items:center; gap:11px; padding:9px 2px; border-bottom:1px solid var(--line2); cursor:pointer}
+.pick:last-child{border-bottom:none}
+.pt{
+  width:52px; height:52px; border-radius:10px; object-fit:cover; flex:0 0 auto; background:var(--soft);
+  display:flex; align-items:center; justify-content:center; font-size:22px; overflow:hidden;
+}
+.pick b{display:block; font-size:14.5px; font-weight:620; line-height:1.3}
+.pick small{color:var(--muted); font-size:12px}
+
+/* ---------- planning ---------- */
+.weeknav{display:flex; align-items:center; gap:8px; margin-top:8px}
+.wk{flex:1; text-align:center}
+.wk b{display:block; font-size:16px}
+.wk small{font-size:12.5px; color:var(--muted)}
+.plan-sum{display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-top:14px}
+.day{margin-top:20px}
+.day-head{display:flex; align-items:center; gap:8px; margin-bottom:8px}
+.day-head h4{font-size:15.5px}
+.day-head .date{font-size:13px; color:var(--muted); flex:1}
+.day.auj .day-head h4{color:var(--accent-d)}
+.pill-auj{font-size:11px; font-weight:700; color:#fff; background:var(--accent); border-radius:999px; padding:2px 8px}
+.day.passe{opacity:.6}
+.day-add{border:1.5px dashed var(--line); background:none; border-radius:12px; width:100%; padding:12px; color:var(--muted); font-size:14px; cursor:pointer}
+.day-none{font-size:13px; color:var(--muted); padding:2px 0}
+.pe{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px; box-shadow:var(--shadow); margin-bottom:8px}
+.pe-top{display:flex; gap:11px; align-items:center}
+.pe-img{
+  width:60px; height:60px; border-radius:11px; background:var(--soft); flex:0 0 auto; overflow:hidden;
+  display:flex; align-items:center; justify-content:center; font-size:26px; position:relative; cursor:pointer;
+}
+.pe-img img{width:100%; height:100%; object-fit:cover}
+.pe-fait{position:absolute; inset:0; background:rgba(79,138,91,.75); color:#fff; display:flex; align-items:center; justify-content:center}
+.pe-info{flex:1; min-width:0; cursor:pointer}
+.pe-info b{font-size:14.5px; font-weight:640; line-height:1.3; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical}
+.pe-info small{display:block; font-size:12px; color:var(--muted); margin-top:2px}
+.pe-bot{display:flex; align-items:center; gap:8px; margin-top:9px; padding-top:9px; border-top:1px solid var(--line2)}
+.pe.fait .pe-info b{text-decoration:line-through; color:var(--muted)}
+
+/* ---------- courses ---------- */
+.prog{height:8px; border-radius:99px; background:var(--line2); overflow:hidden}
+.prog > i{display:block; height:100%; background:var(--accent); border-radius:99px; transition:width .3s}
+.prog.ok > i{background:var(--ok)}
+.prog-row{display:flex; align-items:center; justify-content:space-between; font-size:13px; color:var(--muted); margin:14px 0 6px}
+.prog-row b{color:var(--ink)}
+.addline{display:flex; gap:8px; margin:14px 0 2px}
+.addline input{flex:1; min-width:0}
+.pour{display:flex; gap:8px; overflow-x:auto; margin:12px -16px 0; padding:0 16px 2px; scrollbar-width:none}
+.pour::-webkit-scrollbar{display:none}
+.pour-r{flex:0 0 auto; display:flex; align-items:center; gap:7px; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:3px 11px 3px 3px; font-size:12.5px; cursor:pointer; max-width:220px}
+.pour-r .pt{width:26px; height:26px; border-radius:50%; font-size:13px}
+.pour-r span{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+details.placard{margin-top:22px; border-top:none}
+details.placard > summary{font-size:15px; color:var(--ink)}
+
+/* ---------- mode cuisine ---------- */
+.cook{min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; padding-top:env(safe-area-inset-top); max-width:760px; margin:0 auto}
+.cook-top{display:flex; align-items:center; gap:10px; padding:12px 0 10px}
+.cook-top .t{flex:1; min-width:0}
+.cook-top .t b{display:block; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.cook-top .t small{font-size:12.5px; color:var(--muted)}
+.segs{display:flex; gap:4px}
+.segs i{flex:1; height:4px; border-radius:3px; background:var(--line)}
+.segs i.on{background:var(--accent)}
+.cook-body{flex:1; padding:24px 0 150px}
+.step-title{font-size:24px; letter-spacing:-.02em; margin:6px 0 14px}
+.step-txt{font-size:23px; line-height:1.5; font-weight:500; margin:10px 0 22px; letter-spacing:-.005em}
+@media(min-width:720px){ .step-txt{font-size:27px} }
+.step-ings{display:flex; flex-wrap:wrap; gap:7px; margin-top:8px}
+.step-ing{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:7px 11px; font-size:15px}
+.tbtn{
+  display:inline-flex; align-items:center; gap:8px; border:1.5px solid var(--accent); color:var(--accent-d); background:var(--soft);
+  border-radius:12px; padding:11px 16px; font-size:16.5px; font-weight:650; cursor:pointer; margin:0 8px 8px 0;
+}
+.tbtn small{font-weight:500; font-size:12.5px; opacity:.8}
+ul.ing.big li{font-size:17px; padding:12px 0}
+ul.ing.big .box{width:22px; height:22px}
+.cook-nav{
+  position:fixed; left:0; right:0; bottom:0; z-index:70; padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  background:var(--bg-glass); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-top:1px solid var(--line);
+}
+.cook-nav-in{display:flex; gap:10px; width:100%; max-width:760px; margin:0 auto}
+.cook-nav .btn{flex:1; padding:15px; font-size:16.5px; border-radius:14px}
+.cook-nav .btn.prev{flex:0 0 auto; padding:15px 18px}
+.fin{text-align:center; padding-top:8px}
+.fin .big{font-size:66px; line-height:1}
+.fin h2{font-size:27px; margin:12px 0 4px}
+.notice.ok{background:var(--ok-soft); border-color:var(--ok); color:var(--ok-ink)}
+
+/* ---------- minuteurs ---------- */
+/* en bas à gauche, au-dessus de la barre d'onglets : ils ne cachent jamais un titre */
+.timers{position:fixed; left:12px; right:84px; bottom:calc(env(safe-area-inset-bottom) + 78px); z-index:85; display:flex; flex-direction:column; gap:7px; align-items:flex-start; pointer-events:none}
+body.immersif .timers{bottom:calc(env(safe-area-inset-bottom) + 92px); right:12px}
+body.saisie .timers{bottom:calc(env(safe-area-inset-bottom) + 80px)}
+.toast{width:max-content}
+body.immersif .toast{bottom:calc(env(safe-area-inset-bottom) + 94px)}
+body.a-minuteurs .toast{bottom:calc(env(safe-area-inset-bottom) + 132px)}
+body.immersif.a-minuteurs .toast{bottom:calc(env(safe-area-inset-bottom) + 146px)}
+.timer{
+  pointer-events:auto; display:flex; align-items:center; gap:8px; background:var(--ink); color:var(--on-ink);
+  border-radius:999px; padding:6px 6px 6px 13px; box-shadow:var(--shadow-lg); font-size:15px; font-weight:680;
+  font-variant-numeric:tabular-nums; cursor:pointer;
+}
+.timer small{font-weight:500; opacity:.75; font-size:12px; max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.timer button{width:28px; height:28px; border-radius:50%; border:none; background:rgba(128,128,128,.28); color:inherit; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0}
+.timer button .ico{width:15px; height:15px}
+.timer.fini{background:var(--accent); color:#fff; animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.06)}}
+
+/* ---------- formulaire ---------- */
+.savebar{
+  position:fixed; left:0; right:0; bottom:0; z-index:60; padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  background:var(--bg-glass); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-top:1px solid var(--line);
+}
+.savebar-in{max-width:948px; margin:0 auto; display:flex; gap:9px}
+.savebar .btn{padding:13px 16px; font-size:15.5px}
+.panel-titre{font-size:15px; font-weight:680; margin:0 0 12px}
+details.grp{border-top:none; padding:0}
+details.grp > summary{font-size:15px; color:var(--ink); font-weight:680}
+details.grp[open] > summary{margin-bottom:14px}
+.toast-act{border:none; background:none; color:var(--accent); font-weight:700; margin-left:12px; cursor:pointer; padding:0; font-size:14px}
+.toast.act{pointer-events:auto}
 </style>
 </head>
 <body>
@@ -321,17 +693,20 @@ ul.ing li .mini{width:30px; height:30px; font-size:13px; margin-top:-2px}
     <div class="top-row">
       <div class="brand" id="brand">Recipe <span>book</span><small class="ver" id="ver"></small></div>
       <select class="phase-sel" id="phase-sel" title="Ma phase actuelle"></select>
-      <button class="icon-btn" id="btn-search" title="Rechercher">⌕</button>
-      <button class="icon-btn" id="btn-settings" title="Réglages">⚙</button>
+      <button class="icon-btn" id="btn-search" title="Rechercher" aria-label="Rechercher"></button>
+      <button class="icon-btn" id="btn-settings" title="Réglages" aria-label="Réglages"></button>
     </div>
-    <nav class="tabs" id="tabs"></nav>
   </div>
 </header>
 
 <main class="wrap" id="app"></main>
 
-<button class="fab" id="fab" title="Nouvelle recette">+</button>
-<div class="toast" id="toast"></div>
+<nav class="tabbar" id="tabbar" aria-label="Navigation"></nav>
+<button class="fab" id="fab" title="Nouvelle recette" aria-label="Nouvelle recette"></button>
+<div class="timers" id="timers"></div>
+<div class="sheet-bg" id="sheet-bg"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 "use strict";
@@ -352,6 +727,42 @@ const CUISINES_DEF = [
   "Fish","Poultry","Soup","Italian","French","Mexican","Asian","Thai","Indian",
   "Middle Eastern","British","Japanese"
 ];
+
+const ARCHIVE   = STATUTS[2];
+const FAVORI    = "❤️ Favorite";   // la cuisine « favori » du jeu par défaut sert de cœur : pas de second concept
+const JOURS     = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
+const JOURS_COURTS = ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
+const MOIS_COURTS  = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+const SAISON_PAR_MOIS = ["Winter","Winter","Spring","Spring","Spring","Summer","Summer","Summer","Automn","Automn","Automn","Winter"];
+const SAISON_LBL = {Winter:"❄️ De saison cet hiver", Spring:"🌸 De saison ce printemps", Summer:"☀️ De saison cet été", Automn:"🍂 De saison cet automne"};
+const TRIS = [["categorie","Par catégorie"],["meilleures","Les mieux notées"],["rapides","Les plus rapides"],
+  ["recentes","Ajoutées récemment"],["cuisinees","Les plus cuisinées"],["proteines","Riches en protéines"],["az","De A à Z"]];
+const MULTS = [0.5, 1, 1.5, 2, 3, 4];   // sans portions de base connues, on ajuste par multiple
+const J_MS = 86400000;
+
+/* icônes au trait, dessinées pour la barre du bas et les boutons */
+const ICONES = {
+  maison: '<path d="M3.5 10.2 12 3.5l8.5 6.7V19a1.5 1.5 0 0 1-1.5 1.5h-4v-6h-6v6H5A1.5 1.5 0 0 1 3.5 19z"/>',
+  livre: '<path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"/><path d="M9 7.5h6"/>',
+  calendrier: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  panier: '<path d="M3.5 9.5h17l-1.6 9.2a2 2 0 0 1-2 1.8H7.1a2 2 0 0 1-2-1.8z"/><path d="M8.5 9.5 11 4M15.5 9.5 13 4M9.5 13.5v3M14.5 13.5v3"/>',
+  lune: '<path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/>',
+  loupe: '<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>',
+  reglages: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
+  gauche: '<path d="m14.5 5.5-6.5 6.5 6.5 6.5"/>',
+  droite: '<path d="m9.5 5.5 6.5 6.5-6.5 6.5"/>',
+  coeur: '<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/>',
+  partager: '<path d="M12 15V3.5M7.5 8 12 3.5 16.5 8"/><path d="M5 12.5V19a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-6.5"/>',
+  plus3: '<circle cx="5.5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18.5" cy="12" r="1.7"/>',
+  play: '<path d="M8 5.2v13.6a.8.8 0 0 0 1.2.7l10.5-6.8a.8.8 0 0 0 0-1.4L9.2 4.5A.8.8 0 0 0 8 5.2z"/>',
+  x: '<path d="M6 6l12 12M18 6 6 18"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  minuteur: '<circle cx="12" cy="13.5" r="7"/><path d="M12 10v3.5l2.5 1.5M9.5 3h5"/>'
+};
+function ico(nom, cls){
+  return '<svg class="ico' + (cls ? " " + cls : "") + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONES[nom] || "") + '</svg>';
+}
 
 /* Catalogue public : noms FR/EN, catégorie, index glycémique, repère pesticides.
    Aucune association avec les phases du cycle — celles-ci sont des données
@@ -643,6 +1054,8 @@ function nettoyerNom(t){
 function rayonDe(nom, ali){
   const cle = normAli(nom);
   if(db.rayons[cle]) return db.rayons[cle];
+  // correction posée depuis la liste : enregistrée sous le nom de l'aliment seul
+  if(ali){ const ca = normAli(ali.fr + " " + ali.en); if(db.rayons[ca]) return db.rayons[ca]; }
   if(ali && RAYON_PAR_CAT[ali.cat]) return RAYON_PAR_CAT[ali.cat];
   const n = " " + cle + " ";
   for(const [rayon, mots] of RAYON_MOTS){
@@ -655,22 +1068,25 @@ function rayonDe(nom, ali){
   return RAYONS[RAYONS.length - 1];
 }
 
-/* construit la liste agrégée à partir des recettes « cette semaine » */
-function construireCourses(){
-  const recettes = db.recettes.filter(r => r.semaine);
+/* construit la liste agrégée à partir des repas planifiés d'une semaine.
+   Les articles « toujours au placard » sont mis de côté dans res.placard. */
+function construireCourses(sem){
+  sem = sem || semaineCourante();
+  const C = coursesDe(sem);
   const lignes = {};   // clé → { nom, ali, rayon, parts:{fam:{qte,aff}}, sansQte:[], recettes:[] }
 
-  recettes.forEach(r => {
-    // portions choisies cette semaine vs. portions de base de la recette :
+  entreesSemaine(sem).forEach(e => {
+    const r = getRecette(e.rid);
+    // portions choisies pour ce repas vs. portions de base de la recette :
     // sans base connue, impossible de savoir à quoi rapporter le nombre choisi,
     // donc on ne touche pas aux quantités telles qu'écrites.
-    const echelle = (r.portions && r.semainePortions) ? (r.semainePortions / r.portions) : 1;
+    const echelle = echelleEntree(e);
     (r.ingredients || []).forEach(ing => {
       const p = parseIngredient(ing.txt);
       const ali = trouverAliment(p.nom) || trouverAliment(ing.txt);
       const cle = ali ? ("a:" + ali.en) : ("t:" + normAli(p.nom));
       if(!cle || cle === "t:") return;
-      if(db.coursesRetires.indexOf(cle) >= 0) return;
+      if(C.retires.indexOf(cle) >= 0) return;
 
       if(!lignes[cle]){
         lignes[cle] = {
@@ -716,23 +1132,28 @@ function construireCourses(){
   });
 
   // lignes ajoutées à la main
-  db.coursesAjouts.forEach((a, i) => {
+  C.ajouts.forEach(a => {
     const p = parseIngredient(a.txt);
-    const cle = "m:" + i;
+    const cle = "m:" + a.id;
     lignes[cle] = {cle:cle, nom:a.txt, ali:null, rayon:a.rayon || rayonDe(p.nom, null),
                    parts:{}, sansQte:0, alg:false, recettes:[], details:[], manuel:true};
   });
 
-  // regroupement par rayon, dans l'ordre du magasin
+  // ce que j'ai toujours chez moi part dans une section à part
+  const placard = [];
   const parRayon = {};
   Object.keys(lignes).forEach(k => {
     const L = lignes[k];
+    if(!L.manuel && db.placard.indexOf(k) >= 0){ placard.push(L); return; }
     (parRayon[L.rayon] = parRayon[L.rayon] || []).push(L);
   });
-  return RAYONS.filter(r => parRayon[r]).map(r => ({
+  // regroupement par rayon, dans l'ordre du magasin
+  const res = RAYONS.filter(r => parRayon[r]).map(r => ({
     rayon: r,
     lignes: parRayon[r].sort((a,b) => a.nom.localeCompare(b.nom, "fr"))
   }));
+  res.placard = placard.sort((a,b) => a.nom.localeCompare(b.nom, "fr"));
+  return res;
 }
 
 /* « 1,5 kg » plutôt que « 1500 g » — partagé entre le total agrégé et le détail par recette */
@@ -758,13 +1179,13 @@ function afficheQte(L){
 }
 
 const KEY = "base-recettes-v1";
-const APP_VERSION = "2.2";   // affichée dans l'onglet Safari : permet de vérifier qu'on lit bien le fichier à jour
+const APP_VERSION = "3.0";   // affichée dans l'onglet Safari : permet de vérifier qu'on lit bien le fichier à jour
 
 /* =========================================================
    2. ÉTAT + PERSISTANCE
    ========================================================= */
 let db = {
-  version: 2,
+  version: 3,
   recettes: [],
   cuisines: CUISINES_DEF.slice(),
   tags: TAGS_DEF.slice(),
@@ -782,21 +1203,31 @@ let db = {
   },
   synonymes: {},         // mes correspondances : "texte tapé" → nom EN de l'aliment
   rayons: {},            // mes corrections de rayon : clé d'ingrédient → rayon
-  coursesCoches: {},     // lignes cochées de la liste de courses
-  coursesAjouts: [],     // lignes ajoutées à la main : {txt, rayon}
-  coursesRetires: []     // lignes de recette retirées de la liste
+  plan: [],              // repas planifiés : {id, rid, sem (lundi ISO), jour (0-6, -1 = sans jour), portions, fait}
+  courses: {},           // par semaine : {coches:{}, ajouts:[{id, txt, rayon}], retires:[]}
+  placard: [],           // clés d'articles que j'ai toujours chez moi : rangés à part dans la liste
+  prefs: { portions: 0, theme: "auto" }   // portions : 0 = celles de la recette
 };
 
 let state = {
-  view: "galerie",       // galerie | semaine | cycle | fiche | form | reglages
+  view: "accueil",       // accueil | galerie | planning | courses | cycle | fiche | form | reglages | aliments | cuisine
+  onglet: "accueil",     // onglet de la barre du bas mis en avant
   cycle: "Folliculaire",
   ficheId: null,
   editId: null,
-  showSearch: false,
   showFilters: false,
   q: "",
-  filters: { cycle:[], meal:[], cuisine:[], tags:[], season:[], diff:[], statut:[], noteMin:0, tempsMax:0, semaine:false, maPhase:false },
+  frigo: false,          // recherche « avec ce que j'ai » : la requête est une liste d'ingrédients
+  tri: "categorie",
+  filters: filtresVides(),
   checked: {},           // ingrédients cochés (mémoire de session)
+  portions: {},          // portions choisies sur la fiche, par recette (mémoire de session)
+  mult: {},              // multiple choisi quand la recette n'a pas de portions de base
+  semPlan: "",           // semaine affichée dans le planning
+  semCourses: "",        // semaine de la liste de courses
+  cuisine: null,         // mode cuisine : {rid, etape, entree, marque}
+  feuille: null,         // feuille du bas ouverte : {type, …}
+  focusQ: false,         // donner le focus à la recherche au prochain rendu
   formDraft: null,       // recette en cours d'édition
   formTab: "manuel",
   qAli: "",              // recherche dans la page Aliments
@@ -822,7 +1253,8 @@ function load(){
     const raw = localStorage.getItem(KEY);
     if(!raw) return;
     const parsed = JSON.parse(raw);
-    db.recettes   = Array.isArray(parsed.recettes) ? parsed.recettes.map(normalize) : [];
+    const brutes = Array.isArray(parsed.recettes) ? parsed.recettes : [];
+    db.recettes   = brutes.map(normalize);
     db.cuisines   = Array.isArray(parsed.cuisines) && parsed.cuisines.length ? parsed.cuisines : CUISINES_DEF.slice();
     db.tags       = Array.isArray(parsed.tags) && parsed.tags.length ? parsed.tags : TAGS_DEF.slice();
     // les tags déjà utilisés dans les recettes rejoignent la liste
@@ -844,10 +1276,56 @@ function load(){
     }
     db.synonymes      = parsed.synonymes || {};
     db.rayons         = parsed.rayons || {};
-    db.coursesCoches  = parsed.coursesCoches || {};
-    db.coursesAjouts  = Array.isArray(parsed.coursesAjouts) ? parsed.coursesAjouts : [];
-    db.coursesRetires = Array.isArray(parsed.coursesRetires) ? parsed.coursesRetires : [];
+    db.plan    = Array.isArray(parsed.plan) ? parsed.plan.map(normEntree).filter(Boolean) : [];
+    db.courses = (parsed.courses && typeof parsed.courses === "object" && !Array.isArray(parsed.courses)) ? parsed.courses : {};
+    db.placard = arr(parsed.placard);
+    db.prefs   = Object.assign({portions:0, theme:"auto"}, parsed.prefs || {});
+
+    // reprise de la v2 : « cette semaine » était un drapeau posé sur chaque recette,
+    // et il n'existait qu'une seule liste de courses. Les deux rejoignent la semaine en cours.
+    if(!Array.isArray(parsed.plan)){
+      const sem = semaineCourante();
+      brutes.forEach((b, i) => {
+        if(b && b.semaine) db.plan.push({id: uid(), rid: db.recettes[i].id, sem: sem, jour: -1,
+          portions: num(b.semainePortions) || db.recettes[i].portions || 4, fait: false});
+      });
+      if(parsed.coursesCoches || parsed.coursesAjouts || parsed.coursesRetires){
+        db.courses[sem] = {
+          coches: parsed.coursesCoches || {},
+          ajouts: Array.isArray(parsed.coursesAjouts) ? parsed.coursesAjouts : [],
+          retires: Array.isArray(parsed.coursesRetires) ? parsed.coursesRetires : []
+        };
+        // les articles ajoutés à la main étaient repérés par leur position : on leur donne un id
+        const C = coursesDe(sem), coches = {};
+        Object.keys(C.coches).forEach(k => {
+          const m = /^m:(\d+)$/.exec(k);
+          if(!m) coches[k] = C.coches[k];
+          else if(C.ajouts[+m[1]]) coches["m:" + C.ajouts[+m[1]].id] = C.coches[k];
+        });
+        C.coches = coches;
+      }
+      elaguer();
+      save();
+    }else{
+      elaguer();
+    }
   }catch(e){ console.warn("Lecture impossible", e); }
+}
+
+/* un repas planifié, tel que relu d'une sauvegarde : rien ne doit pouvoir le casser */
+function normEntree(e){
+  if(!e || !e.rid || !/^\d{4}-\d{2}-\d{2}$/.test(String(e.sem || ""))) return null;
+  const j = parseInt(e.jour, 10);
+  return {id: e.id || uid(), rid: String(e.rid), sem: lundiDe(dateDe(e.sem)),
+          jour: (j >= 0 && j <= 6) ? j : -1, portions: num(e.portions), fait: !!e.fait};
+}
+
+/* le planning garde six mois d'historique, les listes de courses deux */
+function elaguer(){
+  const cur = semaineCourante();
+  const limPlan = ajouterJours(cur, -7 * 26), limCourses = ajouterJours(cur, -7 * 8);
+  db.plan = db.plan.filter(e => e.sem >= limPlan && getRecette(e.rid));
+  Object.keys(db.courses).forEach(s => { if(s < limCourses) delete db.courses[s]; });
 }
 
 /* seuls http(s) sont acceptés : une recette importée ou partagée ne doit
@@ -872,8 +1350,6 @@ function normalize(r){
     prep: num(r.prep),
     cuisson: num(r.cuisson),
     portions: num(r.portions),
-    semaine: !!r.semaine,
-    semainePortions: num(r.semainePortions),
     kcal: num(r.kcal), prot: num(r.prot), gluc: num(r.gluc), lip: num(r.lip),
     ingredients: Array.isArray(r.ingredients)
       ? r.ingredients.map(i => typeof i === "string" ? {txt:i, alg:false} : {txt:(i.txt||""), alg:!!i.alg}).filter(i=>i.txt.trim())
@@ -882,6 +1358,9 @@ function normalize(r){
     allergenes: r.allergenes || "",
     ingredientCle: r.ingredientCle || "",
     groupe: r.groupe || "",
+    notesPerso: r.notesPerso || "",     // mes ajustements, à relire la prochaine fois
+    cuisinee: num(r.cuisinee),          // nombre de fois où je l'ai faite
+    derniereFois: num(r.derniereFois),  // horodatage de la dernière fois
     cree: r.cree || Date.now(),
     maj: r.maj || Date.now()
   };
@@ -906,16 +1385,71 @@ function fmtMin(m){
 function stars(n){ n = Math.round(num(n)); return n ? "★".repeat(n) + "☆".repeat(5-n) : ""; }
 function getRecette(id){ return db.recettes.find(r => r.id === id); }
 
-let toastT;
-function toast(msg){
-  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
-  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2200);
+let toastT, toastAnnuler = null;
+/* annuler : fonction facultative, proposée quelques secondes sous forme de bouton */
+function toast(msg, annuler){
+  const t = $("#toast");
+  t.innerHTML = esc(msg) + (annuler ? '<button type="button" class="toast-act" id="toast-undo">Annuler</button>' : "");
+  t.classList.toggle("act", !!annuler);
+  t.classList.add("show");
+  toastAnnuler = annuler || null;
+  clearTimeout(toastT);
+  toastT = setTimeout(() => { t.classList.remove("show"); toastAnnuler = null; }, annuler ? 5000 : 2300);
+}
+
+/* ---------- navigation ----------
+   Les onglets du bas remettent la pile à zéro ; les écrans ouverts depuis eux
+   (fiche, formulaire, mode cuisine…) s'empilent, et le geste retour du
+   navigateur les dépile comme le bouton ‹, en retrouvant le défilement. */
+const ONGLETS = ["accueil", "galerie", "planning", "courses", "cycle"];
+let pile = [];
+let historique = true;   // pushState disponible ? sinon le retour se fait à la main
+
+function instantane(){ return {view: state.view, ficheId: state.ficheId, cycle: state.cycle, y: window.scrollY}; }
+
+function afficher(view, opts){
+  Object.assign(state, {view}, opts || {});
+  if(ONGLETS.indexOf(view) >= 0) state.onglet = view;
+  fermerFeuille();
+  render();
+  const app = $("#app");
+  app.classList.remove("vin"); void app.offsetWidth; app.classList.add("vin");
 }
 
 function go(view, opts){
-  Object.assign(state, {view}, opts || {});
-  window.scrollTo(0,0);
-  render();
+  if(ONGLETS.indexOf(view) >= 0){ onglet(view, opts); return; }
+  pile.push(instantane());
+  if(pile.length > 40) pile.shift();
+  try{ history.pushState({n: pile.length}, ""); }catch(e){ historique = false; }
+  afficher(view, opts);
+  window.scrollTo(0, 0);
+}
+/* remplace l'écran courant sans l'empiler (ex. formulaire enregistré → fiche) */
+function remplacer(view, opts){ afficher(view, opts); window.scrollTo(0, 0); }
+function onglet(view, opts){
+  pile = [];
+  try{ history.replaceState({n: 0}, ""); }catch(e){}
+  afficher(view, opts);
+  window.scrollTo(0, 0);
+}
+function retour(){
+  if(!pile.length){ onglet(state.onglet || "accueil"); return; }
+  if(historique) history.back();
+  else depiler(pile.length - 1);
+}
+function depiler(n){
+  let snap = null;
+  while(pile.length > n) snap = pile.pop();
+  if(!snap) return;
+  afficher(snap.view, {ficheId: snap.ficheId, cycle: snap.cycle});
+  const y = snap.y || 0;
+  window.scrollTo(0, y);
+  requestAnimationFrame(() => window.scrollTo(0, y));
+}
+function brouillonModifie(){
+  if(state.view !== "form" || !state.formDraft) return false;
+  syncDraft();
+  return !!(state.formDraft.nom || state.formDraft.id);
 }
 
 /* rendu d'un groupe de chips sélectionnables */
@@ -947,18 +1481,30 @@ function readImage(file, cb){
 }
 
 /* =========================================================
-   4. FILTRAGE
+   4. FILTRAGE, TRI, SUGGESTIONS
    ========================================================= */
+function filtresVides(){
+  return { cycle:[], meal:[], cuisine:[], tags:[], season:[], diff:[], statut:[], noteMin:0, tempsMax:0,
+           semaine:false, maPhase:false, fav:false, aTester:false };
+}
 function matchAny(sel, vals){ return !sel.length || sel.some(s => vals.indexOf(s) >= 0); }
+
+/* minuscules sans accents : « creme » trouve « crème » */
+function normRech(s){
+  let t = String(s == null ? "" : s).toLowerCase();
+  try{ t = t.normalize("NFD").replace(/[̀-ͯ]/g, ""); }catch(e){}
+  return t.replace(/œ/g, "oe");
+}
 
 function filtrer(list){
   const f = state.filters;
-  const q = state.q.trim().toLowerCase();
-  return list.filter(r => {
-    if(q){
-      const hay = (r.nom + " " + r.cuisines.join(" ") + " " + r.tags.join(" ") + " " +
-        r.ingredients.map(i=>i.txt).join(" ") + " " + r.ingredientCle).toLowerCase();
-      if(hay.indexOf(q) < 0) return false;
+  const mots = state.frigo ? [] : normRech(state.q).split(/\s+/).filter(Boolean);
+  const cur = semaineCourante();
+  const res = list.filter(r => {
+    if(mots.length){
+      const hay = normRech(r.nom + " " + r.cuisines.join(" ") + " " + r.tags.join(" ") + " " + r.meal + " " +
+        r.ingredients.map(i=>i.txt).join(" ") + " " + r.ingredientCle + " " + r.description);
+      if(mots.some(m => hay.indexOf(m) < 0)) return false;
     }
     if(!matchAny(f.cycle, r.cycles)) return false;
     if(!matchAny(f.meal, r.meal ? [r.meal] : [])) return false;
@@ -969,27 +1515,261 @@ function filtrer(list){
     if(!matchAny(f.statut, [r.statut])) return false;
     if(f.noteMin && num(r.note) < f.noteMin) return false;
     if(f.tempsMax && (total(r) === 0 || total(r) > f.tempsMax)) return false;
-    if(f.semaine && !r.semaine) return false;
+    if(f.semaine && !estPlanifiee(r, cur)) return false;
+    if(f.fav && !estFavori(r)) return false;
+    if(f.aTester && r.note) return false;
     if(f.maPhase && scorePhase(r, db.phaseActuelle) === 0) return false;
     return true;
-  }).sort((a,b) => {
-    if(f.maPhase && db.phaseActuelle){
-      const d = scorePhase(b, db.phaseActuelle) - scorePhase(a, db.phaseActuelle);
-      if(d) return d;
-    }
-    return a.nom.localeCompare(b.nom, "fr");
   });
+  if(f.maPhase && db.phaseActuelle){
+    const cmp = comparateur(state.tri);
+    return res.sort((a,b) => (scorePhase(b, db.phaseActuelle) - scorePhase(a, db.phaseActuelle)) || cmp(a,b));
+  }
+  return trier(res, state.tri);
 }
+
+function comparateur(tri){
+  const nom = (a,b) => a.nom.localeCompare(b.nom, "fr");
+  return ({
+    meilleures: (a,b) => (b.note - a.note) || (estFavori(b) - estFavori(a)) || (b.cuisinee - a.cuisinee) || nom(a,b),
+    rapides:    (a,b) => ((total(a) || 1e6) - (total(b) || 1e6)) || nom(a,b),
+    recentes:   (a,b) => b.cree - a.cree,
+    cuisinees:  (a,b) => (b.cuisinee - a.cuisinee) || (b.derniereFois - a.derniereFois) || nom(a,b),
+    proteines:  (a,b) => (b.prot - a.prot) || nom(a,b)
+  })[tri] || nom;
+}
+function trier(list, tri){ return list.sort(comparateur(tri)); }
 
 function nbFiltresActifs(){
   const f = state.filters;
   return f.cycle.length + f.meal.length + f.cuisine.length + f.tags.length +
     f.season.length + f.diff.length + f.statut.length +
-    (f.noteMin ? 1 : 0) + (f.tempsMax ? 1 : 0) + (f.semaine ? 1 : 0) + (f.maPhase ? 1 : 0);
+    (f.noteMin ? 1 : 0) + (f.tempsMax ? 1 : 0) + (f.semaine ? 1 : 0) + (f.maPhase ? 1 : 0) +
+    (f.fav ? 1 : 0) + (f.aTester ? 1 : 0);
 }
 function resetFiltres(){
-  state.filters = { cycle:[], meal:[], cuisine:[], tags:[], season:[], diff:[], statut:[], noteMin:0, tempsMax:0, semaine:false, maPhase:false };
+  state.filters = filtresVides();
   state.q = "";
+  state.frigo = false;
+}
+
+/* ---------- « avec ce que j'ai » ----------
+   chaque terme tapé est cherché dans les ingrédients, mot pour mot ou via
+   l'aliment reconnu : « courgettes » trouve « 2 zucchini » */
+let memoAli = new Map(), memoIdx = null;
+function aliDeLigne(txt){
+  const idx = indexAliments();
+  if(memoIdx !== idx){ memoAli = new Map(); memoIdx = idx; }
+  if(memoAli.has(txt)) return memoAli.get(txt);
+  // on cherche d'abord sur le nom seul : « 1 c. à café d'ail » ne doit pas devenir du café
+  const a = trouverAliment(parseIngredient(txt).nom) || trouverAliment(txt);
+  memoAli.set(txt, a);
+  return a;
+}
+function termesFrigo(q){
+  return String(q || "").split(/[,;+\n]|\s+et\s+|\s+and\s+/i).map(s => s.trim()).filter(s => s.length > 1);
+}
+function scoreFrigo(r, termes){
+  const lignes = r.ingredients.map(i => ({n: " " + normAli(i.txt) + " ", ali: aliDeLigne(i.txt)}));
+  const utilisees = {};
+  let n = 0;
+  termes.forEach(t => {
+    const nt = normAli(t), at = trouverAliment(t);
+    const k = lignes.findIndex(L => (nt && L.n.indexOf(" " + nt + " ") >= 0) || (at && L.ali === at));
+    if(k >= 0){ n++; utilisees[k] = 1; }
+  });
+  return {n: n, total: termes.length, autres: r.ingredients.length - Object.keys(utilisees).length};
+}
+
+/* ---------- favoris, saisons, historique ---------- */
+function estFavori(r){ return r.cuisines.some(c => normLibelle(c) === "favorite"); }
+function basculerFavori(r){
+  if(estFavori(r)){
+    r.cuisines = r.cuisines.filter(c => normLibelle(c) !== "favorite");
+  }else{
+    const lib = db.cuisines.find(c => normLibelle(c) === "favorite") || FAVORI;
+    if(db.cuisines.indexOf(lib) < 0) db.cuisines.unshift(lib);
+    r.cuisines.push(lib);
+  }
+  r.maj = Date.now(); save();
+  return estFavori(r);
+}
+function saisonActuelle(){ return SAISON_PAR_MOIS[new Date().getMonth()]; }
+function deSaison(r){ return r.seasons.indexOf(saisonActuelle()) >= 0; }
+
+function ilYa(ts){
+  const j = Math.round((dateDe(aujourdhui()) - dateDe(isoJour(new Date(ts)))) / J_MS);
+  return j <= 0 ? "aujourd'hui" : j === 1 ? "hier" : j < 30 ? "il y a " + j + " jours" :
+         j < 365 ? "il y a " + Math.round(j / 30) + " mois" : "il y a plus d'un an";
+}
+function libCuisinee(r){
+  if(!r.cuisinee) return "Pas encore cuisinée";
+  return "Cuisinée " + r.cuisinee + " fois" + (r.derniereFois ? " · " + ilYa(r.derniereFois) : "");
+}
+
+/* ---------- suggestions ----------
+   Une recette bien notée, favorite, de saison ou adaptée à ma phase a plus
+   de chances d'être tirée ; celle cuisinée il y a moins de dix jours, moins. */
+let memoPhase = new Map(), memoPhaseIdx = null;
+function scorePhaseVite(r){
+  const idx = indexAliments();
+  if(memoPhaseIdx !== idx){ memoPhase = new Map(); memoPhaseIdx = idx; }
+  const k = r.id + "|" + r.maj + "|" + db.phaseActuelle;
+  if(!memoPhase.has(k)) memoPhase.set(k, scorePhase(r, db.phaseActuelle));
+  return memoPhase.get(k);
+}
+function scoreReco(r){
+  let s = (r.note || 3) * 2;               // non notée : on lui laisse sa chance
+  if(estFavori(r)) s += 3;
+  s += Math.min(r.cuisinee || 0, 5) * 0.5;
+  if(deSaison(r)) s += 1.5;
+  if(db.fc.actif && db.phaseActuelle) s += Math.min(scorePhaseVite(r), 4) * 0.5;
+  if(r.statut === STATUTS[0]) s -= 1;
+  if(r.derniereFois && Date.now() - r.derniereFois < 10 * J_MS) s -= 4;
+  return Math.max(0.5, s);
+}
+/* un repas, pas un dessert : les plats principaux d'abord, puis les plats « pour recevoir »,
+   puis les accompagnements. Petit-déjeuner, desserts, encas et boissons ne sont jamais proposés. */
+const PALIERS_REPAS = [["Main course", ""], ["Entertaining"], ["Side dish"]];
+function poolSuggestions(exclure){
+  const vivantes = db.recettes.filter(r => r.statut !== ARCHIVE && exclure.indexOf(r.id) < 0);
+  for(const palier of PALIERS_REPAS){
+    const pool = vivantes.filter(r => palier.indexOf(r.meal) >= 0 || (palier[0] === "Main course" && MEALS.indexOf(r.meal) < 0));
+    if(pool.length) return pool;
+  }
+  return [];
+}
+function tirer(pool){
+  if(!pool.length) return null;
+  let tot = 0;
+  const w = pool.map(r => { const s = scoreReco(r); tot += s; return s; });
+  let x = Math.random() * tot;
+  for(let i = 0; i < pool.length; i++){ x -= w[i]; if(x <= 0) return pool[i]; }
+  return pool[pool.length - 1];
+}
+
+/* =========================================================
+   4e. DATES ET PLANNING
+   ========================================================= */
+const pad2 = n => (n < 10 ? "0" : "") + n;
+function isoJour(d){ return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+/* midi plutôt que minuit : un changement d'heure ne fait jamais glisser la date */
+function dateDe(iso){ const p = String(iso).split("-").map(Number); return new Date(p[0], p[1] - 1, p[2], 12); }
+function ajouterJours(iso, n){ const d = dateDe(iso); d.setDate(d.getDate() + n); return isoJour(d); }
+function lundiDe(d){
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12);
+  x.setDate(x.getDate() - (x.getDay() + 6) % 7);
+  return isoJour(x);
+}
+function aujourdhui(){ return isoJour(new Date()); }
+function semaineCourante(){ return lundiDe(new Date()); }
+function indexJour(){ return (new Date().getDay() + 6) % 7; }
+function dateCourte(iso){ const d = dateDe(iso); return d.getDate() + " " + MOIS_COURTS[d.getMonth()]; }
+function libSemaine(sem){
+  const a = dateDe(sem), fin = ajouterJours(sem, 6), b = dateDe(fin);
+  return a.getMonth() === b.getMonth() ? a.getDate() + " – " + dateCourte(fin) : dateCourte(sem) + " – " + dateCourte(fin);
+}
+function libRelatif(sem){
+  const c = semaineCourante();
+  return sem === c ? "Cette semaine" : sem === ajouterJours(c, 7) ? "Semaine prochaine" :
+         sem === ajouterJours(c, -7) ? "Semaine dernière" : (sem > c ? "Semaine à venir" : "Semaine passée");
+}
+function libJour(sem, j){ return j < 0 ? "Sans jour précis" : JOURS[j] + " " + dateDe(ajouterJours(sem, j)).getDate(); }
+
+function entreesSemaine(sem){ return db.plan.filter(e => e.sem === sem && getRecette(e.rid)); }
+function estPlanifiee(r, sem){ sem = sem || semaineCourante(); return db.plan.some(e => e.rid === r.id && e.sem === sem); }
+function portionsParDefaut(r){ return db.prefs.portions || r.portions || 4; }
+function planifier(rid, sem, jour, portions){
+  const r = getRecette(rid);
+  if(!r) return null;
+  const e = {id: uid(), rid: rid, sem: sem, jour: jour, portions: portions || portionsParDefaut(r), fait: false};
+  db.plan.push(e);
+  save();
+  return e;
+}
+function echelleEntree(e){
+  const r = getRecette(e.rid);
+  return (r && r.portions && e.portions) ? e.portions / r.portions : 1;
+}
+function coursesDe(sem){
+  if(!db.courses[sem]) db.courses[sem] = {coches:{}, ajouts:[], retires:[]};
+  const C = db.courses[sem];
+  if(!C.coches || typeof C.coches !== "object") C.coches = {};
+  if(!Array.isArray(C.ajouts)) C.ajouts = [];
+  if(!Array.isArray(C.retires)) C.retires = [];
+  C.ajouts.forEach(a => { if(!a.id) a.id = uid(); });
+  return C;
+}
+/* le week-end, quand il ne reste rien à cuisiner cette semaine, la liste utile est celle de la suivante */
+function semaineCoursesParDefaut(){
+  const c = semaineCourante(), s = ajouterJours(c, 7);
+  const reste = entreesSemaine(c).filter(e => !e.fait && (e.jour < 0 || e.jour >= indexJour())).length;
+  return (!reste && entreesSemaine(s).length) ? s : c;
+}
+function articlesRestants(sem){
+  const C = coursesDe(sem);
+  return construireCourses(sem).reduce((t, g) => t + g.lignes.filter(L => !C.coches[L.cle]).length, 0);
+}
+
+/* =========================================================
+   4f. PORTIONS : mise à l'échelle des quantités
+   ========================================================= */
+const FRAC_CAR = {"½":0.5, "¼":0.25, "¾":0.75, "⅓":1/3, "⅔":2/3, "⅛":0.125};
+const NB_QTE = "(?:\\d+(?:[.,]\\d+)?\\s*[½¼¾⅓⅔⅛]|\\d+\\s+\\d+\\/\\d+|\\d+\\/\\d+|\\d+(?:[.,]\\d+)?|[½¼¾⅓⅔⅛])";
+const RE_QTE_TETE = new RegExp("^(\\s*(?:[-•*·]\\s*)?)(" + NB_QTE + ")(?:(\\s*(?:-|–|à|to|ou|or)\\s*)(" + NB_QTE + "))?");
+
+function lireQte(s){
+  const m = String(s).trim().match(/^(\d+(?:[.,]\d+)?)\s*([½¼¾⅓⅔⅛])$/);
+  if(m) return num(m[1].replace(",", ".")) + FRAC_CAR[m[2]];
+  return lireNombre(s);
+}
+
+/* 1.5 → « 1½ », 0.333 → « ⅓ », 12.4 → « 12 », 337 → « 335 » : ce qu'on lirait dans un livre */
+function joliNombre(q, virgule){
+  if(q >= 100) return String(Math.round(q / 5) * 5);
+  if(q >= 10) return String(Math.round(q));
+  const ent = Math.floor(q), reste = q - ent;
+  const fr = [[0,""],[0.25,"¼"],[1/3,"⅓"],[0.5,"½"],[2/3,"⅔"],[0.75,"¾"],[1,""]];
+  let best = fr[0], d = 9;
+  fr.forEach(x => { const e = Math.abs(reste - x[0]); if(e < d){ d = e; best = x; } });
+  if(d <= 0.04){
+    const e = best[0] === 1 ? ent + 1 : ent;
+    return best[1] ? (e ? e : "") + best[1] : String(e);
+  }
+  const t = String(Math.round(q * 10) / 10);
+  return virgule ? t.replace(".", ",") : t;
+}
+
+/* « 200 g de farine » × 1,5 → « 300 g de farine » ; seule la quantité de tête change */
+function ajusterLigne(txt, f){
+  const non = {txt: txt, ok: false};
+  if(!f || Math.abs(f - 1) < 1e-6) return non;
+  const m = String(txt).match(RE_QTE_TETE);
+  if(!m) return non;
+  const a = lireQte(m[2]);
+  if(a === null || isNaN(a)) return non;
+  const virgule = /,/.test(m[2] + (m[4] || ""));
+  let q = joliNombre(a * f, virgule);
+  if(m[4] !== undefined){
+    const b = lireQte(m[4]);
+    q += m[3] + ((b === null || isNaN(b)) ? m[4] : joliNombre(b * f, virgule));
+  }
+  const apres = txt.slice(m[0].length);
+  return {txt: m[1] + q + apres, ok: true, avant: m[1], qte: q, apres: apres};
+}
+function ligneIngHTML(txt, f){
+  const a = ajusterLigne(txt, f);
+  return a.ok ? esc(a.avant) + '<b class="qa">' + esc(a.qte) + '</b>' + esc(a.apres) : esc(txt);
+}
+
+/* portions affichées sur la fiche : mon choix > le repas planifié cette semaine > mon foyer > la recette */
+function portionsFiche(r){
+  if(state.portions[r.id]) return state.portions[r.id];
+  const e = db.plan.find(x => x.rid === r.id && x.sem === semaineCourante());
+  return (e && e.portions) || portionsParDefaut(r);
+}
+function facteurFiche(r){
+  return r.portions ? portionsFiche(r) / r.portions : (state.mult[r.id] || 1);
 }
 
 /* =========================================================
@@ -998,30 +1778,41 @@ function resetFiltres(){
 function render(){
   const app = $("#app");
   try{
-    renderTabs();
+    document.body.classList.toggle("immersif", state.view === "cuisine");
+    document.body.classList.toggle("saisie", state.view === "form");
+    renderTabbar();
     renderPhaseSel();
     let html = "";
     switch(state.view){
+      case "accueil":  html = viewAccueil(); break;
       case "galerie":  html = viewGalerie(); break;
-      case "semaine":  html = viewSemaine(); break;
-    case "courses":  html = viewCourses(); break;
-      case "cycle":    html = db.fc.actif ? viewCycle() : viewGalerie(); break;
+      case "planning": html = viewPlanning(); break;
+      case "courses":  html = viewCourses(); break;
+      case "cycle":    html = db.fc.actif ? viewCycle() : viewAccueil(); break;
       case "fiche":    html = viewFiche(); break;
+      case "cuisine":  html = viewCuisine(); break;
       case "form":     html = viewForm(); break;
       case "reglages": html = viewReglages(); break;
-    case "aliments": html = viewAliments(); break;
+      case "aliments": html = viewAliments(); break;
+      default:         html = viewAccueil();
     }
     app.innerHTML = html;
     bind();
-    $("#fab").style.display = (state.view === "form") ? "none" : "block";
+    $("#fab").style.display = (state.view === "accueil" || state.view === "galerie") ? "" : "none";
+    garderEcranAllume(state.view === "cuisine");
+    if(state.focusQ){
+      state.focusQ = false;
+      const q = $("#q"); if(q) q.focus();
+    }
   }catch(err){
     // plutôt qu'une interface morte : on explique et on propose une sortie
     console.error(err);
+    document.body.classList.remove("immersif", "saisie");
     app.innerHTML = '<div class="panel" style="margin-top:20px">' +
       '<h3 style="margin-bottom:8px">Aïe, un souci d\'affichage</h3>' +
       '<p class="hint">Tes recettes sont intactes : elles sont enregistrées dans le navigateur, pas dans cet écran.</p>' +
       '<p class="hint" style="font-family:ui-monospace,Menlo,monospace">' + esc(err && err.message) + '</p>' +
-      '<div class="actions"><button class="btn primary" id="err-home">Revenir à la galerie</button>' +
+      '<div class="actions"><button class="btn primary" id="err-home">Revenir à l\'accueil</button>' +
       '<button class="btn" id="do-export">⇩ Exporter mes données</button></div></div>';
     try{ bind(); }catch(e){}
   }
@@ -1038,125 +1829,321 @@ function renderPhaseSel(){
   sel.classList.toggle("on", !!db.phaseActuelle);
 }
 
-function renderTabs(){
-  const items = [
-    ["galerie","Galerie"],
-    ["semaine","Cette semaine"],
-    ["courses","Courses"]
-  ];
-  if(db.fc.actif) items.push(["cycle","Cycle"]);
-  let html = items.map(([v,l]) => {
-    const on = state.view === v || (v === "cycle" && state.view === "cycle");
-    let label = l;
-    if(v === "semaine" || v === "courses"){
-      const n = db.recettes.filter(r => r.semaine).length;
-      if(n && v === "semaine") label += " (" + n + ")";
-    }
-    return '<button class="tab' + (on ? " on" : "") + '" data-tab="' + v + '">' + label + '</button>';
-  }).join("");
-  if(state.view === "cycle"){
-    html += CYCLES.map(c =>
-      '<button class="tab' + (state.cycle === c ? " on" : "") + '" data-cycle="' + esc(c) + '">' +
-      CYCLE_EMO[c] + " " + esc(c) + '</button>').join("") +
-      "";
-  }
-  $("#tabs").innerHTML = html;
+function renderTabbar(){
+  const items = [["accueil","Accueil","maison"], ["galerie","Recettes","livre"],
+                 ["planning","Planning","calendrier"], ["courses","Courses","panier"]];
+  if(db.fc.actif) items.push(["cycle","Cycle","lune"]);
+  const restants = articlesRestants(state.semCourses || semaineCourante());
+  const aujourdhuiPrevu = entreesSemaine(semaineCourante()).some(e => e.jour === indexJour() && !e.fait);
+  $("#tabbar").innerHTML = '<div class="tabbar-in">' + items.map(([v, l, i]) =>
+    '<button type="button" class="tb' + (state.onglet === v ? " on" : "") + '" data-tab="' + v + '">' + ico(i) +
+      '<span>' + l + '</span>' +
+      (v === "courses" && restants ? '<span class="tb-badge" id="tb-courses">' + restants + '</span>' : "") +
+      (v === "planning" && aujourdhuiPrevu ? '<span class="tb-dot" title="Un repas est prévu aujourd\'hui"></span>' : "") +
+    '</button>').join("") + '</div>';
 }
 
 /* =========================================================
    6. VUES LISTE
    ========================================================= */
+function vignette(r, cls){
+  return r.image
+    ? '<img class="' + cls + '" src="' + esc(r.image) + '" alt="" loading="lazy">'
+    : '<span class="' + cls + '">' + (MEAL_EMO[r.meal] || "🍳") + '</span>';
+}
+
 function carte(r, opts){
   opts = opts || {};
   const meta = [];
   if(total(r)) meta.push("⏱ " + fmtMin(total(r)));
-  if(r.diff) meta.push(esc(r.diff));
+  if(r.diff && !opts.compact) meta.push(esc(r.diff));
   if(r.kcal) meta.push("🔥 " + r.kcal + " kcal");
-  if(r.prot) meta.push("🥩 " + r.prot + " g");
+  if(r.prot && !opts.compact) meta.push("🥩 " + r.prot + " g");
   const img = r.image
     ? '<img src="' + esc(r.image) + '" alt="" loading="lazy">'
     : (MEAL_EMO[r.meal] || "🍳");
+  const prevu = estPlanifiee(r);
+  const ph = db.fc.actif && db.phaseActuelle ? scorePhase(r, db.phaseActuelle) : 0;
   return '' +
   '<article class="card" data-open="' + r.id + '">' +
     '<div class="thumb">' + img + '</div>' +
-    '<button class="week-btn' + (r.semaine ? " on" : "") + '" data-week="' + r.id + '" title="Cette semaine">' +
-      (r.semaine ? "✓" : "＋") + '</button>' +
+    (estFavori(r) ? '<span class="fav-dot" title="Favori">' + ico("coeur", "rempli") + '</span>' : "") +
+    '<button class="week-btn' + (prevu ? " on" : "") + '" data-plan="' + r.id + '" title="' +
+      (prevu ? "Au planning cette semaine" : "Planifier") + '">' + (prevu ? "✓" : "＋") + '</button>' +
     '<div class="card-body">' +
       '<div class="card-title">' + esc(r.nom) + '</div>' +
       (r.note ? '<div class="stars">' + stars(r.note) + '</div>' : "") +
-      (db.fc.actif && db.phaseActuelle && scorePhase(r, db.phaseActuelle)
-        ? '<div class="fit">' + PHASES_BASE[db.phaseActuelle].emo + ' ' + scorePhase(r, db.phaseActuelle) + ' ingrédient' +
-          (scorePhase(r, db.phaseActuelle) > 1 ? "s" : "") + ' de ta phase</div>' : "") +
+      (ph ? '<div class="fit">' + PHASES_BASE[db.phaseActuelle].emo + ' ' + ph + ' ingrédient' +
+          (ph > 1 ? "s" : "") + ' de ta phase</div>' : "") +
+      (opts.badge || "") +
       (meta.length ? '<div class="card-meta">' + meta.map(m => "<span>" + m + "</span>").join("") + '</div>' : "") +
-      (opts.footer || "") +
     '</div>' +
   '</article>';
 }
 
 function grille(list){
   if(!list.length) return '<div class="empty"><span class="big">🍋</span>Aucune recette ne correspond.</div>';
-  return '<div class="grid">' + list.map(carte).join("") + '</div>';
+  return '<div class="grid">' + list.map(r => carte(r)).join("") + '</div>';
 }
 
-/* carte + réglage du nombre de personnes pour cette semaine (page « Cette semaine » uniquement) */
-function carteAvecPortions(r){
-  const val = r.semainePortions || r.portions || 4;
-  const footer = '<div class="portions-row">' +
-      '<span class="portions-label">Portions</span>' +
-      '<div class="stepper">' +
-        '<button type="button" data-portions-moins="' + r.id + '" title="Moins">−</button>' +
-        '<span class="stepper-val">' + val + '</span>' +
-        '<button type="button" data-portions-plus="' + r.id + '" title="Plus">+</button>' +
-      '</div>' +
-    '</div>';
-  return carte(r, {footer: footer});
+/* une rangée qui défile à l'horizontale, avec « Tout voir » vers la bibliothèque filtrée */
+function rail(titre, list, voir){
+  if(!list.length) return "";
+  return '<div class="section"><div class="section-head"><h3>' + titre + '</h3>' +
+    (voir ? '<button class="voir" data-voir="' + voir + '">Tout voir ›</button>' : "") + '</div>' +
+    '<div class="rail">' + list.slice(0, 12).map(r => carte(r, {compact:true})).join("") + '</div></div>';
 }
 
-function viewGalerie(){
-  const list = filtrer(db.recettes);
-  let html = barreRecherche();
+/* ---------- accueil ---------- */
+function viewAccueil(){
+  if(!db.recettes.length) return accueilVide();
+  const h = new Date().getHours();
+  const salut = h < 5 ? "Bonne nuit" : h < 12 ? "Bonjour" : h < 18 ? "Bon après-midi" : "Bonsoir";
+  const vivantes = db.recettes.filter(r => r.statut !== ARCHIVE);
+  const cur = semaineCourante();
+  const nRepas = entreesSemaine(cur).length;
+  const restants = articlesRestants(state.semCourses || cur);
 
-  if(!db.recettes.length){
-    return html + '<div class="empty"><span class="big">📒</span>Ta base est vide.<br>Appuie sur <b>+</b> pour ajouter ta première recette.</div>';
+  let html = '<div class="hello"><div class="hello-sub">' + salut + ' 👋</div><h1>Qu\'est-ce qu\'on mange ?</h1></div>' +
+    '<button class="fakesearch" data-go="search">' + ico("loupe", "sm") + 'Rechercher une recette, un ingrédient…</button>';
+
+  html += blocAujourdhui();
+
+  html += '<div class="quick">' +
+    tuile("planning", "🗓", "Planning", nRepas ? nRepas + " repas" : "à remplir") +
+    tuile("courses", "🧺", "Courses", restants ? restants + " article" + (restants > 1 ? "s" : "") : "à jour") +
+    tuile("surprise", "🎲", "Surprise", "une idée") +
+    tuile("frigo", "🥕", "Mon frigo", "ce que j'ai") +
+  '</div>';
+
+  const meilleures = trier(vivantes.filter(r => r.note >= 4 || estFavori(r)), "meilleures");
+  html += rail("⭐ Tes meilleures recettes", meilleures, "meilleures");
+
+  const rapides = trier(vivantes.filter(r => total(r) && total(r) <= 30), "meilleures");
+  html += rail("⚡ Prêt en 30 min", rapides, "rapides");
+
+  const saison = saisonActuelle();
+  html += rail(SAISON_LBL[saison], trier(vivantes.filter(deSaison), "meilleures"), "saison");
+
+  if(db.fc.actif && db.phaseActuelle){
+    const pourPhase = vivantes.filter(r => scorePhaseVite(r) > 0)
+      .sort((a,b) => scorePhaseVite(b) - scorePhaseVite(a) || b.note - a.note);
+    html += rail(PHASES_BASE[db.phaseActuelle].emo + " Pour ta phase " + db.phaseActuelle.toLowerCase(), pourPhase, "phase");
   }
+
+  // bien aimées mais pas faites depuis un mois : seulement si l'historique a commencé
+  if(db.recettes.some(r => r.derniereFois)){
+    const loin = Date.now() - 30 * J_MS;
+    const redecouvrir = vivantes.filter(r => (r.note >= 4 || estFavori(r)) && r.derniereFois && r.derniereFois < loin)
+      .sort((a,b) => a.derniereFois - b.derniereFois);
+    html += rail("💭 À refaire bientôt", redecouvrir, "");
+  }
+  html += rail("🧪 Pas encore testées", trier(vivantes.filter(r => !r.note), "recentes"), "tester");
+  html += rail("🆕 Ajoutées récemment", trier(vivantes.slice(), "recentes"), "recentes");
+
+  // mes collections = mes tags, illustrés par la première photo trouvée
+  const colls = db.tags.map(t => ({t: t, rs: db.recettes.filter(r => r.tags.indexOf(t) >= 0)})).filter(x => x.rs.length);
+  if(colls.length){
+    html += '<div class="section"><div class="section-head"><h3>🏷 Mes collections</h3></div><div class="colls">' +
+      colls.map(x => {
+        const img = (x.rs.find(r => r.image) || {}).image;
+        return '<button type="button" class="coll" data-coll="' + esc(x.t) + '">' +
+          (img ? '<img src="' + esc(img) + '" alt="" loading="lazy">' : '<span class="coll-emo">🏷</span>') +
+          '<span>' + esc(x.t) + '<small>' + x.rs.length + ' recette' + (x.rs.length > 1 ? "s" : "") + '</small></span></button>';
+      }).join("") + '</div></div>';
+  }
+
+  const cats = MEALS.map(m => [m, db.recettes.filter(r => r.meal === m).length]).filter(x => x[1]);
+  if(cats.length){
+    html += '<div class="section"><div class="section-head"><h3>Par catégorie</h3></div><div class="chips">' +
+      cats.map(([m, n]) => '<button type="button" class="chip" data-catmeal="' + esc(m) + '">' + (MEAL_EMO[m] || "") + " " +
+        esc(m) + ' <span class="count">' + n + '</span></button>').join("") + '</div></div>';
+  }
+  return html + '<div style="height:24px"></div>';
+}
+
+function tuile(go, emo, titre, sous){
+  return '<button type="button" class="qt" data-go="' + go + '"><span class="qt-emo">' + emo + '</span>' +
+    esc(titre) + '<small>' + esc(sous) + '</small></button>';
+}
+
+function blocAujourdhui(){
+  const sem = semaineCourante(), j = indexJour();
+  const entrees = entreesSemaine(sem);
+  const auj = entrees.filter(e => e.jour === j);
+  if(auj.length){
+    const e = auj.find(x => !x.fait) || auj[0];
+    const r = getRecette(e.rid);
+    const autres = auj.filter(x => x !== e);
+    const meta = [total(r) ? "⏱ " + fmtMin(total(r)) : "", r.kcal ? "🔥 " + r.kcal + " kcal" : "",
+                  e.portions + " portion" + (e.portions > 1 ? "s" : "")].filter(Boolean);
+    return '<div class="today">' +
+      '<div class="today-img" data-open-entree="' + e.id + '">' +
+        (r.image ? '<img src="' + esc(r.image) + '" alt="">' : (MEAL_EMO[r.meal] || "🍳")) + '</div>' +
+      '<div class="today-body"><div class="kicker">' + (e.fait ? "✓ Cuisiné aujourd'hui" : "Au menu aujourd'hui") + '</div>' +
+      '<div class="today-title" data-open-entree="' + e.id + '">' + esc(r.nom) + '</div>' +
+      '<div class="card-meta">' + meta.map(m => "<span>" + m + "</span>").join("") + '</div>' +
+      '<div class="actions">' +
+        '<button class="btn primary" data-cook="' + r.id + '" data-entree="' + e.id + '">' + ico("play", "plein sm") + ' Cuisiner</button>' +
+        '<button class="btn" data-open-entree="' + e.id + '">Voir la recette</button></div>' +
+      (autres.length ? '<p class="hint">Aussi aujourd\'hui : ' + autres.map(x => esc(getRecette(x.rid).nom)).join(", ") + '</p>' : "") +
+      '</div></div>';
+  }
+  const prochain = entrees.filter(e => e.jour > j && !e.fait).sort((a,b) => a.jour - b.jour)[0];
+  return '<div class="today vide"><div class="today-body"><div class="kicker">Aujourd\'hui</div>' +
+    '<div class="today-title">Rien de prévu pour l\'instant</div>' +
+    '<p class="hint" style="margin:0">' + (prochain
+      ? 'Prochain au menu : ' + JOURS[prochain.jour].toLowerCase() + ' — ' + esc(getRecette(prochain.rid).nom)
+      : 'Laisse-toi inspirer, ou planifie ta semaine en deux minutes.') + '</p>' +
+    '<div class="actions"><button class="btn primary" data-go="surprise">🎲 Une idée ?</button>' +
+    '<button class="btn" data-go="planning">🗓 Planifier</button></div></div></div>';
+}
+
+function accueilVide(){
+  return '<div class="onb"><div class="big">📒</div><h2>Ton livre de recettes</h2>' +
+    '<p>Ajoute tes recettes, planifie ta semaine, et l\'app s\'occupe de la liste de courses.</p></div>' +
+    '<div class="opts">' +
+      opt("new-manuel", "✍️", "Écrire ma première recette", "Le formulaire, champ par champ") +
+      opt("new-web", "🔗", "Importer depuis un site", "Bookmarklet Mac ou raccourci iPhone") +
+      opt("new-coller", "📋", "Coller le texte d'une recette", "L'app repère titre, ingrédients et étapes") +
+      opt("new-json", "⇪", "Restaurer une sauvegarde", "Fichier JSON exporté depuis l'app") +
+    '</div><div style="height:30px"></div>';
+}
+
+/* ---------- bibliothèque ---------- */
+function viewGalerie(){
+  let html = '<div class="page-head"><h2>Recettes</h2><span class="count">' + db.recettes.length + '</span></div>';
+  if(!db.recettes.length) return html + accueilVide();
+  html += barreRecherche();
+  if(state.frigo) return html + resultatsFrigo();
+
+  const list = filtrer(db.recettes);
+  const n = list.length;
+  html += '<div class="fbar" style="margin-top:14px"><span class="count">' + n + ' recette' + (n > 1 ? "s" : "") +
+    (n !== db.recettes.length ? " sur " + db.recettes.length : "") + '</span>' +
+    '<select class="tri-sel" id="tri" aria-label="Trier">' + TRIS.map(([v, l]) =>
+      '<option value="' + v + '"' + (state.tri === v ? " selected" : "") + '>' + l + '</option>').join("") + '</select></div>';
+
+  if(!n) return html + '<div class="empty"><span class="big">🍋</span>Aucune recette ne correspond.' +
+    '<div class="actions" style="justify-content:center"><button class="btn sm" id="clear-filters">Tout effacer</button></div></div>';
+
+  if(state.tri !== "categorie") return html + '<div style="margin-top:12px">' + grille(list) + '</div><div style="height:20px"></div>';
 
   // groupement par Meal Type
   const groupes = MEALS.map(m => [m, list.filter(r => r.meal === m)]);
   const sans = list.filter(r => !r.meal || MEALS.indexOf(r.meal) < 0);
   if(sans.length) groupes.push(["Sans catégorie", sans]);
-
-  const total_ = list.length;
-  html += '<div class="section-head" style="margin-top:18px"><h3>Toutes les recettes</h3><span class="count">' +
-    total_ + " sur " + db.recettes.length + '</span></div>';
-
-  if(!total_) return html + '<div class="empty"><span class="big">🍋</span>Aucune recette ne correspond aux filtres.</div>';
-
   groupes.forEach(([m, rs]) => {
     if(!rs.length) return;
     html += '<div class="section"><div class="section-head"><h3>' + (MEAL_EMO[m] || "🍳") + " " + esc(m) +
       '</h3><span class="count">' + rs.length + '</span></div>' + grille(rs) + '</div>';
   });
-  return html;
+  return html + '<div style="height:20px"></div>';
 }
 
-function viewSemaine(){
-  const list = db.recettes.filter(r => r.semaine).sort((a,b) => a.nom.localeCompare(b.nom,"fr"));
-  let html = '<div class="section-head" style="margin-top:20px; justify-content:space-between">' +
-    '<div style="display:flex; align-items:baseline; gap:9px"><h3>🗓 Cette semaine</h3><span class="count">' +
-      list.length + ' recette' + (list.length>1?"s":"") + '</span></div>' +
-    (list.length ? '<button class="btn sm ghost" id="nouvelle-semaine">Nouvelle semaine</button>' : '') +
-  '</div>';
-  if(!list.length){
-    return html + '<div class="empty"><span class="big">🛒</span>Aucune recette sélectionnée.<br>' +
-      'Appuie sur <b>＋</b> en haut d\'une vignette pour l\'ajouter ici.</div>';
+function resultatsFrigo(){
+  const termes = termesFrigo(state.q);
+  if(!termes.length){
+    return '<div class="empty"><span class="big">🥕</span>Tape ce que tu as sous la main, séparé par des virgules.' +
+      '<br><span class="hint">Les recettes qui en utilisent le plus remontent en premier.</span></div>';
   }
-  html += '<div class="grid">' + list.map(carteAvecPortions).join("") + '</div>';
-  const n = construireCourses().reduce((t, g) => t + g.lignes.length, 0);
-  html += '<div class="section"><div class="panel" style="display:flex; align-items:center; gap:12px; flex-wrap:wrap">' +
-    '<div style="flex:1; min-width:170px"><b>🧺 Liste de courses</b>' +
-    '<div class="hint" style="margin:2px 0 0">' + n + ' ligne' + (n>1?"s":"") + ', quantités additionnées et rangées par rayon.</div></div>' +
-    '<button class="btn primary" data-tab="courses">Ouvrir</button></div></div>';
-  return html;
+  const res = db.recettes.filter(r => r.statut !== ARCHIVE)
+    .map(r => ({r: r, s: scoreFrigo(r, termes)})).filter(x => x.s.n > 0)
+    .sort((a,b) => (b.s.n - a.s.n) || (a.s.autres - b.s.autres) || (b.r.note - a.r.note));
+  if(!res.length) return '<div class="empty"><span class="big">🤷</span>Aucune recette n\'utilise ' + esc(termes.join(", ")) + '.</div>';
+  return '<div class="fbar" style="margin-top:14px"><span class="count">' + res.length + ' recette' + (res.length > 1 ? "s" : "") +
+    ' avec ' + esc(termes.join(", ")) + '</span></div>' +
+    '<div class="grid" style="margin-top:12px">' + res.map(x => carte(x.r, {badge:
+      '<div class="match' + (x.s.n < x.s.total ? " part" : "") + '">✓ ' + x.s.n + '/' + x.s.total +
+      (x.s.autres ? ' · +' + x.s.autres + ' autre' + (x.s.autres > 1 ? "s" : "") : "") + '</div>'})).join("") +
+    '</div><div style="height:20px"></div>';
+}
+
+/* ---------- planning ---------- */
+function navSemaine(sem, attr){
+  const cur = semaineCourante();
+  return '<div class="weeknav">' +
+    '<button type="button" class="round" ' + attr + '="-1" title="Semaine précédente">' + ico("gauche") + '</button>' +
+    '<div class="wk"><b>' + esc(libRelatif(sem)) + '</b><small>' + esc(libSemaine(sem)) + '</small></div>' +
+    '<button type="button" class="round" ' + attr + '="1" title="Semaine suivante">' + ico("droite") + '</button>' +
+  '</div>' + (sem !== cur ? '<div style="text-align:center; margin-top:2px"><button type="button" class="voir" ' + attr +
+    '="0">Revenir à cette semaine</button></div>' : "");
+}
+
+function stepper(val, moins, plus, big){
+  return '<div class="stepper' + (big ? " big" : "") + '"><button type="button" ' + moins + ' title="Moins">−</button>' +
+    '<span class="stepper-val">' + val + '</span><button type="button" ' + plus + ' title="Plus">+</button></div>';
+}
+
+function viewPlanning(){
+  const sem = state.semPlan || (state.semPlan = semaineCourante());
+  const cur = semaineCourante(), auj = aujourdhui();
+  const entrees = entreesSemaine(sem);
+  const nPortions = entrees.reduce((t, e) => t + (e.portions || 0), 0);
+
+  let html = '<div class="page-head"><h2>Planning</h2>' +
+    '<button type="button" class="round" data-act="pl-menu" title="Options de la semaine">' + ico("plus3", "plein") + '</button></div>' +
+    navSemaine(sem, "data-semnav");
+
+  if(!entrees.length){
+    html += '<div class="panel" style="margin-top:14px; text-align:center">' +
+      '<div style="font-size:38px">🗓</div><b>Semaine vide pour l\'instant</b>' +
+      '<p class="hint" style="margin:4px auto 14px; max-width:380px">Ajoute un repas jour par jour, ou laisse l\'app te proposer une semaine ' +
+      'à partir de tes recettes préférées, de saison et pas faites récemment.</p>' +
+      '<div class="actions" style="justify-content:center; margin:0">' +
+        (sem >= cur ? '<button class="btn primary" data-act="pl-auto">✨ Proposer une semaine</button>' : "") +
+        '<button class="btn" data-go="recettes">Parcourir mes recettes</button></div></div>';
+  }else{
+    const restants = articlesRestants(sem);
+    html += '<div class="panel plan-sum">' +
+      '<div style="flex:1 1 100%"><b>' + entrees.length + ' repas · ' + nPortions + ' portion' + (nPortions > 1 ? "s" : "") + '</b>' +
+      '<div class="hint" style="margin:2px 0 0">' + (restants ? "🧺 " + restants + " article" + (restants > 1 ? "s" : "") + " à acheter"
+        : "🧺 Liste de courses à jour") + '</div></div>' +
+      '<button class="btn" data-act="pl-courses">🧺 Courses</button>' +
+      (sem >= cur ? '<button class="btn" data-act="pl-auto" title="Remplir les jours vides">✨ Compléter</button>' : "") +
+    '</div>';
+  }
+
+  for(let j = 0; j < 7; j++){
+    const d = ajouterJours(sem, j);
+    const es = entrees.filter(e => e.jour === j);
+    const passe = d < auj;
+    html += '<section class="day' + (passe ? " passe" : "") + (d === auj ? " auj" : "") + '">' +
+      '<div class="day-head"><h4>' + JOURS[j] + '</h4><span class="date">' + dateCourte(d) + '</span>' +
+        (d === auj ? '<span class="pill-auj">Aujourd\'hui</span>' : "") +
+        (es.length || passe ? '<button type="button" class="voir" data-addday="' + j + '">+ Ajouter</button>' : "") + '</div>' +
+      (es.length ? es.map(ligneRepas).join("")
+        : passe ? '<div class="day-none">Rien de noté</div>'
+        : '<button type="button" class="day-add" data-addday="' + j + '">+ Ajouter un repas</button>') +
+    '</section>';
+  }
+  const sans = entrees.filter(e => e.jour < 0);
+  html += '<section class="day"><div class="day-head"><h4>📌 Sans jour précis</h4><span class="date"></span>' +
+    '<button type="button" class="voir" data-addday="-1">+ Ajouter</button></div>' +
+    (sans.length ? sans.map(ligneRepas).join("")
+      : '<p class="hint" style="margin:0">Pour les recettes à caser dans la semaine : leurs ingrédients vont quand même dans la liste de courses.</p>') +
+    '</section>';
+  return html + '<div style="height:24px"></div>';
+}
+
+function ligneRepas(e){
+  const r = getRecette(e.rid);
+  const meta = [total(r) ? "⏱ " + fmtMin(total(r)) : "", r.kcal ? "🔥 " + r.kcal + " kcal" : "", r.note ? "★ " + r.note : ""]
+    .filter(Boolean).join(" · ");
+  return '<div class="pe' + (e.fait ? " fait" : "") + '">' +
+    '<div class="pe-top">' +
+      '<div class="pe-img" data-open-entree="' + e.id + '">' +
+        (r.image ? '<img src="' + esc(r.image) + '" alt="" loading="lazy">' : (MEAL_EMO[r.meal] || "🍳")) +
+        (e.fait ? '<span class="pe-fait">' + ico("check") + '</span>' : "") + '</div>' +
+      '<div class="pe-info" data-open-entree="' + e.id + '"><b>' + esc(r.nom) + '</b><small>' + meta + '</small></div>' +
+      '<button type="button" class="round sm" data-pe-menu="' + e.id + '" title="Options">' + ico("plus3", "plein") + '</button>' +
+    '</div>' +
+    '<div class="pe-bot">' +
+      stepper(e.portions + " pers.", 'data-pe-moins="' + e.id + '"', 'data-pe-plus="' + e.id + '"') +
+      '<span style="flex:1"></span>' +
+      '<button type="button" class="btn sm ghost" data-pe-autre="' + e.id + '" title="Une autre idée">🔀</button>' +
+      '<button type="button" class="btn sm primary" data-cook="' + r.id + '" data-entree="' + e.id + '">' + ico("play", "plein sm") + ' Cuisiner</button>' +
+    '</div></div>';
 }
 
 function viewCycle(){
@@ -1171,7 +2158,10 @@ function viewCycle(){
   const fiche = [["Durée", P.duree], ["Hormones", P.hormones]]
     .concat(PHASE_CHAMPS.filter(([k]) => P[k]).map(([k, lbl]) => [lbl, P[k]]));
 
-  let html = '<div class="phase-hero" style="margin-top:18px">' +
+  let html = '<div class="page-head"><h2>Cycle</h2></div><div class="qchips" style="margin-top:8px">' +
+    CYCLES.map(x => '<button type="button" class="chip' + (x === c ? " on" : "") + '" data-cycle="' + esc(x) + '">' +
+      CYCLE_EMO[x] + " " + esc(x) + '</button>').join("") + '</div>' +
+    '<div class="phase-hero" style="margin-top:18px">' +
       '<span class="cycle-emo">' + P.emo + '</span>' +
       '<div style="flex:1"><h2>Phase ' + esc(c.toLowerCase()) + '</h2>' +
       '<div class="hint" style="margin:2px 0 0">' + esc(P.duree) + ' · ' + esc(P.hormones) + '</div></div>' +
@@ -1228,23 +2218,37 @@ function pastilleAliment(a){
 
 /* ---------- barre de recherche + filtres ---------- */
 function barreRecherche(){
-  const n = nbFiltresActifs();
-  let html = '';
-  if(state.showSearch || state.q){
-    html += '<div class="searchbar"><input id="q" type="search" placeholder="Rechercher une recette, un ingrédient…" value="' + esc(state.q) + '"></div>';
-  }
-  html += '<div class="fbar">' +
-    '<button class="btn sm" id="toggle-filters">☰ Filtres' + (n ? ' <span class="badge">' + n + '</span>' : "") + '</button>' +
-    (n || state.q ? '<button class="btn sm ghost" id="clear-filters">Tout effacer</button>' : "") +
+  const n = nbFiltresActifs(), f = state.filters;
+  let html = '<div class="searchbar"><div class="search-in">' + ico("loupe", "sm") +
+    '<input id="q" type="search" autocomplete="off" enterkeyhint="search" placeholder="' +
+      (state.frigo ? "Ce que j'ai : poulet, courgette, riz…" : "Rechercher une recette, un ingrédient…") +
+      '" value="' + esc(state.q) + '"></div>' +
+    '<button type="button" class="btn' + (n || state.showFilters ? " on" : "") + '" id="toggle-filters" title="Filtres">' +
+      ico("reglages", "sm") + (n ? ' <span class="badge">' + n + '</span>' : "") + '</button></div>';
+
+  // raccourcis : un toucher, un filtre
+  const raccourcis = [
+    ["frigo", "🥕 Avec ce que j'ai", state.frigo],
+    ["fav", "❤️ Favoris", f.fav],
+    ["rapide", "⚡ 30 min max", f.tempsMax === 30],
+    ["top", "⭐ 4★ et plus", f.noteMin === 4],
+    ["planning", "🗓 Au planning", f.semaine],
+    ["tester", "🧪 À tester", f.aTester]
+  ];
+  html += '<div class="qchips">' +
+    raccourcis.map(([k, l, on]) => '<button type="button" class="chip' + (on ? " on" : "") + '" data-quick="' + k + '">' + l + '</button>').join("") +
+    MEALS.filter(m => db.recettes.some(r => r.meal === m)).map(m =>
+      '<button type="button" class="chip' + (f.meal.length === 1 && f.meal[0] === m ? " on" : "") + '" data-quickmeal="' + esc(m) + '">' +
+      (MEAL_EMO[m] || "") + " " + esc(m) + '</button>').join("") +
   '</div>';
+  if(n || state.q) html += '<div style="margin-top:8px"><button type="button" class="voir" id="clear-filters">✕ Tout effacer</button></div>';
 
   if(state.showFilters){
-    const f = state.filters;
     html += '<div class="panel filters">' +
       (db.fc.actif ? champFiltre("cycle", "Cycle", CYCLES, f.cycle) : "") +
       champFiltre("meal", "Meal Type", MEALS, f.meal) +
       champFiltre("cuisine", "Cuisine", db.cuisines, f.cuisine) +
-      champFiltre("tags", "Tags", db.tags, f.tags) +
+      champFiltre("tags", "Collections (tags)", db.tags, f.tags) +
       champFiltre("season", "Season", SEASONS, f.season) +
       champFiltre("diff", "Difficulté", DIFFS, f.diff) +
       champFiltre("statut", "Statut", STATUTS, f.statut) +
@@ -1253,11 +2257,11 @@ function barreRecherche(){
           [0,1,2,3,4,5].map(v => '<option value="' + v + '"' + (f.noteMin===v?" selected":"") + '>' +
             (v ? stars(v) : "Toutes") + '</option>').join("") + '</select></div>' +
         '<div class="field"><label>Temps total max (min)</label>' +
-          '<input id="f-temps" type="number" min="0" step="5" placeholder="ex. 30" value="' + (f.tempsMax || "") + '"></div>' +
+          '<input id="f-temps" type="number" min="0" step="5" inputmode="numeric" placeholder="ex. 30" value="' + (f.tempsMax || "") + '"></div>' +
       '</div>' +
       '<div class="field" style="margin-bottom:0"><label>Autres</label>' +
-        '<div class="chips"><button type="button" class="chip' + (f.semaine ? " on" : "") + '" id="f-semaine">🗓 Cette semaine seulement</button>' +
-        (db.phaseActuelle ? '<button type="button" class="chip' + (f.maPhase ? " on" : "") + '" id="f-maphase">' +
+        '<div class="chips"><button type="button" class="chip' + (f.semaine ? " on" : "") + '" id="f-semaine">🗓 Au planning cette semaine</button>' +
+        (db.fc.actif && db.phaseActuelle ? '<button type="button" class="chip' + (f.maPhase ? " on" : "") + '" id="f-maphase">' +
           PHASES_BASE[db.phaseActuelle].emo + ' Adaptées à ma phase ' + esc(db.phaseActuelle.toLowerCase()) + '</button>' : "") + '</div>' +
       '</div>' +
     '</div>';
@@ -1272,66 +2276,114 @@ function champFiltre(key, label, options, selected){
 
 /* ---------- vue Courses ---------- */
 function viewCourses(){
-  const groupes = construireCourses();
-  const nRec = db.recettes.filter(r => r.semaine).length;
-  const nLignes = groupes.reduce((t,g) => t + g.lignes.length, 0);
-  const nCochees = groupes.reduce((t,g) => t + g.lignes.filter(L => db.coursesCoches[L.cle]).length, 0);
-  const termine = nLignes > 0 && nCochees === nLignes;
+  const sem = state.semCourses || (state.semCourses = semaineCoursesParDefaut());
+  const C = coursesDe(sem);
+  const groupes = construireCourses(sem);
+  const entrees = entreesSemaine(sem);
+  const lignes = groupes.reduce((t, g) => t.concat(g.lignes), []);
+  const nLignes = lignes.length;
+  const nCochees = lignes.filter(L => C.coches[L.cle]).length;
 
-  let html = '<div class="section-head" style="margin-top:20px; justify-content:space-between">' +
-    '<div style="display:flex; align-items:baseline; gap:9px"><h3>🧺 Liste de courses</h3>' +
-    '<span class="count">' + nLignes + ' ligne' + (nLignes>1?"s":"") + ' · ' + nRec + ' recette' + (nRec>1?"s":"") + '</span></div>' +
-    (nLignes ? '<span class="badge" id="courses-badge"' + (termine ? ' style="background:#e8f3ea; color:#3f7a4d"' : '') + '">' +
-      (termine ? '✓ Terminée' : nCochees + ' / ' + nLignes) + '</span>' : '') +
-  '</div>';
+  let html = '<div class="page-head"><h2>Courses</h2></div>' + navSemaine(sem, "data-semcourses");
 
-  if(!nLignes){
-    return html + '<div class="empty"><span class="big">🛒</span>Aucune recette cochée « cette semaine ».<br>' +
-      'Appuie sur <b>＋</b> en haut d\'une vignette pour commencer.</div>';
+  if(entrees.length){
+    html += '<div class="pour">' + entrees.map(e => {
+      const r = getRecette(e.rid);
+      return '<span class="pour-r" data-open-entree="' + e.id + '">' + vignette(r, "pt") +
+        '<span>' + esc(r.nom) + ' · ' + e.portions + ' p.</span></span>';
+    }).join("") + '</div>';
   }
 
-  html += '<div class="fbar" style="margin-bottom:6px">' +
-    '<button class="btn sm" id="add-course">+ Ajouter un article</button>' +
-    '<span style="display:flex; gap:8px">' +
-    '<button class="btn sm ghost" id="copy-courses">Copier</button>' +
-    '<button class="btn sm ghost" id="reset-courses">Tout décocher</button></span></div>';
+  if(nLignes) html += '<div id="courses-prog">' + progressionCourses(nCochees, nLignes) + '</div>';
+
+  html += '<div class="addline"><input id="course-new" placeholder="Ajouter un article (ex. 2 citrons)" enterkeyhint="done" autocomplete="off">' +
+    '<button type="button" class="btn" id="add-course">' + ico("plus", "sm") + '</button></div>';
+
+  if(!nLignes && !groupes.placard.length){
+    return html + '<div class="empty"><span class="big">🛒</span>' +
+      (entrees.length ? 'Tout est retiré de la liste.' : 'Rien à acheter pour l\'instant.<br>Planifie des repas : leurs ingrédients arrivent ici, additionnés et rangés par rayon.') +
+      '<div class="actions" style="justify-content:center"><button class="btn primary" data-go="planning">🗓 Ouvrir le planning</button></div></div>';
+  }
 
   groupes.forEach(g => {
+    // ce qui reste à prendre d'abord, le panier ensuite
+    const ordre = g.lignes.filter(L => !C.coches[L.cle]).concat(g.lignes.filter(L => C.coches[L.cle]));
     html += '<div class="section"><div class="section-head"><h3>' + esc(g.rayon) + '</h3>' +
       '<span class="count">' + g.lignes.length + '</span></div><div class="panel"><ul class="ing">' +
-      g.lignes.map(L => {
-        const q = afficheQte(L);
-        const coche = !!db.coursesCoches[L.cle];
-        return '<li data-course="' + esc(L.cle) + '" class="' + (coche ? "done" : "") + '">' +
-          '<span class="box">✓</span>' +
-          '<span style="flex:1"><b>' + esc(L.nom) + '</b>' + (q ? ' <span class="qte">' + esc(q) + '</span>' : "") +
-          (L.ali && L.ali.pest === "D" ? '<span class="tagali bio">bio</span>' : "") +
-          (L.alg ? '<span class="alg" style="margin-left:6px">allergène</span>' : "") +
-          (L.recettes.length ? '<span class="src">' + esc(L.recettes.join(" · ")) + '</span>' : "") +
-          (L.details && L.details.length ? L.details.map(d =>
-            '<span class="src-detail">' + esc(d.texte) + (d.qte ? " · " + esc(d.qte) : "") + " — " + esc(d.recette) + '</span>'
-          ).join("") : "") +
-          '</span>' +
-          '<button class="mini" data-rayon="' + esc(L.cle) + '" title="Changer de rayon">⇄</button>' +
-          '<button class="mini" data-delcourse="' + esc(L.cle) + '" title="Retirer">✕</button>' +
-          '</li>';
-      }).join("") + '</ul></div></div>';
+      ordre.map(L => ligneCourse(L, C, false)).join("") + '</ul></div></div>';
   });
+
+  if(groupes.placard.length){
+    html += '<details class="placard"><summary>🏠 Dans mes placards (' + groupes.placard.length + ')</summary>' +
+      '<p class="hint" style="margin:6px 0 10px">Ce que j\'ai toujours chez moi : pas compté dans la liste. Vérifie quand même qu\'il en reste.</p>' +
+      '<div class="panel"><ul class="ing">' + groupes.placard.map(L => ligneCourse(L, C, true)).join("") + '</ul></div></details>';
+  }
+
+  html += '<div class="actions" style="margin-top:20px">' +
+    '<button class="btn" id="share-courses">' + ico("partager", "sm") + ' Partager la liste</button>' +
+    (nCochees ? '<button class="btn ghost" id="reset-courses">Tout décocher</button>' : "") + '</div>';
   return html + '<div style="height:30px"></div>';
 }
 
-/* met à jour le badge de progression sans tout redessiner : cocher un
+function progressionCourses(n, total_){
+  const fini = n === total_;
+  return '<div class="prog-row"><span>' + (fini ? "<b>✓ Tout est dans le panier</b>" : "<b>" + n + "</b> sur " + total_ + " dans le panier") +
+    '</span><span>' + Math.round(100 * n / total_) + ' %</span></div>' +
+    '<div class="prog' + (fini ? " ok" : "") + '"><i style="width:' + (100 * n / total_) + '%"></i></div>';
+}
+
+function ligneCourse(L, C, placard){
+  const q = afficheQte(L);
+  const coche = !placard && !!C.coches[L.cle];
+  return '<li data-course="' + esc(L.cle) + '" class="' + (coche ? "done" : "") + '"' + (placard ? ' data-placard="1"' : "") + '>' +
+    (placard ? '<span class="box" style="border-style:dashed">🏠</span>' : '<span class="box">✓</span>') +
+    '<span style="flex:1"><b>' + esc(L.nom) + '</b>' + (q ? ' <span class="qte">' + esc(q) + '</span>' : "") +
+    (L.ali && L.ali.pest === "D" ? '<span class="tagali bio">bio</span>' : "") +
+    (L.alg ? '<span class="alg" style="margin-left:6px">allergène</span>' : "") +
+    (L.recettes.length ? '<span class="src">' + esc(L.recettes.join(" · ")) + '</span>' : "") +
+    (L.details && L.details.length ? L.details.map(d =>
+      '<span class="src-detail">' + esc(d.texte) + (d.qte ? " · " + esc(d.qte) : "") + " — " + esc(d.recette) + '</span>'
+    ).join("") : "") +
+    '</span>' +
+    '<button class="mini" data-coursemenu="' + esc(L.cle) + '" title="Options">⋯</button>' +
+    '</li>';
+}
+
+/* met à jour la progression sans tout redessiner : cocher un
    article ne doit pas faire sauter le défilement de la liste */
-function majBadgeCourses(){
-  const b = document.getElementById("courses-badge");
-  if(!b) return;
-  const groupes = construireCourses();
-  const nLignes = groupes.reduce((t,g) => t + g.lignes.length, 0);
-  const nCochees = groupes.reduce((t,g) => t + g.lignes.filter(L => db.coursesCoches[L.cle]).length, 0);
-  const termine = nLignes > 0 && nCochees === nLignes;
-  b.textContent = termine ? "✓ Terminée" : (nCochees + " / " + nLignes);
-  b.style.background = termine ? "#e8f3ea" : "";
-  b.style.color = termine ? "#3f7a4d" : "";
+function majProgressionCourses(){
+  const sem = state.semCourses;
+  const C = coursesDe(sem);
+  const lignes = construireCourses(sem).reduce((t, g) => t.concat(g.lignes), []);
+  const n = lignes.filter(L => C.coches[L.cle]).length, tot = lignes.length;
+  const box = document.getElementById("courses-prog");
+  if(box && tot) box.innerHTML = progressionCourses(n, tot);
+  renderTabbar();
+}
+
+function texteCourses(sem){
+  const C = coursesDe(sem);
+  const groupes = construireCourses(sem);
+  const reste = L => !C.coches[L.cle];
+  const tout = !groupes.some(g => g.lignes.some(reste));   // tout coché : on partage quand même la liste entière
+  return "🧺 Courses — " + libSemaine(sem) + "\n\n" + groupes.map(g => {
+    const ls = g.lignes.filter(L => tout || reste(L));
+    if(!ls.length) return "";
+    return g.rayon + "\n" + ls.map(L => { const q = afficheQte(L); return "• " + L.nom + (q ? " — " + q : ""); }).join("\n");
+  }).filter(Boolean).join("\n\n");
+}
+
+function trouverLigneCourses(cle, sem){
+  const g = construireCourses(sem);
+  return g.reduce((f, x) => f || x.lignes.find(L => L.cle === cle), null) || g.placard.find(L => L.cle === cle) || null;
+}
+
+function libellePlacard(cle){
+  if(cle.indexOf("a:") === 0){
+    const a = ALIMENTS.find(x => x.en === cle.slice(2));
+    return a ? (a.fr || a.en) : cle.slice(2);
+  }
+  return cle.slice(2);
 }
 
 /* ---------- page Aliments : le catalogue, toujours accessible ----------
@@ -1354,9 +2406,8 @@ function viewAliments(){
   else if(f)               liste = liste.filter(a => a.phases.indexOf(f) >= 0);
   liste.sort((a,b) => a.fr.localeCompare(b.fr, "fr"));
 
-  let html = '<div style="margin-top:16px"><button class="btn sm ghost" id="back">‹ Retour</button></div>' +
-    '<div class="section-head" style="margin-top:12px"><h3>Aliments</h3>' +
-    '<span class="count">' + ALIMENTS.length + '</span></div>' +
+  let html = '<div class="page-head" style="margin-top:16px"><button class="round" id="back" title="Retour" aria-label="Retour">' + ico("gauche") + '</button>' +
+    '<h2 style="font-size:24px">Aliments</h2><span class="count">' + ALIMENTS.length + '</span></div>' +
     '<p class="hint" style="margin:0 0 12px">Index glycémique, repère bio, catégorie, noms et synonymes. ' +
     'Touche un aliment pour le modifier.' +
     (db.fc.actif ? ' Les phases du cycle se règlent au même endroit.' : '') + '</p>';
@@ -1447,70 +2498,73 @@ function ligneAliment(a){
    ========================================================= */
 function viewFiche(){
   const r = getRecette(state.ficheId);
-  if(!r) return '<div class="empty">Recette introuvable.</div>';
+  if(!r) return '<div class="empty">Recette introuvable.<div class="actions" style="justify-content:center">' +
+    '<button class="btn" id="back">‹ Retour</button></div></div>';
+
+  const f = facteurFiche(r);
+  const fav = estFavori(r);
+  const cur = semaineCourante();
+  const prevus = db.plan.filter(e => e.rid === r.id && e.sem >= cur)
+    .sort((a,b) => (a.sem < b.sem ? -1 : a.sem > b.sem ? 1 : a.jour - b.jour));
 
   const pills = []
     .concat(r.statut ? ['<span class="pill">' + esc(r.statut) + '</span>'] : [])
     .concat(r.meal ? ['<span class="pill acc">' + (MEAL_EMO[r.meal]||"") + " " + esc(r.meal) + '</span>'] : [])
-    .concat(r.cuisines.map(c => '<span class="pill">' + esc(c) + '</span>'))
-    .concat(r.tags.map(c => '<span class="pill">' + esc(c) + '</span>'))
+    .concat(r.cuisines.filter(c => normLibelle(c) !== "favorite").map(c => '<span class="pill">' + esc(c) + '</span>'))
+    .concat(r.tags.map(c => '<span class="pill">🏷 ' + esc(c) + '</span>'))
     .concat(r.seasons.map(c => '<span class="pill">' + esc(c) + '</span>'))
-    .concat(db.fc.actif ? r.cycles.map(c => '<span class="pill acc">' + (CYCLE_EMO[c]||"") + " " + esc(c) + '</span>') : [])
-    .concat(r.diff ? ['<span class="pill">' + esc(r.diff) + '</span>'] : []);
+    .concat(db.fc.actif ? r.cycles.map(c => '<span class="pill acc">' + (CYCLE_EMO[c]||"") + " " + esc(c) + '</span>') : []);
 
-  let html = '<div style="margin-top:16px">' +
-    '<button class="btn sm ghost" id="back">‹ Retour</button></div>';
+  let html = '<div class="fiche-hero">' +
+    (r.image ? '<img src="' + esc(r.image) + '" alt="">' : '<span>' + (MEAL_EMO[r.meal] || "🍳") + '</span>') +
+    '<div class="ov">' +
+      '<button class="ov-btn" id="back" title="Retour" aria-label="Retour">' + ico("gauche") + '</button><span class="sp"></span>' +
+      '<button class="ov-btn' + (fav ? " fav" : "") + '" data-fav="' + r.id + '" title="' + (fav ? "Retirer des favoris" : "Ajouter aux favoris") + '">' +
+        ico("coeur", fav ? "rempli" : "") + '</button>' +
+      '<button class="ov-btn" id="share" title="Partager">' + ico("partager") + '</button>' +
+      '<button class="ov-btn" data-act="fi-menu" title="Plus d\'options">' + ico("plus3", "plein") + '</button>' +
+    '</div></div>';
 
-  html += '<div class="hero" style="margin-top:12px">' +
-    (r.image ? '<img src="' + esc(r.image) + '" alt="">' : (MEAL_EMO[r.meal] || "🍳")) + '</div>';
+  html += '<div class="fiche-head">' +
+    '<h1 class="fiche-title">' + esc(r.nom) + '</h1>' +
+    '<div class="fiche-sub">' + noteCliquable(r, false) + '<span>' + esc(libCuisinee(r)) + '</span></div>';
 
-  html += '<h2 style="font-size:23px">' + esc(r.nom) + '</h2>';
-  if(r.note) html += '<div class="stars" style="font-size:16px; margin-top:5px">' + stars(r.note) + '</div>';
-  if(r.description) html += '<p class="desc">' + esc(r.description) + '</p>';
-  if(r.url) html += '<div style="margin-top:7px; font-size:14px"><a href="' + esc(r.url) + '" target="_blank" rel="noopener">🔗 Voir la source</a></div>';
-  html += '<div style="margin-top:11px">' + pills.join("") + '</div>';
+  const metas = [];
+  if(total(r)) metas.push("⏱ " + fmtMin(total(r)) + (r.prep && r.cuisson ? ' <span class="count">(' + fmtMin(r.prep) + ' + ' + fmtMin(r.cuisson) + ')</span>' : ""));
+  if(r.diff) metas.push(esc(r.diff));
+  if(r.kcal) metas.push("🔥 " + r.kcal + " kcal");
+  if(r.prot) metas.push("💪 " + r.prot + " g prot.");
+  if(metas.length) html += '<div class="metas">' + metas.map(m => '<span class="meta">' + m + '</span>').join("") + '</div>';
 
-  html += '<div class="actions">' +
-    '<button class="btn' + (r.semaine ? " primary" : "") + '" data-week="' + r.id + '">' +
-      (r.semaine ? "✓ Dans ma semaine" : "＋ Cette semaine") + '</button>' +
-    '<button class="btn" id="edit">✎ Modifier</button>' +
-    '<button class="btn" id="dup">⧉ Dupliquer</button>' +
-    '<button class="btn danger" id="del">Supprimer</button>' +
+  html += '<div class="cta-row">' +
+    '<button class="cta" id="cook">' + ico("play", "plein") + ' Commencer à cuisiner</button>' +
+    '<button class="cta second' + (prevus.length ? " on" : "") + '" data-plan="' + r.id + '" title="Planifier" aria-label="Planifier">' + ico("calendrier") + '</button>' +
   '</div>';
-
-  // temps / portions
-  html += '<div class="panel" style="margin-top:18px"><div class="stat-grid">' +
-    '<div class="stat"><b>' + fmtMin(r.prep) + '</b><span>Préparation</span></div>' +
-    '<div class="stat"><b>' + fmtMin(r.cuisson) + '</b><span>Cuisson</span></div>' +
-    '<div class="stat"><b>' + fmtMin(total(r)) + '</b><span>Total</span></div>' +
-    '<div class="stat"><b>' + (r.portions || "—") + '</b><span>Portions</span></div>' +
-  '</div></div>';
-
-  // nutrition
-  if(r.kcal || r.prot || r.gluc || r.lip){
-    html += '<div class="section"><div class="section-head"><h3>Nutrition</h3><span class="count">par portion</span></div>' +
-      '<div class="panel"><div class="stat-grid">' +
-      '<div class="stat"><b>' + (r.kcal||0) + '</b><span>kcal</span></div>' +
-      '<div class="stat"><b>' + (r.prot||0) + ' g</b><span>Protéines</span></div>' +
-      '<div class="stat"><b>' + (r.gluc||0) + ' g</b><span>Glucides</span></div>' +
-      '<div class="stat"><b>' + (r.lip||0) + ' g</b><span>Lipides</span></div>' +
-      '</div></div></div>';
+  if(prevus.length){
+    html += '<div class="plan-info">🗓 Au planning : ' + prevus.map(e =>
+      (e.sem === cur ? "" : libRelatif(e.sem).toLowerCase() + ", ") + libJour(e.sem, e.jour).toLowerCase() +
+      (e.fait ? " ✓" : "")).join(" · ") + '</div>';
   }
+  if(r.description) html += '<p class="desc">' + esc(r.description) + '</p>';
+  if(r.url) html += '<div style="margin-top:8px; font-size:14px"><a href="' + esc(r.url) + '" target="_blank" rel="noopener">🔗 Voir la source</a></div>';
+  if(pills.length) html += '<div style="margin-top:12px">' + pills.join("") + '</div>';
+  html += '</div>';
 
-  // ingrédients + reconnaissance des aliments de la phase
+  // ingrédients, à l'échelle des portions choisies + reconnaissance des aliments de la phase
   if(r.ingredients.length){
     const ph = db.fc.actif ? db.phaseActuelle : "";
     const trouves = alimentsDeRecette(r, ph);
     const parIng = {};
     trouves.forEach(t => parIng[t.k] = t);
     const n = ph ? trouves.filter(t => t.pertinent).length : 0;
+    const coches = r.ingredients.some((i, k) => state.checked[r.id + "-" + k]);
 
     html += '<div class="section"><div class="section-head"><h3>Ingrédients</h3><span class="count">' +
       r.ingredients.length + '</span></div>' +
       (ph ? '<div class="notice" style="margin-bottom:12px">' + PHASES_BASE[ph].emo + ' <b>' + n + ' ingrédient' +
         (n>1?"s":"") + '</b> adapté' + (n>1?"s":"") + ' à ta phase ' + esc(ph.toLowerCase()) +
         (n ? "." : " — cette recette n'est pas particulièrement ciblée.") + '</div>' : "") +
-      '<div class="panel"><ul class="ing">' +
+      '<div class="panel">' + barrePortions(r) + '<ul class="ing">' +
       r.ingredients.map((i, k) => {
         const t = db.fc.actif ? parIng[k] : null;
         const a = t ? t.ali : null;
@@ -1523,18 +2577,40 @@ function viewFiche(){
           if(a.pest === "D") badges += '<span class="tagali bio">bio conseillé</span>';
         }
         return '<li data-ing="' + k + '" class="' + (state.checked[r.id + "-" + k] ? "done" : "") + '">' +
-          '<span class="box">✓</span><span>' + esc(i.txt) + badges + '</span>' +
+          '<span class="box">✓</span><span>' + ligneIngHTML(i.txt, f) + badges + '</span>' +
           (i.alg ? '<span class="alg">allergène</span>' : "") + '</li>';
       }).join("") +
-      '</ul></div></div>';
+      '</ul><div class="actions" style="margin-top:12px">' +
+        '<button class="btn sm" id="to-courses">🧺 Ajouter aux courses</button>' +
+        (coches ? '<button class="btn sm ghost" id="uncheck-ings">Tout décocher</button>' : "") +
+      '</div></div></div>';
   }
 
   // étapes
   if(r.etapes.length){
     html += '<div class="section"><div class="section-head"><h3>Préparation</h3><span class="count">' +
-      r.etapes.length + ' étapes</span></div><div class="panel"><ol class="steps">' +
+      r.etapes.length + ' étape' + (r.etapes.length > 1 ? "s" : "") + '</span>' +
+      '<button class="voir" id="cook2" style="margin-left:auto">▶ Mode cuisine</button></div>' +
+      '<div class="panel"><ol class="steps">' +
       r.etapes.map(e => '<li><span>' + esc(e) + '</span></li>').join("") + '</ol></div></div>';
   }
+
+  // nutrition
+  if(r.kcal || r.prot || r.gluc || r.lip){
+    html += '<div class="section"><div class="section-head"><h3>Nutrition</h3><span class="count">par portion</span></div>' +
+      '<div class="panel"><div class="stat-grid">' +
+      '<div class="stat"><b>' + (r.kcal||0) + '</b><span>kcal</span></div>' +
+      '<div class="stat"><b>' + (r.prot||0) + ' g</b><span>Protéines</span></div>' +
+      '<div class="stat"><b>' + (r.gluc||0) + ' g</b><span>Glucides</span></div>' +
+      '<div class="stat"><b>' + (r.lip||0) + ' g</b><span>Lipides</span></div>' +
+      '</div></div></div>';
+  }
+
+  // mes notes : ce que j'ai changé, pour la prochaine fois
+  html += '<div class="section"><div class="section-head"><h3>📝 Mes notes</h3></div><div class="panel">' +
+    '<textarea id="notes-perso" style="min-height:90px" placeholder="Mes ajustements : moins de sel, 5 min de cuisson en plus, à servir avec…">' +
+      esc(r.notesPerso) + '</textarea>' +
+    '<p class="hint" id="np-state">Enregistré automatiquement</p></div></div>';
 
   // infos complémentaires
   if(r.allergenes || r.ingredientCle || r.groupe){
@@ -1544,7 +2620,52 @@ function viewFiche(){
       (r.groupe ? '<div class="field" style="margin-bottom:0"><label>Groupe alimentaire</label>' + esc(r.groupe) + '</div>' : "") +
     '</div></div>';
   }
+
+  html += '<div class="fiche-foot">' +
+    '<button class="btn" id="edit">✎ Modifier</button>' +
+    '<button class="btn" id="dup">⧉ Dupliquer</button>' +
+    '<button class="btn danger" id="del">Supprimer</button>' +
+  '</div>';
   return html + '<div style="height:30px"></div>';
+}
+
+/* étoiles qu'on touche pour noter, sur la fiche comme à la fin du mode cuisine */
+function noteCliquable(r, grand){
+  return '<span class="rate' + (grand ? " big" : "") + '" title="Ma note">' + [1,2,3,4,5].map(n =>
+    '<button type="button" data-rate="' + n + '" class="' + (r.note >= n ? "on" : "") + '" aria-label="' + n + ' étoile' + (n>1?"s":"") + '">★</button>').join("") +
+    '</span>';
+}
+
+function barrePortions(r){
+  if(r.portions){
+    const p = portionsFiche(r);
+    return '<div class="portions-bar"><div><b>' + p + ' portion' + (p > 1 ? "s" : "") + '</b>' +
+      '<div class="hint-scale">' + (p !== r.portions
+        ? 'Recette pour ' + r.portions + ' · <button type="button" class="voir" id="portions-reset">rétablir</button>'
+        : 'Touche + ou − : les quantités suivent') + '</div></div>' +
+      stepper(p, 'data-fp-moins="' + r.id + '"', 'data-fp-plus="' + r.id + '"', true) + '</div>';
+  }
+  const m = state.mult[r.id] || 1;
+  return '<div class="portions-bar"><div><b>Quantités ×' + joliNombre(m) + '</b>' +
+    '<div class="hint-scale">Indique les portions de la recette (✎ Modifier) pour ajuster par personne</div></div>' +
+    stepper("×" + joliNombre(m), 'data-fm-moins="' + r.id + '"', 'data-fm-plus="' + r.id + '"', true) + '</div>';
+}
+
+/* la recette en texte, pour l'envoyer à quelqu'un (quantités à l'échelle choisie) */
+function texteRecette(r){
+  const f = facteurFiche(r);
+  const lignes = [r.nom];
+  if(r.portions) lignes.push("Pour " + portionsFiche(r) + " portion" + (portionsFiche(r) > 1 ? "s" : ""));
+  if(total(r)) lignes.push("⏱ " + fmtMin(total(r)));
+  if(r.ingredients.length) lignes.push("", "Ingrédients", ...r.ingredients.map(i => "• " + ajusterLigne(i.txt, f).txt));
+  if(r.etapes.length) lignes.push("", "Préparation", ...r.etapes.map((e, k) => (k + 1) + ". " + e));
+  if(r.url) lignes.push("", r.url);
+  return lignes.join("\n");
+}
+function partager(titre, texte, msgCopie){
+  if(navigator.share){
+    navigator.share({title: titre, text: texte}).catch(e => { if(e && e.name !== "AbortError") copier(texte, msgCopie); });
+  }else copier(texte, msgCopie);
 }
 
 /* =========================================================
@@ -1554,7 +2675,7 @@ function vide(){
   return {
     id:null, nom:"", url:"", description:"", image:"", statut:"🟡 Brouillon",
     cuisines:[], meal:"", tags:[], seasons:[], cycles:[],
-    diff:"", note:0, prep:0, cuisson:0, portions:0, semaine:false, semainePortions:0,
+    diff:"", note:0, prep:0, cuisson:0, portions:0, semaine:false,
     kcal:0, prot:0, gluc:0, lip:0,
     ingredients:[{txt:"",alg:false}], etapes:[], allergenes:"", ingredientCle:"", groupe:""
   };
@@ -1564,9 +2685,9 @@ function viewForm(){
   const d = state.formDraft || (state.formDraft = vide());
   const edition = !!d.id;
 
-  let html = '<div style="margin-top:16px; display:flex; align-items:center; gap:10px">' +
-    '<button class="btn sm ghost" id="back">‹ Annuler</button>' +
-    '<h2 style="font-size:19px; flex:1">' + (edition ? "Modifier la recette" : "Nouvelle recette") + '</h2></div>';
+  let html = '<div class="page-head" style="margin-top:16px">' +
+    '<button class="round" id="back" title="Annuler" aria-label="Annuler">' + ico("x") + '</button>' +
+    '<h2 style="font-size:21px">' + (edition ? "Modifier la recette" : "Nouvelle recette") + '</h2></div>';
 
   if(state.vieuxBM){
     html += '<div class="notice warn"><b>Données reçues d\'un ancien bookmarklet.</b> ' +
@@ -1579,7 +2700,7 @@ function viewForm(){
   }
   if(state.majExistante){
     html += '<div class="notice"><b>Cette recette est déjà dans ta base</b> (même URL). ' +
-      'Enregistrer la mettra à jour au lieu de créer un doublon — ta note, ta phase de cycle, ton statut et tes tags sont conservés.</div>';
+      'Enregistrer la mettra à jour au lieu de créer un doublon — ta note, ta phase de cycle, ton statut, tes tags, tes notes et ton historique sont conservés.</div>';
   }
 
   if(!edition){
@@ -1606,89 +2727,87 @@ function viewForm(){
     return html +
       '<div class="panel"><div class="field"><label>Importer un fichier JSON</label>' +
       '<input type="file" id="json-file" accept=".json,application/json">' +
-      '<p class="hint">Sauvegarde complète (recettes + notes de cycle) ou simple liste de recettes.</p></div>' +
+      '<p class="hint">Sauvegarde complète (recettes, planning, notes de cycle) ou simple liste de recettes.</p></div>' +
       '<hr class="sep"><div class="field" style="margin-bottom:0"><label>Ou coller du JSON</label>' +
       '<textarea id="json-text" style="min-height:180px" placeholder=\'[{"nom":"Dahl de lentilles","meal":"Main course"}]\'></textarea>' +
       '<div class="actions"><button class="btn primary" id="do-json">Importer</button></div></div></div>';
   }
 
-  /* ----- formulaire manuel ----- */
+  /* ----- formulaire manuel : l'essentiel d'abord ----- */
   html += '<div class="panel">' +
     '<div class="field"><label>Nom de la recette</label>' +
-      '<input id="in-nom" value="' + esc(d.nom) + '" placeholder="Dahl de lentilles corail"></div>' +
-    '<div class="field"><label>URL source</label>' +
-      '<input id="in-url" type="url" value="' + esc(d.url) + '" placeholder="https://…"></div>' +
-    '<div class="field"><label>Description</label>' +
-      '<textarea id="in-desc" style="min-height:80px" placeholder="En deux lignes : à quoi ressemble ce plat">' + esc(d.description) + '</textarea></div>' +
-    '<div class="field"><label>Statut</label>' + chipsHTML("d-statut", STATUTS, [d.statut]) + '</div>' +
-    '<div class="field" style="margin-bottom:0"><label>Photo</label>' +
+      '<input id="in-nom" value="' + esc(d.nom) + '" placeholder="Dahl de lentilles corail" autocomplete="off"></div>' +
+    '<div class="field"><label>Photo</label>' +
       '<div style="display:flex; gap:10px; align-items:center">' +
-        '<div class="thumb" style="width:84px; height:64px; aspect-ratio:auto; border-radius:10px" id="img-prev">' +
-          (d.image ? '<img src="' + esc(d.image) + '" alt="">' : "🍳") + '</div>' +
-        '<div style="flex:1"><input type="file" id="in-img" accept="image/*">' +
+        '<div class="thumb" style="width:84px; height:64px; aspect-ratio:auto; border-radius:10px; flex:0 0 auto" id="img-prev">' +
+          (d.image ? '<img src="' + esc(d.image) + '" alt="">' : "📷") + '</div>' +
+        '<div style="flex:1; min-width:0"><input type="file" id="in-img" accept="image/*">' +
         (d.image ? '<button class="btn sm ghost" id="rm-img" style="margin-top:7px">Retirer la photo</button>' : "") +
         '</div></div></div>' +
+    '<div class="row">' +
+      '<div class="field"><label>Portions</label><input id="in-portions" type="number" min="0" inputmode="numeric" placeholder="4" value="' + (d.portions||"") + '"></div>' +
+      '<div class="field"><label>Prépa (min)</label><input id="in-prep" type="number" min="0" inputmode="numeric" value="' + (d.prep||"") + '"></div>' +
+      '<div class="field"><label>Cuisson (min)</label><input id="in-cuisson" type="number" min="0" inputmode="numeric" value="' + (d.cuisson||"") + '"></div>' +
+    '</div>' +
+    '<p class="hint" id="total-hint" style="margin-top:-6px">Temps total : ' + fmtMin(num(d.prep)+num(d.cuisson)) +
+      ' · les portions servent à ajuster les quantités</p>' +
+    '<div class="field" style="margin:14px 0 0"><label>Description</label>' +
+      '<textarea id="in-desc" style="min-height:70px" placeholder="En deux lignes : à quoi ressemble ce plat">' + esc(d.description) + '</textarea></div>' +
   '</div>';
 
-  html += '<div class="panel">' +
+  html += '<div class="panel"><div class="field"><label>Ingrédients</label><div id="ings">' +
+    (d.ingredients.length ? d.ingredients : [{txt:"",alg:false}]).map((i,k) => ingRow(i,k)).join("") +
+    '</div><button class="btn sm" id="add-ing" style="margin-top:6px">+ Ajouter un ingrédient</button>' +
+    '<p class="hint">Une quantité en tête (« 200 g de farine ») pour que les portions et les courses s\'ajustent. ' +
+    '↵ passe à la ligne suivante ; colle une liste entière d\'un coup. ⚠ signale un allergène.</p></div>' +
+    '<div class="field" style="margin-bottom:0"><label>Étapes de préparation</label>' +
+      '<textarea id="in-etapes" style="min-height:190px" placeholder="Une étape par ligne">' + esc(d.etapes.join("\n")) + '</textarea>' +
+      '<p class="hint">Une étape par ligne. Les durées (« 10 min ») deviennent des minuteurs dans le mode cuisine.</p></div>' +
+  '</div>';
+
+  html += '<div class="panel"><div class="panel-titre">Classement</div>' +
     '<div class="field"><label>Meal Type</label>' + chipsHTML("d-meal", MEALS, d.meal ? [d.meal] : []) + '</div>' +
     '<div class="field"><label>Cuisine</label>' +
       chipsHTML("d-cuisines", db.cuisines, d.cuisines, '<button type="button" class="chip add" id="add-cuisine">+ ajouter</button>') + '</div>' +
-    '<div class="field"><label>Tags</label>' +
+    '<div class="field"><label>Collections (tags)</label>' +
       chipsHTML("d-tags", db.tags, d.tags, '<button type="button" class="chip add" id="add-tag">+ ajouter</button>') + '</div>' +
     '<div class="field"><label>Season</label>' + chipsHTML("d-seasons", SEASONS, d.seasons) + '</div>' +
-    (db.fc.actif ? '<div class="field" style="margin-bottom:0"><label>Cycle</label>' +
+    (db.fc.actif ? '<div class="field"><label>Cycle</label>' +
       chipsHTML("d-cycles", CYCLES.map(c => c), d.cycles) + '</div>' : "") +
-  '</div>';
-
-  html += '<div class="panel">' +
     '<div class="field"><label>Difficulté</label>' + chipsHTML("d-diff", DIFFS, d.diff ? [d.diff] : []) + '</div>' +
     '<div class="field"><label>Note</label><div class="starpick" id="starpick">' +
       [1,2,3,4,5].map(n => '<button type="button" data-star="' + n + '" class="' + (d.note >= n ? "on" : "") + '">★</button>').join("") +
       '</div></div>' +
-    '<div class="row">' +
-      '<div class="field"><label>Préparation (min)</label><input id="in-prep" type="number" min="0" inputmode="numeric" value="' + (d.prep||"") + '"></div>' +
-      '<div class="field"><label>Cuisson (min)</label><input id="in-cuisson" type="number" min="0" inputmode="numeric" value="' + (d.cuisson||"") + '"></div>' +
-      '<div class="field"><label>Portions</label><input id="in-portions" type="number" min="0" inputmode="numeric" value="' + (d.portions||"") + '"></div>' +
-    '</div>' +
-    '<p class="hint" id="total-hint" style="margin-top:-6px">Temps total : ' + fmtMin(num(d.prep)+num(d.cuisson)) + '</p>' +
-    '<div class="field" style="margin:14px 0 0"><label>Planning</label><div class="chips">' +
-      '<button type="button" class="chip' + (d.semaine ? " on" : "") + '" id="d-semaine">🗓 Cette semaine</button></div></div>' +
+    '<div class="field"' + (edition ? ' style="margin-bottom:0"' : "") + '><label>Statut</label>' + chipsHTML("d-statut", STATUTS, [d.statut]) + '</div>' +
+    (edition ? "" : '<div class="field" style="margin-bottom:0"><label>Planning</label><div class="chips">' +
+      '<button type="button" class="chip' + (d.semaine ? " on" : "") + '" id="d-semaine">🗓 Ajouter à cette semaine</button></div></div>') +
   '</div>';
 
-  html += '<div class="panel"><div class="field"><label>Nutrition (par portion)</label>' +
+  html += '<div class="panel"><details class="grp"' + (d.kcal || d.url || d.allergenes ? " open" : "") + '><summary>Nutrition, source et infos</summary>' +
+    '<div class="field"><label>Nutrition (par portion)</label>' +
     '<div class="row">' +
       '<div><input id="in-kcal" type="number" min="0" inputmode="numeric" placeholder="kcal" value="' + (d.kcal||"") + '"></div>' +
       '<div><input id="in-prot" type="number" min="0" step="0.1" inputmode="decimal" placeholder="protéines g" value="' + (d.prot||"") + '"></div>' +
       '<div><input id="in-gluc" type="number" min="0" step="0.1" inputmode="decimal" placeholder="glucides g" value="' + (d.gluc||"") + '"></div>' +
       '<div><input id="in-lip" type="number" min="0" step="0.1" inputmode="decimal" placeholder="lipides g" value="' + (d.lip||"") + '"></div>' +
-    '</div></div></div>';
-
-  html += '<div class="panel"><div class="field"><label>Ingrédients</label><div id="ings">' +
-    (d.ingredients.length ? d.ingredients : [{txt:"",alg:false}]).map((i,k) => ingRow(i,k)).join("") +
-    '</div><button class="btn sm" id="add-ing" style="margin-top:6px">+ Ajouter un ingrédient</button>' +
-    '<p class="hint">Le bouton ⚠ signale un allergène.</p></div>' +
-    '<div class="field" style="margin-bottom:0"><label>Étapes de préparation</label>' +
-      '<textarea id="in-etapes" style="min-height:190px" placeholder="Une étape par ligne">' + esc(d.etapes.join("\n")) + '</textarea>' +
-      '<p class="hint">Une étape par ligne, la numérotation est automatique.</p></div>' +
-  '</div>';
-
-  html += '<div class="panel">' +
+    '</div></div>' +
+    '<div class="field"><label>URL source</label>' +
+      '<input id="in-url" type="url" value="' + esc(d.url) + '" placeholder="https://…"></div>' +
     '<div class="field"><label>Allergènes</label><input id="in-allergenes" value="' + esc(d.allergenes) + '" placeholder="gluten, fruits à coque…"></div>' +
     '<div class="field"><label>Ingrédient clé</label><input id="in-cle" value="' + esc(d.ingredientCle) + '" placeholder="lentilles corail"></div>' +
     '<div class="field" style="margin-bottom:0"><label>Groupe alimentaire</label><input id="in-groupe" value="' + esc(d.groupe) + '" placeholder="légumineuses"></div>' +
-  '</div>';
+  '</details></div>';
 
-  html += '<div class="actions" style="margin:18px 0 40px">' +
-    '<button class="btn primary" id="save-recette" style="flex:1; padding:13px">Enregistrer</button>' +
+  html += '<div class="savebar"><div class="savebar-in">' +
+    '<button class="btn primary" id="save-recette" style="flex:1">Enregistrer</button>' +
     (edition ? '<button class="btn danger" id="del">Supprimer</button>' : "") +
-  '</div>';
+  '</div></div>';
   return html;
 }
 
 function ingRow(i, k){
   return '<div class="ing-row" data-row="' + k + '">' +
-    '<input class="ing-txt" value="' + esc(i.txt) + '" placeholder="200 g de farine">' +
+    '<input class="ing-txt" value="' + esc(i.txt) + '" placeholder="200 g de farine" enterkeyhint="next" autocomplete="off">' +
     '<button type="button" class="mini' + (i.alg ? " on" : "") + '" data-alg="' + k + '" title="Allergène">⚠</button>' +
     '<button type="button" class="mini" data-delrow="' + k + '" title="Supprimer">✕</button>' +
   '</div>';
@@ -1776,18 +2895,23 @@ function syncDraft(){
 function saveRecette(){
   syncDraft();
   const d = state.formDraft;
-  if(!d.nom){ toast("Donne au moins un nom à la recette"); return; }
-  if(d.id){
+  if(!d.nom){ toast("Donne au moins un nom à la recette"); const el = $("#in-nom"); if(el) el.focus(); return; }
+  const edition = !!d.id && !!getRecette(d.id);
+  if(edition){
     const i = db.recettes.findIndex(r => r.id === d.id);
     db.recettes[i] = normalize(Object.assign({}, db.recettes[i], d, {maj: Date.now()}));
   }else{
-    d.id = uid();
+    d.id = d.id || uid();
     db.recettes.push(normalize(Object.assign({}, d, {cree:Date.now(), maj:Date.now()})));
+    if(d.semaine && !estPlanifiee(getRecette(d.id))) planifier(d.id, semaineCourante(), -1);
   }
   if(save()) toast("Recette enregistrée ✓");
   const id = d.id;
   state.formDraft = null;
-  go("fiche", {ficheId: id});
+  // modifiée depuis sa fiche : on y revient plutôt que d'empiler une seconde fiche
+  const prec = pile[pile.length - 1];
+  if(edition && prec && prec.view === "fiche" && prec.ficheId === id) retour();
+  else remplacer("fiche", {ficheId: id});
 }
 
 /* ---------- parsing du texte collé ---------- */
@@ -2135,8 +3259,9 @@ function fusionner(d){
   // champs personnels : ils gagnent toujours
   d.statut  = ex.statut;
   d.note    = ex.note;
-  d.semaine = ex.semaine;
-  d.semainePortions = ex.semainePortions;
+  d.notesPerso   = ex.notesPerso;
+  d.cuisinee     = ex.cuisinee;
+  d.derniereFois = ex.derniereFois;
   d.cycles  = ex.cycles.slice();
   d.diff    = ex.diff || d.diff;
   d.meal    = ex.meal || d.meal;
@@ -2323,9 +3448,12 @@ function importJSON(text, remplacer){
   const existants = {};
   db.recettes.forEach(r => existants[r.id] = true);
   const clef = u => String(u || "").replace(/[?#].*$/, "").replace(/\/+$/, "").toLowerCase();
-  let n = 0, maj = 0;
-  list.forEach(r => {
-    const rec = normalize(r);
+  const idsFichier = {};   // id dans le fichier → id dans ma base, pour raccrocher le planning
+  const sem = semaineCourante();
+  let n = 0, maj = 0, planif = 0;
+  list.forEach(brute => {
+    const rec = normalize(brute);
+    const idFichier = rec.id;
     // même URL déjà en base → mise à jour plutôt que doublon
     const i = rec.url ? db.recettes.findIndex(x => x.url && clef(x.url) === clef(rec.url)) : -1;
     if(i >= 0){
@@ -2333,27 +3461,45 @@ function importJSON(text, remplacer){
       rec.id = anc.id;
       rec.note = rec.note || anc.note;
       rec.statut = anc.statut;
-      rec.semaine = anc.semaine || rec.semaine;
       rec.cycles = rec.cycles.length ? rec.cycles : anc.cycles;
       rec.tags = Array.from(new Set(anc.tags.concat(rec.tags)));
       rec.cuisines = Array.from(new Set(anc.cuisines.concat(rec.cuisines)));
+      rec.notesPerso = rec.notesPerso || anc.notesPerso;
+      rec.cuisinee = Math.max(rec.cuisinee, anc.cuisinee);
+      rec.derniereFois = Math.max(rec.derniereFois, anc.derniereFois);
       db.recettes[i] = rec; maj++;
-      return;
+    }else{
+      if(existants[rec.id]) rec.id = uid();
+      db.recettes.push(rec); existants[rec.id] = true; n++;
     }
-    if(existants[rec.id]) rec.id = uid();
-    db.recettes.push(rec); existants[rec.id] = true; n++;
+    idsFichier[idFichier] = rec.id;
+    // sauvegarde d'avant la v3 : « cette semaine » était un drapeau sur la recette
+    if(brute && brute.semaine && !estPlanifiee(rec, sem)){
+      db.plan.push({id: uid(), rid: rec.id, sem: sem, jour: -1,
+        portions: num(brute.semainePortions) || rec.portions || 4, fait: false});
+      planif++;
+    }
   });
   if(!Array.isArray(p)){
     if(Array.isArray(p.cuisines) && p.cuisines.length) db.cuisines = Array.from(new Set(db.cuisines.concat(p.cuisines)));
     if(p.cycleNotes) CYCLES.forEach(c => { if(p.cycleNotes[c]) db.cycleNotes[c] = p.cycleNotes[c]; });
+    // planning d'une sauvegarde v3 : seules la semaine en cours et les suivantes voyagent
+    if(Array.isArray(p.plan)) p.plan.map(normEntree).filter(Boolean).forEach(e => {
+      const rid = idsFichier[e.rid];
+      if(!rid || e.sem < sem) return;
+      if(db.plan.some(x => x.rid === rid && x.sem === e.sem && x.jour === e.jour)) return;
+      e.rid = rid; e.id = uid();
+      db.plan.push(e); planif++;
+    });
   }
   // enrichit la liste des cuisines avec celles trouvées
   db.recettes.forEach(r => r.cuisines.forEach(c => { if(db.cuisines.indexOf(c) < 0) db.cuisines.push(c); }));
   save();
-  toast(n ? (n + " recette" + (n>1?"s":"") + " importée" + (n>1?"s":"") + (maj ? ", " + maj + " mise" + (maj>1?"s":"") + " à jour" : "") + " ✓")
-          : (maj + " recette" + (maj>1?"s":"") + " mise" + (maj>1?"s":"") + " à jour ✓"));
+  toast((n ? (n + " recette" + (n>1?"s":"") + " importée" + (n>1?"s":"") + (maj ? ", " + maj + " mise" + (maj>1?"s":"") + " à jour" : ""))
+           : (maj + " recette" + (maj>1?"s":"") + " mise" + (maj>1?"s":"") + " à jour")) +
+        (planif ? " · " + planif + " au planning" : "") + " ✓");
   state.formDraft = null;
-  go("galerie");
+  onglet("galerie");
 }
 
 /* =========================================================
@@ -2362,12 +3508,38 @@ function importJSON(text, remplacer){
 function viewReglages(){
   const n = db.recettes.length;
   const actives = db.recettes.filter(r => r.statut === "✅ Active").length;
+  const fois = db.recettes.reduce((t, r) => t + (r.cuisinee || 0), 0);
+  const pp = db.prefs.portions || 0;
   return '' +
-  '<div style="margin-top:16px"><button class="btn sm ghost" id="back">‹ Retour</button></div>' +
-  '<h2 style="font-size:21px; margin-top:12px">Réglages</h2>' +
+  '<div class="page-head" style="margin-top:16px"><button class="round" id="back" title="Retour" aria-label="Retour">' + ico("gauche") + '</button>' +
+    '<h2 style="font-size:24px">Réglages</h2></div>' +
 
-  '<div class="panel" style="margin-top:14px"><div class="section-head"><h3>Sauvegarde</h3></div>' +
-    '<p class="hint" style="margin:0 0 12px">Exporte un fichier JSON pour sauvegarder ou transférer ta base entre Mac et iPhone.</p>' +
+  '<div class="panel" style="margin-top:14px"><div class="section-head"><h3>Mon foyer</h3></div>' +
+    '<p class="hint" style="margin:0 0 12px">Nombre de portions proposé quand j\'ouvre une recette ou que je la planifie. ' +
+    'Les quantités et la liste de courses s\'ajustent toutes seules.</p>' +
+    '<div class="chips">' + [[0,"Selon la recette"],[1,"1"],[2,"2"],[3,"3"],[4,"4"],[5,"5"],[6,"6"],[8,"8"]].map(([v, l]) =>
+      '<button type="button" class="chip' + (pp === v ? " on" : "") + '" data-prefportions="' + v + '">' + (v ? "👤 " : "") + l + '</button>').join("") +
+    '</div>' +
+  '</div>' +
+
+  '<div class="panel"><div class="section-head"><h3>Mon placard</h3><span class="count">' + db.placard.length + '</span></div>' +
+    (db.placard.length
+      ? '<p class="hint" style="margin:0 0 10px">Ces articles sont rangés à part dans la liste de courses. Toucher pour les y remettre.</p>' +
+        '<div class="chips">' + db.placard.map(k => '<button type="button" class="chip" data-rmplacard="' + esc(k) + '">' +
+          esc(libellePlacard(k)) + ' ✕</button>').join("") + '</div>'
+      : '<p class="hint" style="margin:0">Vide pour l\'instant. Dans la liste de courses, touche ⋯ sur un article que tu as toujours ' +
+        '(sel, huile, épices…) puis « J\'en ai toujours chez moi ».</p>') +
+  '</div>' +
+
+  '<div class="panel"><div class="section-head"><h3>Apparence</h3></div><div class="chips">' +
+    [["auto","Automatique"],["clair","☀️ Clair"],["sombre","🌙 Sombre"]].map(([v, l]) =>
+      '<button type="button" class="chip' + ((db.prefs.theme || "auto") === v ? " on" : "") + '" data-theme="' + v + '">' + l + '</button>').join("") +
+    '</div><p class="hint">Automatique suit le réglage du téléphone ou du Mac.</p>' +
+  '</div>' +
+
+  '<div class="panel"><div class="section-head"><h3>Sauvegarde</h3></div>' +
+    '<p class="hint" style="margin:0 0 12px">Exporte un fichier JSON pour sauvegarder ou transférer ta base entre Mac et iPhone : ' +
+    'recettes, planning, notes et historique.</p>' +
     '<div class="actions" style="margin:0">' +
       '<button class="btn primary" id="do-export">⇩ Exporter en JSON</button>' +
       '<label class="btn" style="cursor:pointer">⇪ Importer un fichier' +
@@ -2402,26 +3574,28 @@ function viewReglages(){
       : 'L\'import d\'un fichier active automatiquement la fonctionnalité.') + '</p>' +
   '</div>' +
 
-  '<div class="panel"><div class="section-head"><h3>Mes tags</h3><span class="count">' + db.tags.length + '</span></div>' +
+  '<div class="panel"><div class="section-head"><h3>Mes collections (tags)</h3><span class="count">' + db.tags.length + '</span></div>' +
     '<div class="chips" id="tag-edit">' +
       db.tags.map(c => '<button type="button" class="chip" data-rmtag="' + esc(c) + '">' + esc(c) + ' ✕</button>').join("") +
       '<button type="button" class="chip add" id="add-tag2">+ ajouter</button>' +
-    '</div><p class="hint">Tes tags à toi : box repas, marques, occasions… Toucher un tag le retire de la liste (les recettes ne sont pas modifiées).</p>' +
+    '</div><p class="hint">Tes tags à toi : box repas, marques, occasions… Ils deviennent des collections sur l\'accueil. ' +
+    'Toucher un tag le retire de la liste (les recettes ne sont pas modifiées).</p>' +
   '</div>' +
 
   '<div class="panel"><div class="section-head"><h3>Liste des cuisines</h3><span class="count">' + db.cuisines.length + '</span></div>' +
     '<div class="chips" id="cuisine-edit">' +
       db.cuisines.map(c => '<button type="button" class="chip" data-rmcuisine="' + esc(c) + '">' + esc(c) + ' ✕</button>').join("") +
       '<button type="button" class="chip add" id="add-cuisine2">+ ajouter</button>' +
-    '</div><p class="hint">Toucher une cuisine la retire de la liste (les recettes ne sont pas modifiées).</p>' +
+    '</div><p class="hint">Toucher une cuisine la retire de la liste (les recettes ne sont pas modifiées). ' +
+    '« ❤️ Favorite » sert de cœur sur les fiches.</p>' +
   '</div>' +
 
   '<div class="panel"><div class="section-head"><h3>Ma base</h3></div>' +
     '<div class="stat-grid">' +
       '<div class="stat"><b>' + n + '</b><span>recettes</span></div>' +
       '<div class="stat"><b>' + actives + '</b><span>actives</span></div>' +
-      '<div class="stat"><b>' + db.recettes.filter(r=>r.semaine).length + '</b><span>cette semaine</span></div>' +
-      '<div class="stat"><b>' + db.recettes.filter(r=>r.note>=4).length + '</b><span>notées 4★+</span></div>' +
+      '<div class="stat"><b>' + entreesSemaine(semaineCourante()).length + '</b><span>repas cette semaine</span></div>' +
+      '<div class="stat"><b>' + fois + '</b><span>plats cuisinés</span></div>' +
     '</div>' +
     '<div class="actions"><button class="btn danger" id="wipe">Effacer mes recettes</button></div>' +
   '</div>' +
@@ -2432,6 +3606,15 @@ function viewReglages(){
     '<b>⇧ Maj</b> et en cliquant sur ↻ (ou ⌥⌘R) : Safari garde parfois l\'ancienne version d\'un fichier local en mémoire.</p>' +
   '</div>' +
   '<div style="height:30px"></div>';
+}
+
+function appliquerTheme(){
+  const t = db.prefs.theme;
+  const el = document.documentElement;
+  if(t === "clair" || t === "sombre") el.setAttribute("data-theme", t); else el.removeAttribute("data-theme");
+  const sombre = t === "sombre" || (t !== "clair" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+  const m = document.querySelector('meta[name="theme-color"]');
+  if(m) m.setAttribute("content", sombre ? "#161311" : "#faf8f5");
 }
 
 /* ---------- helpers import web ---------- */
@@ -2464,77 +3647,899 @@ function copier(txt, msg){
 }
 
 /* =========================================================
-   8c. ÉVÉNEMENTS
+   8c. FEUILLES DU BAS
+   Tout ce qui demandait un prompt() se choisit désormais au pouce.
+   ========================================================= */
+function ouvrirFeuille(f){
+  state.feuille = f;
+  renderFeuille();
+  $("#sheet").scrollTop = 0;
+  $("#sheet").classList.add("open");
+  $("#sheet-bg").classList.add("open");
+  document.body.classList.add("sheet-open");
+}
+function fermerFeuille(){
+  if(!state.feuille) return;
+  state.feuille = null;
+  $("#sheet").classList.remove("open");
+  $("#sheet-bg").classList.remove("open");
+  document.body.classList.remove("sheet-open");
+}
+function renderFeuille(){
+  const f = state.feuille;
+  if(!f) return;
+  let html = "";
+  switch(f.type){
+    case "nouvelle":  html = feuilleNouvelle(); break;
+    case "planifier": html = feuillePlanifier(f); break;
+    case "choisir":   html = feuilleChoisir(f); break;
+    case "entree":    html = feuilleEntree(f); break;
+    case "semaine":   html = feuilleSemaine(f); break;
+    case "article":   html = feuilleArticle(f); break;
+    case "fiche":     html = feuilleMenuFiche(f); break;
+  }
+  if(!html){ fermerFeuille(); return; }
+  $("#sheet").innerHTML = '<div class="grip"></div>' + html;
+}
+function opt(act, emo, titre, sous, cls, extra){
+  return '<button type="button" class="opt' + (cls ? " " + cls : "") + '" data-act="' + act + '"' + (extra || "") + '>' +
+    '<span class="opt-emo">' + emo + '</span><span style="flex:1">' + esc(titre) +
+    (sous ? '<small>' + esc(sous) + '</small>' : "") + '</span></button>';
+}
+
+function feuilleNouvelle(){
+  return '<h3>Ajouter une recette</h3><p class="sub">Écris la tienne, ou récupère-la d\'un site.</p>' +
+    '<div class="opts">' +
+      opt("new-manuel", "✍️", "Écrire ma recette", "Le formulaire, champ par champ") +
+      opt("new-web", "🔗", "Importer depuis un site", "Bookmarklet Mac, raccourci iPhone ou presse-papiers") +
+      opt("new-coller", "📋", "Coller le texte d'une recette", "L'app repère titre, ingrédients et étapes") +
+      opt("new-json", "⇪", "Importer un fichier", "Sauvegarde ou lot de recettes en JSON") +
+    '</div>';
+}
+
+function ouvrirPlanifier(rid){
+  const r = getRecette(rid);
+  if(!r) return;
+  ouvrirFeuille({type:"planifier", rid: rid, sem: semaineCourante(), portions: r.portions ? portionsFiche(r) : portionsParDefaut(r)});
+}
+function feuillePlanifier(f){
+  const r = getRecette(f.rid);
+  if(!r) return "";
+  const cur = semaineCourante(), auj = aujourdhui();
+  const dans = entreesSemaine(f.sem);
+  const prevus = db.plan.filter(e => e.rid === r.id && e.sem >= cur)
+    .sort((a,b) => (a.sem < b.sem ? -1 : a.sem > b.sem ? 1 : a.jour - b.jour));
+  let html = '<h3>Planifier</h3><p class="sub">' + esc(r.nom) + '</p>' +
+    '<div class="chips" style="margin-bottom:12px; align-items:center">' +
+      [[cur, "Cette semaine"], [ajouterJours(cur, 7), "Semaine prochaine"]].map(([s, l]) =>
+        '<button type="button" class="chip' + (s === f.sem ? " on" : "") + '" data-act="pl-sem" data-sem="' + s + '">' + l + '</button>').join("") +
+      '<span class="hint" style="margin:0 0 0 auto">' + esc(libSemaine(f.sem)) + '</span></div>' +
+    '<div class="days">' + JOURS_COURTS.map((j, k) => {
+      const d = ajouterJours(f.sem, k);
+      const n = dans.filter(e => e.jour === k).length;
+      return '<button type="button" class="dayb' + (d < auj ? " passe" : "") + (d === auj ? " auj" : "") + (n ? " has" : "") +
+        '" data-act="pl-jour" data-jour="' + k + '">' + j + '<small>' + dateDe(d).getDate() + (n ? " · " + n + " 🍽" : "") + '</small></button>';
+    }).join("") +
+      '<button type="button" class="dayb" data-act="pl-jour" data-jour="-1">📌<small>Sans jour</small></button></div>' +
+    '<div class="portions-bar" style="margin-top:16px; border:none; padding:0"><div><b>' + f.portions + ' portion' + (f.portions > 1 ? "s" : "") + '</b>' +
+      '<div class="hint-scale">' + (r.portions ? "Les courses s'ajustent à ce nombre" : "Recette sans portions de base : quantités telles quelles") + '</div></div>' +
+      stepper(f.portions, 'data-act="pl-moins"', 'data-act="pl-plus"', true) + '</div>';
+  if(prevus.length){
+    html += '<div class="kicker">Déjà prévu</div><div class="opts">' + prevus.map(e =>
+      '<div class="opt"><span class="opt-emo">🗓</span><span style="flex:1">' +
+        (e.sem === cur ? "" : esc(libRelatif(e.sem)) + " · ") + esc(libJour(e.sem, e.jour)) +
+        '<small>' + e.portions + ' portion' + (e.portions > 1 ? "s" : "") + (e.fait ? " · cuisiné ✓" : "") + '</small></span>' +
+        '<button type="button" class="btn sm ghost" data-act="pl-retirer" data-entree="' + e.id + '">Retirer</button></div>').join("") + '</div>';
+  }
+  return html;
+}
+
+function ouvrirChoix(sem, jour){
+  const dans = entreesSemaine(sem).map(e => e.rid);
+  const pool = poolSuggestions(dans), idees = [];
+  while(idees.length < 3 && pool.length){ const r = tirer(pool); idees.push(r.id); pool.splice(pool.indexOf(r), 1); }
+  ouvrirFeuille({type:"choisir", sem: sem, jour: jour, q: "", idees: idees});
+}
+function feuilleChoisir(f){
+  return '<h3>Ajouter un repas</h3><p class="sub">' + esc(libJour(f.sem, f.jour)) + ' · ' + esc(libSemaine(f.sem)) + '</p>' +
+    '<div class="search-in" style="margin-bottom:6px">' + ico("loupe", "sm") +
+      '<input id="pick-q" type="search" autocomplete="off" placeholder="Chercher une recette…" value="' + esc(f.q || "") + '"></div>' +
+    '<div id="pick-list">' + listeChoix(f) + '</div>';
+}
+function listeChoix(f){
+  const q = normRech(f.q || "").trim();
+  const dans = entreesSemaine(f.sem).map(e => e.rid);
+  let list = db.recettes.filter(r => r.statut !== ARCHIVE);
+  let html = "";
+  if(q){
+    list = list.filter(r => normRech(r.nom + " " + r.ingredients.map(i => i.txt).join(" ") + " " +
+      r.tags.join(" ") + " " + r.cuisines.join(" ")).indexOf(q) >= 0);
+  }else{
+    const idees = (f.idees || []).map(getRecette).filter(Boolean);
+    if(idees.length) html += '<div class="kicker">✨ Idées pour ce jour</div>' + idees.map(r => ligneChoix(r, dans)).join("");
+    html += '<div class="kicker">Toutes mes recettes</div>';
+  }
+  list = trier(list, "meilleures");
+  return html + (list.length ? list.map(r => ligneChoix(r, dans)).join("") : '<p class="hint">Aucune recette ne correspond.</p>');
+}
+function ligneChoix(r, dans){
+  const meta = [total(r) ? "⏱ " + fmtMin(total(r)) : "", r.note ? "★ " + r.note : "", dans.indexOf(r.id) >= 0 ? "déjà au menu" : ""].filter(Boolean);
+  return '<div class="pick" data-act="ch-recette" data-rid="' + r.id + '">' + vignette(r, "pt") +
+    '<div style="flex:1; min-width:0"><b>' + esc(r.nom) + '</b><small>' + meta.join(" · ") + '</small></div>' +
+    '<span class="round sm">' + ico("plus") + '</span></div>';
+}
+
+function feuilleEntree(f){
+  const e = entree(f.id);
+  const r = e && getRecette(e.rid);
+  if(!r) return "";
+  return '<h3>' + esc(r.nom) + '</h3><p class="sub">' + esc(libJour(e.sem, e.jour)) + ' · ' + e.portions + ' portion' + (e.portions > 1 ? "s" : "") + '</p>' +
+    '<div class="opts">' +
+      opt("en-ouvrir", "📖", "Voir la recette") +
+      opt("en-fait", e.fait ? "↩️" : "✅", e.fait ? "Pas encore cuisiné" : "Marquer comme cuisiné", e.fait ? "" : "Compte dans l'historique de la recette") +
+      opt("en-autre", "🔀", "Une autre idée", "Remplacer par une recette suggérée") +
+    '</div>' +
+    '<div class="kicker">Déplacer vers</div><div class="days">' +
+      JOURS_COURTS.map((j, k) => '<button type="button" class="dayb' + (e.jour === k ? " has" : "") + '" data-act="en-jour" data-jour="' + k + '">' +
+        j + '<small>' + dateDe(ajouterJours(e.sem, k)).getDate() + '</small></button>').join("") +
+      '<button type="button" class="dayb' + (e.jour < 0 ? " has" : "") + '" data-act="en-jour" data-jour="-1">📌<small>Sans jour</small></button></div>' +
+    '<div class="opts" style="margin-top:16px">' + opt("en-retirer", "🗑", "Retirer du planning", "", "danger") + '</div>';
+}
+
+function feuilleSemaine(f){
+  const n = entreesSemaine(f.sem).length;
+  const prec = entreesSemaine(ajouterJours(f.sem, -7)).length;
+  return '<h3>' + esc(libRelatif(f.sem)) + '</h3><p class="sub">' + esc(libSemaine(f.sem)) + '</p><div class="opts">' +
+    (f.sem >= semaineCourante() ? opt("pl-auto", "✨", "Compléter la semaine", "Une idée pour chaque jour encore vide") : "") +
+    (prec ? opt("sm-copier", "⧉", "Reprendre la semaine précédente", prec + " repas, aux mêmes jours") : "") +
+    opt("pl-courses", "🧺", "Liste de courses de cette semaine") +
+    (n ? opt("sm-vider", "🧹", "Vider la semaine", n + " repas retirés (annulable)", "danger") : "") +
+  '</div>';
+}
+
+function feuilleArticle(f){
+  const L = trouverLigneCourses(f.cle, f.sem);
+  if(!L) return "";
+  const auPlacard = db.placard.indexOf(L.cle) >= 0;
+  return '<h3>' + esc(L.nom) + '</h3><p class="sub">' + esc(L.rayon) + (L.recettes.length ? ' · ' + esc(L.recettes.join(", ")) : "") + '</p>' +
+    '<div class="opts">' +
+      (L.manuel ? "" : auPlacard
+        ? opt("ar-placard-non", "🛒", "Remettre dans la liste", "Il n'en reste plus à la maison")
+        : opt("ar-placard", "🏠", "J'en ai toujours chez moi", "Rangé à part dans « Mes placards », pour toutes les semaines")) +
+      opt("ar-retirer", "✕", "Retirer de la liste", "Cette semaine seulement (annulable)", "danger") +
+    '</div>' +
+    '<div class="kicker">Ranger dans le rayon</div><div class="opts">' +
+      RAYONS.map(ry => '<button type="button" class="opt' + (ry === L.rayon ? " on" : "") + '" data-act="ar-rayon" data-rayon="' + esc(ry) + '">' +
+        esc(ry) + (ry === L.rayon ? ' <span style="margin-left:auto">✓</span>' : "") + '</button>').join("") + '</div>';
+}
+
+function feuilleMenuFiche(f){
+  const r = getRecette(f.rid);
+  if(!r) return "";
+  return '<h3>' + esc(r.nom) + '</h3><p class="sub">' + esc(libCuisinee(r)) + '</p><div class="opts">' +
+      opt("fi-edit", "✎", "Modifier") +
+      opt("fi-dup", "⧉", "Dupliquer", "Pour créer une variante") +
+      opt("fi-share", "📤", "Partager", "Ingrédients aux portions choisies, et étapes") +
+      opt("fi-del", "🗑", "Supprimer", "", "danger") +
+    '</div>' +
+    '<div class="kicker">Collections</div><div class="chips">' +
+      db.tags.map(t => '<button type="button" class="chip' + (r.tags.indexOf(t) >= 0 ? " on" : "") + '" data-act="fi-tag" data-tag="' + esc(t) + '">' +
+        esc(t) + '</button>').join("") +
+      '<button type="button" class="chip add" data-act="fi-tag-new">+ nouvelle</button></div>';
+}
+
+/* =========================================================
+   8d. MODE CUISINE
+   Une étape par écran, en grand ; les ingrédients de l'étape à leur
+   quantité ajustée ; les durées du texte deviennent des minuteurs.
+   ========================================================= */
+function ridCourant(){ return state.view === "cuisine" && state.cuisine ? state.cuisine.rid : state.ficheId; }
+
+function demarrerCuisine(rid, entreeId){
+  const r = getRecette(rid);
+  if(!r) return;
+  let e = entreeId ? entree(entreeId) : null;
+  if(!e) e = db.plan.find(x => x.rid === rid && x.sem === semaineCourante() && x.jour === indexJour() && !x.fait) || null;
+  if(e && e.portions && r.portions) state.portions[rid] = e.portions;
+  initAudio();
+  state.cuisine = {rid: rid, etape: -1, entree: e ? e.id : null, marque: false};
+  go("cuisine");
+}
+
+function changerEtape(d){
+  const c = state.cuisine;
+  const r = c && getRecette(c.rid);
+  if(!r) return;
+  const k = Math.max(-1, Math.min(r.etapes.length, c.etape + d));
+  if(k === c.etape) return;
+  c.etape = k;
+  render();
+  window.scrollTo(0, 0);
+}
+
+function viewCuisine(){
+  const c = state.cuisine;
+  const r = c && getRecette(c.rid);
+  if(!r) return '<div class="empty">Recette introuvable.<div class="actions" style="justify-content:center">' +
+    '<button class="btn" id="cook-exit">‹ Retour</button></div></div>';
+  const n = r.etapes.length, k = c.etape, f = facteurFiche(r);
+  const portions = r.portions ? portionsFiche(r) + " portion" + (portionsFiche(r) > 1 ? "s" : "") : (f !== 1 ? "quantités ×" + joliNombre(f) : "");
+
+  let html = '<div class="cook"><div class="cook-top">' +
+      '<button class="round" id="cook-exit" title="Quitter le mode cuisine" aria-label="Quitter">' + ico("x") + '</button>' +
+      '<div class="t"><b>' + esc(r.nom) + '</b><small>' + (k < 0 ? "Mise en place" : k >= n ? "Terminé" : "Étape " + (k + 1) + " sur " + n) +
+        (portions ? " · " + esc(portions) : "") + '</small></div></div>' +
+    '<div class="segs">' + Array.from({length: n + 2}, (_, i) => '<i class="' + (i <= k + 1 ? "on" : "") + '"></i>').join("") + '</div>' +
+    '<div class="cook-body">';
+
+  if(k < 0){
+    html += '<div class="step-kicker kicker">Mise en place</div><h2 class="step-title">Rassemble tes ingrédients</h2>' +
+      (r.ingredients.length ? '<div class="panel">' + barrePortions(r) + '<ul class="ing big">' + r.ingredients.map((i, kk) =>
+        '<li data-ing="' + kk + '" class="' + (state.checked[r.id + "-" + kk] ? "done" : "") + '"><span class="box">✓</span><span>' +
+        ligneIngHTML(i.txt, f) + '</span></li>').join("") + '</ul></div>' : '<p class="hint">Pas d\'ingrédients notés pour cette recette.</p>') +
+      (n ? "" : '<p class="hint">Cette recette n\'a pas encore d\'étapes : ajoute-les via ✎ Modifier.</p>') +
+      (r.notesPerso ? '<div class="notice" style="margin-top:14px">📝 <b>Mes notes :</b> ' + esc(r.notesPerso) + '</div>' : "");
+  }else if(k < n){
+    const txt = r.etapes[k];
+    html += '<div class="kicker">Étape ' + (k + 1) + '</div><p class="step-txt">' + esc(txt) + '</p>';
+    const mins = minuteursEtape(txt);
+    if(mins.length){
+      html += '<div>' + mins.map(m => '<button type="button" class="tbtn" data-timer="' + m.sec + '" data-timerlib="' +
+        esc(r.nom.slice(0, 22) + " · ét. " + (k + 1)) + '" data-timeretape="' + k + '">' + ico("minuteur") + ' ' + esc(m.lib) +
+        (m.plage ? ' <small>(' + esc(m.plage) + ')</small>' : "") + '</button>').join("") + '</div>';
+    }
+    const ings = ingredientsEtape(r, txt);
+    if(ings.length){
+      html += '<div class="kicker muted" style="margin-top:18px">Dans cette étape</div><div class="step-ings">' +
+        ings.map(kk => '<span class="step-ing">' + ligneIngHTML(r.ingredients[kk].txt, f) + '</span>').join("") + '</div>';
+    }
+  }else{
+    html += '<div class="fin"><div class="big">🎉</div><h2>Bon appétit !</h2>' +
+      '<p class="hint" style="margin:0 0 10px">Comment c\'était ?</p>' + noteCliquable(r, true) +
+      (c.marque
+        ? '<div class="notice ok" style="margin-top:18px">✓ Noté dans ton historique — cuisinée ' + r.cuisinee + ' fois</div>'
+        : '<button class="cta" id="cook-done" style="margin-top:20px; width:100%">' + ico("check") + ' J\'ai cuisiné ce plat</button>') +
+      '<div class="field" style="margin-top:20px; text-align:left"><label>Une note pour la prochaine fois ?</label>' +
+        '<textarea id="notes-perso" style="min-height:90px" placeholder="Moins de sel, 5 min de plus au four…">' + esc(r.notesPerso) + '</textarea>' +
+        '<p class="hint" id="np-state">Enregistré automatiquement</p></div></div>';
+  }
+  html += '</div>' +
+    '<div class="cook-nav"><div class="cook-nav-in">' +
+      (k >= 0 ? '<button class="btn prev" id="cook-prev" aria-label="Étape précédente">' + ico("gauche") + '</button>' : "") +
+      (k < n
+        ? '<button class="btn primary" id="cook-next">' + (k < 0 ? "C'est parti" : k === n - 1 ? "Terminer" : "Étape suivante") + ' ' + ico("droite", "sm") + '</button>'
+        : '<button class="btn primary" id="cook-exit2">Fermer</button>') +
+    '</div></div></div>';
+  return html;
+}
+
+function marquerCuisinee(r, entreeId){
+  // le repas qu'on vient de faire : celui d'aujourd'hui, sinon celui « sans jour », sinon le plus proche
+  const cands = db.plan.filter(x => x.rid === r.id && x.sem === semaineCourante() && !x.fait).sort((a,b) => a.jour - b.jour);
+  const e = (entreeId && entree(entreeId)) || cands.find(x => x.jour === indexJour()) || cands.find(x => x.jour < 0) || cands[0];
+  if(e) e.fait = true;
+  r.cuisinee = (r.cuisinee || 0) + 1;
+  r.derniereFois = Date.now();
+  save();
+}
+
+/* mots qui ne disent rien de l'ingrédient : « 2 c. à soupe d'huile d'olive » → huile, olive */
+const MOTS_VIDES = (" de du des la le les un une et au aux en pour avec sans ou of the and or an to for with" +
+  " fresh frais fraiche chopped finely roughly sliced diced large small medium grated peeled minced cut into" +
+  " piece morceau tin can boite gousse clove cuillere soupe cafe tbsp tsp pinch pincee handful poignee bunch botte" +
+  " hache emince rape coupe gros grosse petit petite moyen bio extra virgin vierge cuit cooked dried sec seche" +
+  " ground moulu tranche slice optional facultatif environ about").split(" ").filter(Boolean).map(normAli);
+
+function clesIngredient(txt){
+  const p = parseIngredient(txt);
+  const mots = normAli(p.nom).split(" ").filter(w => w.length > 2 && MOTS_VIDES.indexOf(w) < 0);
+  const cles = [];
+  if(mots.length) cles.push(mots.join(" "));
+  const ali = aliDeLigne(txt);
+  if(ali){ cles.push(normAli(ali.en)); cles.push(normAli(ali.fr)); }
+  if(mots.length > 1){ cles.push(mots[0]); cles.push(mots[mots.length - 1]); }
+  return cles.filter((c, i) => c && c.length > 2 && cles.indexOf(c) === i);
+}
+function ingredientsEtape(r, etape){
+  const s = " " + normAli(etape) + " ";
+  const out = [];
+  r.ingredients.forEach((ing, k) => {
+    if(clesIngredient(ing.txt).some(c => s.indexOf(" " + c + " ") >= 0)) out.push(k);
+  });
+  return out;
+}
+
+/* « 20-25 minutes », « 1 h 30 », « 45 sec » → minuteurs ; pour une plage, la borne basse :
+   on vérifie la cuisson plutôt que de la rater */
+const RE_DUREE = /(\d+(?:[.,]\d+)?)(?:\s*(?:-|–|à|to|ou|or)\s*(\d+(?:[.,]\d+)?))?\s*(heures?|hours?|hrs?|minutes?|mins?|mn|secondes?|seconds?|secs?|h(?=\s*\d)|h\b|s\b)(?:\s*(\d{1,2})\b(?!\s*[°%]))?/gi;
+function minuteursEtape(txt){
+  const vus = {}, out = [];
+  let m;
+  RE_DUREE.lastIndex = 0;
+  while((m = RE_DUREE.exec(String(txt)))){
+    const u = m[3].toLowerCase();
+    const mult = /^h/.test(u) ? 3600 : /^s/.test(u) ? 1 : 60;
+    let sec = Math.round(num(m[1].replace(",", ".")) * mult);
+    if(mult === 3600 && m[4]) sec += num(m[4]) * 60;
+    if(sec < 5 || sec > 86400 || vus[sec]) continue;
+    vus[sec] = 1;
+    const max = m[2] ? Math.round(num(m[2].replace(",", ".")) * mult) : 0;
+    out.push({sec: sec, lib: fmtDuree(sec), plage: max > sec ? fmtDuree(sec) + " à " + fmtDuree(max) : ""});
+  }
+  return out;
+}
+function fmtDuree(sec){
+  if(sec < 60) return sec + " s";
+  if(sec < 3600){ const m = Math.floor(sec / 60), s = sec % 60; return m + " min" + (s ? " " + pad2(s) : ""); }
+  const h = Math.floor(sec / 3600), m = Math.round(sec % 3600 / 60);
+  return h + " h" + (m ? " " + pad2(m) : "");
+}
+
+/* écran allumé tant qu'on cuisine (Safari 16.4+), sans erreur ailleurs */
+let veille = null;
+async function garderEcranAllume(oui){
+  try{
+    if(oui && !veille && navigator.wakeLock && document.visibilityState === "visible"){
+      veille = await navigator.wakeLock.request("screen");
+      veille.addEventListener("release", () => { veille = null; });
+    }else if(!oui && veille){
+      const v = veille; veille = null; await v.release();
+    }
+  }catch(e){ veille = null; }
+}
+
+/* =========================================================
+   8e. MINUTEURS
+   Ils continuent quand on change d'écran ; une pastille les rappelle.
+   ========================================================= */
+let minuteurs = [], tickT = null, audioCtx = null;
+
+function initAudio(){
+  // iOS n'autorise le son qu'après un geste : on prépare le contexte au toucher
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+  }catch(e){}
+}
+function bip(){
+  try{
+    if(audioCtx){
+      const t0 = audioCtx.currentTime;
+      [0, 0.28, 0.56].forEach(d => {
+        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = "sine"; o.frequency.value = 880;
+        g.gain.setValueAtTime(0.0001, t0 + d);
+        g.gain.exponentialRampToValueAtTime(0.35, t0 + d + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 0.22);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(t0 + d); o.stop(t0 + d + 0.25);
+      });
+    }
+  }catch(e){}
+  try{ if(navigator.vibrate) navigator.vibrate([200, 100, 200]); }catch(e){}
+}
+function lancerMinuteur(sec, lib, rid, etape){
+  initAudio();
+  minuteurs.push({id: uid(), lib: lib || fmtDuree(sec), rid: rid, etape: etape, fin: Date.now() + sec * 1000, fini: false, alertes: 0, derniere: 0});
+  if(!tickT) tickT = setInterval(tic, 1000);
+  renderMinuteurs();
+  toast("⏱ Minuteur lancé : " + fmtDuree(sec));
+}
+function tic(){
+  const now = Date.now();
+  minuteurs.forEach(m => {
+    if(!m.fini && now >= m.fin){
+      m.fini = true; m.derniere = now; m.alertes = 1;
+      bip(); toast("⏰ " + m.lib + " — c'est l'heure !");
+    }else if(m.fini && m.alertes < 6 && now - m.derniere >= 10000){
+      m.derniere = now; m.alertes++; bip();   // rappel toutes les 10 s, une minute au plus
+    }
+  });
+  if(!minuteurs.length){ clearInterval(tickT); tickT = null; }
+  renderMinuteurs();
+}
+function arreterMinuteur(id){
+  minuteurs = minuteurs.filter(m => m.id !== id);
+  renderMinuteurs();
+}
+function fmtRebours(ms){
+  const s = Math.max(0, Math.ceil(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), ss = s % 60;
+  return (h ? h + ":" + pad2(m) : m) + ":" + pad2(ss);
+}
+function renderMinuteurs(){
+  const now = Date.now();
+  document.body.classList.toggle("a-minuteurs", minuteurs.length > 0);
+  $("#timers").innerHTML = minuteurs.map(m =>
+    '<div class="timer' + (m.fini ? " fini" : "") + '" data-timergo="' + m.id + '" title="' + esc(m.lib) + '">' +
+      '<span>' + (m.fini ? "⏰ Fini" : fmtRebours(m.fin - now)) + '</span><small>' + esc(m.lib) + '</small>' +
+      '<button type="button" data-timerstop="' + m.id + '" aria-label="Arrêter le minuteur">' + ico("x") + '</button></div>').join("");
+}
+function allerAuMinuteur(id){
+  const m = minuteurs.find(x => x.id === id);
+  if(!m) return;
+  if(m.fini){ arreterMinuteur(id); return; }
+  if(state.view === "cuisine" || !getRecette(m.rid)) return;
+  if(!state.cuisine || state.cuisine.rid !== m.rid) state.cuisine = {rid: m.rid, etape: m.etape, entree: null, marque: false};
+  go("cuisine");
+}
+
+/* =========================================================
+   8f. ACTIONS
+   ========================================================= */
+function entree(id){ return db.plan.find(x => x.id === id) || null; }
+function annulerPlan(id){ db.plan = db.plan.filter(x => x.id !== id); save(); render(); }
+
+function ouvrirFiche(rid, e){
+  const r = getRecette(rid);
+  if(!r) return;
+  if(e && e.portions && r.portions) state.portions[rid] = e.portions;
+  go("fiche", {ficheId: rid});
+}
+
+function retirerEntree(id){
+  const i = db.plan.findIndex(e => e.id === id);
+  if(i < 0) return;
+  const e = db.plan[i];
+  db.plan.splice(i, 1); save(); render();
+  const r = getRecette(e.rid);
+  toast((r ? r.nom : "Repas") + " retiré du planning", () => { db.plan.splice(Math.min(i, db.plan.length), 0, e); save(); render(); });
+}
+function basculerFait(id){
+  const e = entree(id);
+  if(!e) return;
+  const r = getRecette(e.rid);
+  e.fait = !e.fait;
+  if(r){
+    if(e.fait){ r.cuisinee = (r.cuisinee || 0) + 1; r.derniereFois = Date.now(); }
+    else r.cuisinee = Math.max(0, (r.cuisinee || 0) - 1);
+  }
+  save();
+}
+function autreIdee(id){
+  const e = entree(id);
+  if(!e) return;
+  const r = tirer(poolSuggestions(entreesSemaine(e.sem).map(x => x.rid)));
+  if(!r){ toast("Pas d'autre idée : ajoute des recettes !"); return; }
+  const avant = e.rid;
+  e.rid = r.id; e.fait = false; save(); render();
+  toast("🔀 " + r.nom, () => { e.rid = avant; save(); render(); });
+}
+function completerSemaine(sem){
+  const cur = semaineCourante();
+  if(sem < cur){ toast("Cette semaine est passée"); return; }
+  const ajoutes = [];
+  for(let j = (sem === cur ? indexJour() : 0); j < 7; j++){
+    if(entreesSemaine(sem).some(e => e.jour === j)) continue;
+    const r = tirer(poolSuggestions(entreesSemaine(sem).map(e => e.rid)));
+    if(!r) break;
+    ajoutes.push(planifier(r.id, sem, j));
+  }
+  if(!ajoutes.length){
+    toast(db.recettes.length ? "Chaque jour a déjà son repas ✓" : "Ajoute d'abord quelques recettes");
+    return;
+  }
+  render();
+  toast("✨ " + ajoutes.length + " idée" + (ajoutes.length > 1 ? "s" : "") + " au menu — 🔀 pour en changer",
+    () => { db.plan = db.plan.filter(e => ajoutes.indexOf(e) < 0); save(); render(); });
+}
+
+function ajouterArticle(){
+  const el = $("#course-new");
+  const v = el ? el.value.trim() : "";
+  if(!v){ if(el) el.focus(); return; }
+  coursesDe(state.semCourses).ajouts.push({id: uid(), txt: v, rayon: ""});
+  save(); render();
+  const n = $("#course-new"); if(n) n.focus();   // on enchaîne les ajouts sans refermer le clavier
+}
+function retirerArticle(cle, sem){
+  const C = coursesDe(sem);
+  if(cle.indexOf("m:") === 0){
+    const i = C.ajouts.findIndex(a => "m:" + a.id === cle);
+    if(i < 0) return;
+    const a = C.ajouts[i];
+    C.ajouts.splice(i, 1); save(); render();
+    toast("« " + a.txt + " » retiré", () => { C.ajouts.splice(i, 0, a); save(); render(); });
+  }else{
+    if(C.retires.indexOf(cle) < 0) C.retires.push(cle);
+    save(); render();
+    toast("Retiré de la liste", () => { C.retires = C.retires.filter(x => x !== cle); save(); render(); });
+  }
+}
+
+function modifierRecette(rid){
+  const r = getRecette(rid);
+  if(!r) return;
+  state.formDraft = JSON.parse(JSON.stringify(r));
+  state.vieuxBM = false; state.majExistante = false; state.etapesReparees = 0;
+  go("form", {editId: r.id});
+}
+function dupliquerRecette(rid){
+  const r = getRecette(rid);
+  if(!r) return;
+  const copie = normalize(Object.assign({}, JSON.parse(JSON.stringify(r)),
+    {id:uid(), nom:r.nom + " (copie)", cree:Date.now(), cuisinee:0, derniereFois:0}));
+  db.recettes.push(copie); save(); toast("Recette dupliquée ✓");
+  go("fiche", {ficheId: copie.id});
+}
+function supprimerRecette(rid){
+  const r = getRecette(rid);
+  if(!r) return;
+  if(!confirm("Supprimer « " + r.nom + " » ? Cette action est définitive.")) return;
+  db.recettes = db.recettes.filter(x => x.id !== rid);
+  db.plan = db.plan.filter(e => e.rid !== rid);
+  save(); state.formDraft = null; toast("Recette supprimée");
+  onglet(state.onglet || "galerie");
+}
+
+function surprise(){
+  const r = tirer(poolSuggestions([]));
+  if(!r){ toast("Ajoute d'abord quelques recettes"); return; }
+  go("fiche", {ficheId: r.id});
+  toast("🎲 Et pourquoi pas… " + r.nom + " ?");
+}
+
+function allerA(cible){
+  switch(cible){
+    case "search":   state.frigo = false; state.focusQ = true; onglet("galerie"); return;
+    case "frigo":    state.frigo = true; state.focusQ = true; onglet("galerie"); return;
+    case "planning": state.semPlan = semaineCourante(); onglet("planning"); return;
+    case "courses":  onglet("courses"); return;
+    case "recettes": onglet("galerie"); return;
+    case "surprise": surprise(); return;
+  }
+}
+
+function voirTout(v){
+  resetFiltres();
+  state.tri = "categorie";
+  switch(v){
+    case "meilleures": state.tri = "meilleures"; break;
+    case "rapides":    state.tri = "rapides"; state.filters.tempsMax = 30; break;
+    case "saison":     state.tri = "meilleures"; state.filters.season = [saisonActuelle()]; break;
+    case "phase":      state.filters.maPhase = true; break;
+    case "tester":     state.tri = "recentes"; state.filters.aTester = true; break;
+    case "recentes":   state.tri = "recentes"; break;
+  }
+  onglet("galerie");
+}
+
+function raccourci(k){
+  const f = state.filters;
+  switch(k){
+    case "frigo":    state.frigo = !state.frigo; state.focusQ = true; break;
+    case "fav":      f.fav = !f.fav; break;
+    case "rapide":   f.tempsMax = f.tempsMax === 30 ? 0 : 30; break;
+    case "top":      f.noteMin = f.noteMin === 4 ? 0 : 4; break;
+    case "planning": f.semaine = !f.semaine; break;
+    case "tester":   f.aTester = !f.aTester; break;
+  }
+  render();
+}
+
+function faireAction(a){
+  const act = a.dataset.act;
+  const f = state.feuille || {};
+  switch(act){
+    // nouvelle recette
+    case "new-manuel": case "new-web": case "new-coller": case "new-json":
+      state.formDraft = vide();
+      state.formTab = {"new-manuel":"manuel", "new-web":"web", "new-coller":"coller", "new-json":"json"}[act];
+      state.vieuxBM = false; state.majExistante = false; state.etapesReparees = 0;
+      go("form", {editId:null});
+      return;
+
+    // planifier une recette
+    case "pl-sem":   f.sem = a.dataset.sem; renderFeuille(); return;
+    case "pl-moins": f.portions = Math.max(1, f.portions - 1); renderFeuille(); return;
+    case "pl-plus":  f.portions = f.portions + 1; renderFeuille(); return;
+    case "pl-jour": {
+      const j = parseInt(a.dataset.jour, 10);
+      const e = planifier(f.rid, f.sem, j, f.portions);
+      fermerFeuille(); render();
+      if(e) toast("Prévu " + (j >= 0 ? libJour(f.sem, j).toLowerCase() : f.sem === semaineCourante() ? "cette semaine" : "la semaine prochaine") +
+        " ✓", () => annulerPlan(e.id));
+      return;
+    }
+    case "pl-retirer": db.plan = db.plan.filter(x => x.id !== a.dataset.entree); save(); renderFeuille(); render(); return;
+
+    // choisir une recette pour un jour
+    case "ch-recette": {
+      const e = planifier(a.dataset.rid, f.sem, f.jour);
+      fermerFeuille(); render();
+      if(e) toast(getRecette(e.rid).nom + " · " + libJour(f.sem, f.jour).toLowerCase() + " ✓", () => annulerPlan(e.id));
+      return;
+    }
+
+    // un repas du planning
+    case "en-ouvrir": { const e = entree(f.id); fermerFeuille(); if(e) ouvrirFiche(e.rid, e); return; }
+    case "en-fait":   basculerFait(f.id); fermerFeuille(); render(); return;
+    case "en-autre":  fermerFeuille(); autreIdee(f.id); return;
+    case "en-jour": {
+      const e = entree(f.id);
+      if(!e) return;
+      e.jour = parseInt(a.dataset.jour, 10); save(); fermerFeuille(); render();
+      toast("Déplacé : " + libJour(e.sem, e.jour).toLowerCase());
+      return;
+    }
+    case "en-retirer": fermerFeuille(); retirerEntree(f.id); return;
+
+    // la semaine du planning
+    case "pl-menu":    ouvrirFeuille({type:"semaine", sem: state.semPlan}); return;
+    case "pl-auto":    fermerFeuille(); completerSemaine(state.semPlan); return;
+    case "pl-courses": fermerFeuille(); state.semCourses = state.semPlan; onglet("courses"); return;
+    case "sm-vider": {
+      const sem = state.semPlan, avant = db.plan.slice();
+      db.plan = db.plan.filter(e => e.sem !== sem); save(); fermerFeuille(); render();
+      toast("Semaine vidée", () => { db.plan = avant; save(); render(); });
+      return;
+    }
+    case "sm-copier": {
+      const sem = state.semPlan;
+      const copies = entreesSemaine(ajouterJours(sem, -7)).map(e =>
+        ({id: uid(), rid: e.rid, sem: sem, jour: e.jour, portions: e.portions, fait: false}));
+      fermerFeuille();
+      if(!copies.length){ toast("La semaine précédente est vide"); return; }
+      db.plan = db.plan.concat(copies); save(); render();
+      toast(copies.length + " repas repris ✓", () => { db.plan = db.plan.filter(e => copies.indexOf(e) < 0); save(); render(); });
+      return;
+    }
+
+    // un article de la liste
+    case "ar-placard": {
+      const cle = f.cle;
+      if(db.placard.indexOf(cle) < 0) db.placard.push(cle);
+      save(); fermerFeuille(); render();
+      toast("Rangé dans « Mes placards » 🏠", () => { db.placard = db.placard.filter(k => k !== cle); save(); render(); });
+      return;
+    }
+    case "ar-placard-non":
+      db.placard = db.placard.filter(k => k !== f.cle); save(); fermerFeuille(); render(); toast("Remis dans la liste");
+      return;
+    case "ar-retirer": fermerFeuille(); retirerArticle(f.cle, f.sem); return;
+    case "ar-rayon": {
+      const L = trouverLigneCourses(f.cle, f.sem);
+      if(!L) return;
+      const ry = a.dataset.rayon;
+      if(L.manuel){
+        const aj = coursesDe(f.sem).ajouts.find(x => "m:" + x.id === f.cle);
+        if(aj) aj.rayon = ry;
+      }else{
+        db.rayons[normAli(L.ali ? L.ali.fr + " " + L.ali.en : L.nom)] = ry;
+      }
+      save(); fermerFeuille(); render(); toast("Rangé dans " + ry);
+      return;
+    }
+
+    // la fiche
+    case "fi-menu":  ouvrirFeuille({type:"fiche", rid: state.ficheId}); return;
+    case "fi-edit":  fermerFeuille(); modifierRecette(f.rid); return;
+    case "fi-dup":   fermerFeuille(); dupliquerRecette(f.rid); return;
+    case "fi-share": { fermerFeuille(); const r = getRecette(f.rid); if(r) partager(r.nom, texteRecette(r), "Recette copiée ✓"); return; }
+    case "fi-del":   fermerFeuille(); supprimerRecette(f.rid); return;
+    case "fi-tag": {
+      const r = getRecette(f.rid), t = a.dataset.tag;
+      if(!r) return;
+      const i = r.tags.indexOf(t);
+      if(i >= 0) r.tags.splice(i, 1); else r.tags.push(t);
+      r.maj = Date.now(); save(); renderFeuille(); render();
+      return;
+    }
+    case "fi-tag-new": {
+      const v = prompt("Nouvelle collection :");
+      if(!v || !v.trim()) return;
+      const r = getRecette(f.rid), val = v.trim();
+      if(db.tags.indexOf(val) < 0) db.tags.push(val);
+      if(r && r.tags.indexOf(val) < 0){ r.tags.push(val); r.maj = Date.now(); }
+      save(); renderFeuille(); render();
+      return;
+    }
+  }
+}
+
+/* =========================================================
+   8g. ÉVÉNEMENTS
    ========================================================= */
 let bound = false;
-let notesT;
+let notesT, notesPersoT, toucheX = null, toucheY = 0;
 
 function bind(){
   if(bound) return;
   bound = true;
 
-  $("#brand").onclick = () => { resetFiltres(); go("galerie"); };
-  $("#btn-search").onclick = () => {
-    if(state.view !== "galerie") { state.showSearch = true; go("galerie"); }
-    else { state.showSearch = !state.showSearch; if(!state.showSearch) state.q = ""; render(); }
-    const q = $("#q"); if(q) q.focus();
-  };
+  $("#btn-search").innerHTML = ico("loupe");
+  $("#btn-settings").innerHTML = ico("reglages");
+  $("#fab").innerHTML = ico("plus");
+  $("#brand").onclick = () => { resetFiltres(); onglet("accueil"); };
+  $("#btn-search").onclick = () => allerA("search");
   $("#btn-settings").onclick = () => go("reglages");
   $("#phase-sel").onchange = e => {
     db.phaseActuelle = e.target.value || "";
     if(db.phaseActuelle) state.cycle = db.phaseActuelle;
     save(); render();
   };
-  $("#fab").onclick = () => {
-    state.formDraft = vide(); state.formTab = "manuel";
-    state.vieuxBM = false; state.majExistante = false; state.etapesReparees = 0;
-    go("form", {editId:null});
-  };
+  $("#fab").onclick = () => ouvrirFeuille({type:"nouvelle"});
 
-  $("#tabs").addEventListener("click", e => {
+  // un onglet déjà ouvert : on remonte en haut, comme sur iPhone
+  $("#tabbar").addEventListener("click", e => {
     const t = e.target.closest("[data-tab]");
-    if(t){ go(t.dataset.tab); return; }
-    const c = e.target.closest("[data-cycle]");
-    if(c){ state.cycle = c.dataset.cycle; render(); }
+    if(!t) return;
+    if(t.dataset.tab === state.view){ window.scrollTo({top:0, behavior:"smooth"}); return; }
+    onglet(t.dataset.tab);
   });
 
   $("#app").addEventListener("click", onAppClick);
   $("#app").addEventListener("input", onAppInput);
   $("#app").addEventListener("change", onAppChange);
+  $("#app").addEventListener("keydown", onAppKeydown);
+  $("#app").addEventListener("paste", onAppPaste);
+
+  $("#sheet").addEventListener("click", e => {
+    const a = e.target.closest("[data-act]");
+    if(a) faireAction(a);
+  });
+  $("#sheet").addEventListener("input", e => {
+    if(e.target.id !== "pick-q" || !state.feuille) return;
+    state.feuille.q = e.target.value;
+    const l = $("#pick-list"); if(l) l.innerHTML = listeChoix(state.feuille);
+  });
+  $("#sheet-bg").addEventListener("click", () => fermerFeuille());
+
+  $("#toast").addEventListener("click", e => {
+    if(e.target.id !== "toast-undo" || !toastAnnuler) return;
+    const f = toastAnnuler;
+    toastAnnuler = null;
+    $("#toast").classList.remove("show");
+    f();
+  });
+
+  $("#timers").addEventListener("click", e => {
+    const s = e.target.closest("[data-timerstop]");
+    if(s){ e.stopPropagation(); arreterMinuteur(s.dataset.timerstop); return; }
+    const g = e.target.closest("[data-timergo]");
+    if(g) allerAuMinuteur(g.dataset.timergo);
+  });
+
+  // mode cuisine : glisser pour changer d'étape, flèches au clavier sur Mac
+  document.addEventListener("touchstart", e => {
+    toucheX = null;
+    if(state.view !== "cuisine" || e.touches.length !== 1) return;
+    if(e.target.closest && e.target.closest("textarea, input, .timers")) return;
+    toucheX = e.touches[0].clientX; toucheY = e.touches[0].clientY;
+  }, {passive:true});
+  document.addEventListener("touchend", e => {
+    if(toucheX === null || state.view !== "cuisine") return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - toucheX, dy = t.clientY - toucheY;
+    toucheX = null;
+    if(Math.abs(dx) > 60 && Math.abs(dy) < 50) changerEtape(dx < 0 ? 1 : -1);
+  }, {passive:true});
+  document.addEventListener("keydown", e => {
+    if(e.key === "Escape" && state.feuille){ fermerFeuille(); return; }
+    if(state.view !== "cuisine") return;
+    if(/^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || "")) return;
+    if(e.key === "ArrowRight"){ e.preventDefault(); changerEtape(1); }
+    else if(e.key === "ArrowLeft"){ e.preventDefault(); changerEtape(-1); }
+    else if(e.key === "Escape") retour();
+  });
+  document.addEventListener("visibilitychange", () => { if(state.view === "cuisine") garderEcranAllume(true); });
+
+  // geste retour du navigateur : on dépile l'écran précédent
+  window.addEventListener("popstate", e => {
+    const n = (e.state && e.state.n) || 0;
+    if(n >= pile.length) return;
+    if(brouillonModifie() && !confirm("Abandonner les modifications ?")){
+      try{ history.pushState({n: pile.length}, ""); }catch(_){}
+      return;
+    }
+    if(state.view === "form") state.formDraft = null;
+    depiler(n);
+  });
 }
 
 function onAppClick(e){
   const t = e.target;
 
-  // vignette semaine
-  const w = t.closest("[data-week]");
-  if(w){
-    e.stopPropagation();
-    const r = getRecette(w.dataset.week);
+  const act = t.closest("[data-act]");
+  if(act){ faireAction(act); return; }
+  const gx = t.closest("[data-go]");
+  if(gx){ allerA(gx.dataset.go); return; }
+
+  // planifier depuis une vignette ou la fiche
+  const w = t.closest("[data-plan]");
+  if(w){ e.stopPropagation(); ouvrirPlanifier(w.dataset.plan); return; }
+  const fv = t.closest("[data-fav]");
+  if(fv){
+    const r = getRecette(fv.dataset.fav);
+    if(r){ const on = basculerFavori(r); render(); toast(on ? "Ajoutée aux favoris ❤️" : "Retirée des favoris"); }
+    return;
+  }
+  const ck = t.closest("[data-cook]");
+  if(ck){ demarrerCuisine(ck.dataset.cook, ck.dataset.entree); return; }
+  const oe = t.closest("[data-open-entree]");
+  if(oe){ const en = entree(oe.dataset.openEntree); if(en) ouvrirFiche(en.rid, en); return; }
+  // ouvrir une fiche
+  const o = t.closest("[data-open]");
+  if(o){ go("fiche", {ficheId:o.dataset.open}); return; }
+
+  // planning
+  const pm = t.closest("[data-pe-moins]");
+  if(pm){ const en = entree(pm.dataset.peMoins); if(en){ en.portions = Math.max(1, (en.portions || 1) - 1); save(); render(); } return; }
+  const pp = t.closest("[data-pe-plus]");
+  if(pp){ const en = entree(pp.dataset.pePlus); if(en){ en.portions = (en.portions || 0) + 1; save(); render(); } return; }
+  const pmn = t.closest("[data-pe-menu]");
+  if(pmn){ ouvrirFeuille({type:"entree", id: pmn.dataset.peMenu}); return; }
+  const pa = t.closest("[data-pe-autre]");
+  if(pa){ autreIdee(pa.dataset.peAutre); return; }
+  const ad = t.closest("[data-addday]");
+  if(ad){ ouvrirChoix(state.semPlan, parseInt(ad.dataset.addday, 10)); return; }
+  const sn = t.closest("[data-semnav]");
+  if(sn){
+    const d = parseInt(sn.dataset.semnav, 10);
+    state.semPlan = d ? ajouterJours(state.semPlan, 7 * d) : semaineCourante();
+    render(); return;
+  }
+  const sc = t.closest("[data-semcourses]");
+  if(sc){
+    const d = parseInt(sc.dataset.semcourses, 10);
+    state.semCourses = d ? ajouterJours(state.semCourses, 7 * d) : semaineCourante();
+    render(); return;
+  }
+
+  // fiche : portions, multiple, note, minuteurs
+  const fpm = t.closest("[data-fp-moins]");
+  if(fpm){ const r = getRecette(fpm.dataset.fpMoins); if(r){ state.portions[r.id] = Math.max(1, portionsFiche(r) - 1); render(); } return; }
+  const fpp = t.closest("[data-fp-plus]");
+  if(fpp){ const r = getRecette(fpp.dataset.fpPlus); if(r){ state.portions[r.id] = portionsFiche(r) + 1; render(); } return; }
+  const fmm = t.closest("[data-fm-moins]");
+  if(fmm){ const i = MULTS.indexOf(state.mult[fmm.dataset.fmMoins] || 1); state.mult[fmm.dataset.fmMoins] = MULTS[Math.max(0, i - 1)]; render(); return; }
+  const fmp = t.closest("[data-fm-plus]");
+  if(fmp){ const i = MULTS.indexOf(state.mult[fmp.dataset.fmPlus] || 1); state.mult[fmp.dataset.fmPlus] = MULTS[Math.min(MULTS.length - 1, i + 1)]; render(); return; }
+  const rt = t.closest("[data-rate]");
+  if(rt){
+    const r = getRecette(ridCourant());
     if(r){
-      r.semaine = !r.semaine;
-      // par défaut, les portions de la recette elle-même ; ajustable ensuite depuis « Cette semaine »
-      if(r.semaine && !r.semainePortions) r.semainePortions = r.portions || 4;
-      r.maj = Date.now(); save(); toast(r.semaine ? "Ajouté à cette semaine ✓" : "Retiré de cette semaine"); render();
+      const v = num(rt.dataset.rate);
+      r.note = r.note === v ? 0 : v; r.maj = Date.now(); save(); render();
+      toast(r.note ? "Noté " + r.note + " ★" : "Note retirée");
     }
     return;
   }
-  // ajuster les portions de la semaine pour une recette
-  const pm = t.closest("[data-portions-moins]");
-  if(pm){
-    const r = getRecette(pm.dataset.portionsMoins);
-    if(r){ r.semainePortions = Math.max(1, (r.semainePortions || r.portions || 4) - 1); save(); render(); }
+  const tm = t.closest("[data-timer]");
+  if(tm){ lancerMinuteur(num(tm.dataset.timer), tm.dataset.timerlib, ridCourant(), num(tm.dataset.timeretape)); return; }
+
+  // accueil et bibliothèque
+  const vt = t.closest("[data-voir]");
+  if(vt){ voirTout(vt.dataset.voir); return; }
+  const cl = t.closest("[data-coll]");
+  if(cl){ resetFiltres(); state.tri = "categorie"; state.filters.tags = [cl.dataset.coll]; onglet("galerie"); return; }
+  const cm = t.closest("[data-catmeal]");
+  if(cm){ resetFiltres(); state.filters.meal = [cm.dataset.catmeal]; onglet("galerie"); return; }
+  const qk = t.closest("[data-quick]");
+  if(qk){ raccourci(qk.dataset.quick); return; }
+  const qm = t.closest("[data-quickmeal]");
+  if(qm){
+    const m = qm.dataset.quickmeal, f = state.filters;
+    f.meal = (f.meal.length === 1 && f.meal[0] === m) ? [] : [m];
+    render(); return;
+  }
+  const cy = t.closest("[data-cycle]");
+  if(cy){ state.cycle = cy.dataset.cycle; render(); return; }
+
+  // réglages
+  const pr = t.closest("[data-prefportions]");
+  if(pr){
+    db.prefs.portions = num(pr.dataset.prefportions); state.portions = {}; save(); render();
+    toast(db.prefs.portions ? "Recettes proposées pour " + db.prefs.portions + " ✓" : "Portions de chaque recette ✓");
     return;
   }
-  const pp = t.closest("[data-portions-plus]");
-  if(pp){
-    const r = getRecette(pp.dataset.portionsPlus);
-    if(r){ r.semainePortions = (r.semainePortions || r.portions || 4) + 1; save(); render(); }
-    return;
-  }
-  // ouvrir une fiche
-  const o = t.closest("[data-open]");
-  if(o){ state.checked = state.checked || {}; go("fiche", {ficheId:o.dataset.open}); return; }
+  const th = t.closest("[data-theme]");
+  if(th){ db.prefs.theme = th.dataset.theme; save(); appliquerTheme(); render(); return; }
+  const rp = t.closest("[data-rmplacard]");
+  if(rp){ db.placard = db.placard.filter(k => k !== rp.dataset.rmplacard); save(); render(); return; }
+
+  // courses : options d'un article
+  const cmn = t.closest("[data-coursemenu]");
+  if(cmn){ ouvrirFeuille({type:"article", cle: cmn.dataset.coursemenu, sem: state.semCourses}); return; }
 
   // chips (filtres et formulaire)
   const chip = t.closest(".chip");
@@ -2550,58 +4555,46 @@ function onAppClick(e){
     case "clear-filters":  resetFiltres(); render(); return;
     case "f-semaine":      state.filters.semaine = !state.filters.semaine; render(); return;
     case "f-maphase":      state.filters.maPhase = !state.filters.maPhase; render(); return;
-    case "reset-courses":  db.coursesCoches = {}; save(); render(); return;
-    case "nouvelle-semaine": {
-      if(!confirm("Terminer cette semaine ? Les recettes seront retirées de « Cette semaine » et la liste de courses (coché, ajouts, retraits) sera réinitialisée."))
-        return;
-      db.recettes.forEach(r => { if(r.semaine){ r.semaine = false; r.maj = Date.now(); } });
-      db.coursesCoches = {}; db.coursesAjouts = []; db.coursesRetires = [];
-      save(); toast("Nouvelle semaine ✓"); go("semaine");
+    case "reset-courses": {
+      const C = coursesDe(state.semCourses), avant = C.coches;
+      C.coches = {}; save(); render();
+      toast("Liste décochée", () => { C.coches = avant; save(); render(); });
       return;
     }
-    case "add-course": {
-      const v = prompt("Article à ajouter (ex. « 2 citrons ») :");
-      if(!v || !v.trim()) return;
-      db.coursesAjouts.push({txt: v.trim(), rayon: ""});
-      save(); render();
-      return;
-    }
-    case "copy-courses": {
-      const txt = construireCourses().map(g =>
-        g.rayon + "\n" + g.lignes.map(L => {
-          const q = afficheQte(L);
-          return "  - " + L.nom + (q ? " (" + q + ")" : "");
-        }).join("\n")).join("\n\n");
-      copier(txt, "Liste copiée ✓");
-      return;
-    }
+    case "add-course":    ajouterArticle(); return;
+    case "share-courses": partager("Courses", texteCourses(state.semCourses), "Liste copiée ✓"); return;
     case "back":
-      if(state.view === "form" && state.formDraft && (state.formDraft.nom || state.formDraft.id)){
-        if(!confirm("Abandonner les modifications ?")) return;
-      }
-      state.formDraft = null;
-      go(state.view === "fiche" || state.view === "reglages" ? "galerie" : (state.editId ? "fiche" : "galerie"));
+      if(brouillonModifie() && !confirm("Abandonner les modifications ?")) return;
+      if(state.view === "form") state.formDraft = null;
+      retour();
       return;
-    case "edit": {
+    case "edit": modifierRecette(state.ficheId); return;
+    case "dup":  dupliquerRecette(state.ficheId); return;
+    case "del":  supprimerRecette(state.view === "form" ? state.formDraft.id : state.ficheId); return;
+    case "cook": case "cook2": demarrerCuisine(state.ficheId); return;
+    case "share": { const r = getRecette(state.ficheId); if(r) partager(r.nom, texteRecette(r), "Recette copiée ✓"); return; }
+    case "to-courses": {
       const r = getRecette(state.ficheId);
-      state.formDraft = JSON.parse(JSON.stringify(r));
-      go("form", {editId:r.id});
+      if(!r) return;
+      const cur = semaineCourante();
+      if(estPlanifiee(r, cur)){ toast("Déjà au planning cette semaine : ses ingrédients sont sur la liste"); return; }
+      const e = planifier(r.id, cur, -1, r.portions ? portionsFiche(r) : 0);
+      render();
+      toast("Ingrédients ajoutés à la liste de la semaine ✓", () => annulerPlan(e.id));
       return;
     }
-    case "dup": {
+    case "uncheck-ings": {
       const r = getRecette(state.ficheId);
-      const copie = normalize(Object.assign({}, JSON.parse(JSON.stringify(r)), {id:uid(), nom:r.nom + " (copie)", cree:Date.now()}));
-      db.recettes.push(copie); save(); toast("Recette dupliquée ✓");
-      go("fiche", {ficheId:copie.id});
-      return;
+      if(r) r.ingredients.forEach((i, k) => delete state.checked[r.id + "-" + k]);
+      render(); return;
     }
-    case "del": {
-      const rid = state.view === "form" ? state.formDraft.id : state.ficheId;
-      const r = getRecette(rid); if(!r) return;
-      if(!confirm("Supprimer « " + r.nom + " » ? Cette action est définitive.")) return;
-      db.recettes = db.recettes.filter(x => x.id !== rid);
-      save(); state.formDraft = null; toast("Recette supprimée");
-      go("galerie");
+    case "portions-reset": { const r = getRecette(ridCourant()); if(r) state.portions[r.id] = r.portions; render(); return; }
+    case "cook-exit": case "cook-exit2": retour(); return;
+    case "cook-prev": changerEtape(-1); return;
+    case "cook-next": changerEtape(1); return;
+    case "cook-done": {
+      const c = state.cuisine, r = c && getRecette(c.rid);
+      if(r && !c.marque){ marquerCuisinee(r, c.entree); c.marque = true; render(); toast("Bravo ! 👩‍🍳 C'est noté"); }
       return;
     }
     case "save-recette": saveRecette(); return;
@@ -2616,7 +4609,7 @@ function onAppClick(e){
       return;
     }
     case "add-tag": case "add-tag2": {
-      const v = prompt("Nouveau tag :");
+      const v = prompt("Nouveau tag / collection :");
       if(!v || !v.trim()) return;
       const val = v.trim();
       if(db.tags.indexOf(val) < 0) db.tags.push(val);
@@ -2693,17 +4686,18 @@ function onAppClick(e){
       render();
       return;
     }
-    case "err-home": state.formDraft = null; state.ficheId = null; go("galerie"); return;
+    case "err-home": state.formDraft = null; state.ficheId = null; onglet("accueil"); return;
     case "go-web":
       if(!confirm("Abandonner cet import et aller remplacer le bookmarklet ?")) return;
       state.vieuxBM = false; state.majExistante = false;
       state.formTab = "web"; state.formDraft = vide(); render();
       return;
     case "wipe":
-      if(!confirm("Effacer TOUTES les recettes et notes ? Pense à exporter avant.")) return;
+      if(!confirm("Effacer TOUTES les recettes, le planning et les notes ? Pense à exporter avant.")) return;
       if(!confirm("Vraiment sûre ? C'est définitif.")) return;
-      db.recettes = []; db.cycleNotes = {"Folliculaire":"","Ovulatoire":"","Lutéale":"","Menstruelle":""};
-      save(); toast("Base effacée"); go("galerie");
+      db.recettes = []; db.plan = []; db.courses = {};
+      db.cycleNotes = {"Folliculaire":"","Ovulatoire":"","Lutéale":"","Menstruelle":""};
+      save(); toast("Base effacée"); onglet("accueil");
       return;
   }
 
@@ -2720,12 +4714,10 @@ function onAppClick(e){
     $$("#starpick button").forEach(b => b.classList.toggle("on", num(b.dataset.star) <= state.formDraft.note));
     return;
   }
-  // « cette semaine » dans le formulaire
+  // « ajouter à cette semaine » dans le formulaire d'une nouvelle recette
   if(id === "d-semaine"){
     syncDraft();
-    const d = state.formDraft;
-    d.semaine = !d.semaine;
-    if(d.semaine && !d.semainePortions) d.semainePortions = d.portions || 4;
+    state.formDraft.semaine = !state.formDraft.semaine;
     t.closest("button").classList.toggle("on");
     return;
   }
@@ -2736,9 +4728,9 @@ function onAppClick(e){
   const dr = t.closest("[data-delrow]");
   if(dr){ const row = dr.closest(".ing-row"); if($$("#ings .ing-row").length > 1) row.remove(); else row.querySelector(".ing-txt").value = ""; return; }
 
-  // cocher un ingrédient (fiche) ou la liste de courses
+  // cocher un ingrédient (fiche ou mode cuisine)
   const ing = t.closest("[data-ing]");
-  if(ing){ const k = state.ficheId + "-" + ing.dataset.ing; state.checked[k] = !state.checked[k]; ing.classList.toggle("done"); return; }
+  if(ing){ const k = ridCourant() + "-" + ing.dataset.ing; state.checked[k] = !state.checked[k]; ing.classList.toggle("done"); return; }
 
   // phase courante depuis une page de phase
   const sp = t.closest("[data-setphase]");
@@ -2750,40 +4742,15 @@ function onAppClick(e){
     return;
   }
 
-  // liste de courses
+  // liste de courses : cocher ; un article du placard ouvre ses options
   const cc = t.closest("[data-course]");
-  if(cc && !t.closest("[data-rayon]") && !t.closest("[data-delcourse]")){
+  if(cc){
     const k = cc.dataset.course;
-    if(db.coursesCoches[k]) delete db.coursesCoches[k]; else db.coursesCoches[k] = true;
+    if(cc.dataset.placard){ ouvrirFeuille({type:"article", cle:k, sem: state.semCourses}); return; }
+    const C = coursesDe(state.semCourses);
+    if(C.coches[k]) delete C.coches[k]; else C.coches[k] = true;
     cc.classList.toggle("done"); save();
-    majBadgeCourses();
-    return;
-  }
-  const rr = t.closest("[data-rayon]");
-  if(rr){
-    const cle = rr.dataset.rayon;
-    const L = construireCourses().reduce((f,g) => f || g.lignes.find(x => x.cle === cle), null);
-    if(!L) return;
-    const choix = prompt("Rayon pour « " + L.nom + " » :\n\n" +
-      RAYONS.map((r,i) => (i+1) + ". " + r).join("\n") + "\n\nNuméro :",
-      String(RAYONS.indexOf(L.rayon) + 1));
-    const i = parseInt(choix, 10);
-    if(!i || i < 1 || i > RAYONS.length) return;
-    if(L.manuel){
-      const idx = parseInt(cle.slice(2), 10);
-      if(db.coursesAjouts[idx]) db.coursesAjouts[idx].rayon = RAYONS[i-1];
-    }else{
-      db.rayons[normAli(L.ali ? L.ali.fr + " " + L.ali.en : L.nom)] = RAYONS[i-1];
-    }
-    save(); toast("Rangé dans " + RAYONS[i-1]); render();
-    return;
-  }
-  const dc = t.closest("[data-delcourse]");
-  if(dc){
-    const cle = dc.dataset.delcourse;
-    if(cle.indexOf("m:") === 0) db.coursesAjouts.splice(parseInt(cle.slice(2),10), 1);
-    else if(db.coursesRetires.indexOf(cle) < 0) db.coursesRetires.push(cle);
-    save(); render();
+    majProgressionCourses();
     return;
   }
 
@@ -2827,9 +4794,9 @@ function onAppClick(e){
     render();
     return;
   }
-  const ad = t.closest("[data-alidel]");
-  if(ad){
-    const cle = ad.dataset.alidel;
+  const adl = t.closest("[data-alidel]");
+  if(adl){
+    const cle = adl.dataset.alidel;
     const a = ALIMENTS.find(x => x.en === cle);
     if(!confirm("Retirer « " + ((a && a.fr) || cle) + " » de ta liste d'aliments ?")) return;
     if(a && a.perso) db.aliments.perso = db.aliments.perso.filter(x => x.en !== cle);
@@ -2844,10 +4811,10 @@ function onAppClick(e){
   const fa = t.closest("[data-fali]");
   if(fa){ state.filtreAli = fa.dataset.fali; render(); return; }
 
-  // retirer une cuisine (réglages)
-  const rt = t.closest("[data-rmtag]");
-  if(rt){
-    const v = rt.dataset.rmtag;
+  // retirer un tag (réglages)
+  const rtg = t.closest("[data-rmtag]");
+  if(rtg){
+    const v = rtg.dataset.rmtag;
     if(!confirm("Retirer le tag « " + v + " » de la liste ?")) return;
     db.tags = db.tags.filter(x => x !== v); save(); render();
     return;
@@ -2920,16 +4887,25 @@ function onAppInput(e){
     clearTimeout(notesT); notesT = setTimeout(() => { save(); const s = $("#notes-state"); if(s) s.textContent = "Enregistré ✓"; }, 600);
     return;
   }
+  if(t.id === "notes-perso"){
+    const r = getRecette(ridCourant());
+    if(!r) return;
+    r.notesPerso = t.value;
+    clearTimeout(notesPersoT);
+    notesPersoT = setTimeout(() => { save(); const s = $("#np-state"); if(s) s.textContent = "Enregistré ✓"; }, 600);
+    return;
+  }
   if(t.id === "in-prep" || t.id === "in-cuisson"){
     const h = $("#total-hint");
-    if(h) h.textContent = "Temps total : " + fmtMin(num($("#in-prep").value) + num($("#in-cuisson").value));
+    if(h) h.textContent = "Temps total : " + fmtMin(num($("#in-prep").value) + num($("#in-cuisson").value)) +
+      " · les portions servent à ajuster les quantités";
     return;
   }
 }
 
 function onAppChange(e){
   const t = e.target;
-  if(t.id === "syn-cible"){ return; }
+  if(t.id === "tri"){ state.tri = t.value; render(); return; }
   if(t.id === "f-note"){ state.filters.noteMin = num(t.value); render(); return; }
   if(t.id === "in-img" && t.files && t.files[0]){
     syncDraft();
@@ -2950,19 +4926,56 @@ function onAppChange(e){
   }
 }
 
+/* ↵ dans un ingrédient ouvre la ligne suivante ; ↵ dans « ajouter un article » l'ajoute */
+function onAppKeydown(e){
+  if(e.key !== "Enter" || e.isComposing) return;
+  const t = e.target;
+  if(t.id === "course-new"){ e.preventDefault(); ajouterArticle(); return; }
+  if(t.classList && t.classList.contains("ing-txt")){
+    e.preventDefault();
+    const row = t.closest(".ing-row");
+    row.insertAdjacentHTML("afterend", ingRow({txt:"", alg:false}, $$("#ings .ing-row").length));
+    row.nextElementSibling.querySelector(".ing-txt").focus();
+  }
+}
+
+/* une liste entière collée dans un ingrédient : une ligne par ingrédient */
+function onAppPaste(e){
+  const t = e.target;
+  if(!t.classList || !t.classList.contains("ing-txt")) return;
+  const brut = (e.clipboardData || window.clipboardData).getData("text") || "";
+  const lignes = brut.replace(/\r/g, "").split("\n").map(l => l.replace(/^[-•*·]\s*/, "").trim()).filter(Boolean);
+  if(lignes.length < 2) return;
+  e.preventDefault();
+  let row = t.closest(".ing-row");
+  if(!t.value.trim()) t.value = lignes.shift();
+  lignes.forEach(l => {
+    row.insertAdjacentHTML("afterend", ingRow({txt: l, alg:false}, $$("#ings .ing-row").length));
+    row = row.nextElementSibling;
+  });
+  row.querySelector(".ing-txt").focus();
+  toast(($$("#ings .ing-row").length) + " ingrédients ✓");
+}
+
 /* =========================================================
    9. DÉMARRAGE
    ========================================================= */
 load();
 construireAliments();
+appliquerTheme();
 if(db.phaseActuelle) state.cycle = db.phaseActuelle;   // on ouvre sur ma phase du moment
+state.semPlan = semaineCourante();
+state.semCourses = semaineCoursesParDefaut();
 document.title = "Recipe book " + APP_VERSION;
 const _v = document.getElementById("ver"); if(_v) _v.textContent = APP_VERSION;
+try{ history.replaceState({n: 0}, ""); }catch(e){ historique = false; }
 lireHashImport();
 render();
 
 // si l'app est déjà ouverte et que le bookmarklet la rappelle avec de nouvelles données
 window.addEventListener("hashchange", () => { if(lireHashImport()) render(); });
+// thème automatique : suivre le téléphone s'il bascule pendant que l'app est ouverte
+try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", appliquerTheme); }catch(e){}
 </script>
 </body>
 </html>
