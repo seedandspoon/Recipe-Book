@@ -29,6 +29,7 @@ The recipe book becomes a pocket cooking app: find what to cook, plan the week, 
 - "Cette semaine" is now the planner. Existing data migrates automatically on first launch: recipes that were in "this week" become meals of the current week with their chosen portions, and the shopping list keeps its ticks and manual items.
 - The JSON backup now carries the planner (current and future weeks), cook history and notes; importing a pre-3.0 backup turns its "this week" recipes into planned meals.
 - Re-importing a recipe from the web keeps your notes and cook history in addition to rating, status and tags.
+- **Recipes for my phase** now include the recipes tagged with that phase in their "Cycle" field, not only those whose ingredients are attached to the phase. With Food Cycling on, the home screen opens with "Pour ta phase…" (or a phase picker when none is set, or a short how-to when nothing matches yet); the library gets a "Ma phase" shortcut; cards say "De ta phase"; the Cycle page lists both tagged and ingredient-rich recipes; and auto-fill favours them.
 
 ### Fixed
 - An aisle chosen for a recognised ingredient (e.g. moving "Oignon" to another aisle) was saved under one key and looked up under another, so it never stuck. It now does.

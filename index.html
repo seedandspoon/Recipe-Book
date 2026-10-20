@@ -1518,12 +1518,12 @@ function filtrer(list){
     if(f.semaine && !estPlanifiee(r, cur)) return false;
     if(f.fav && !estFavori(r)) return false;
     if(f.aTester && r.note) return false;
-    if(f.maPhase && scorePhase(r, db.phaseActuelle) === 0) return false;
+    if(f.maPhase && !pertinencePhase(r)) return false;
     return true;
   });
   if(f.maPhase && db.phaseActuelle){
     const cmp = comparateur(state.tri);
-    return res.sort((a,b) => (scorePhase(b, db.phaseActuelle) - scorePhase(a, db.phaseActuelle)) || cmp(a,b));
+    return res.sort((a,b) => (pertinencePhase(b) - pertinencePhase(a)) || cmp(a,b));
   }
   return trier(res, state.tri);
 }
@@ -1611,19 +1611,27 @@ function libCuisinee(r){
    Une recette bien notée, favorite, de saison ou adaptée à ma phase a plus
    de chances d'être tirée ; celle cuisinée il y a moins de dix jours, moins. */
 let memoPhase = new Map(), memoPhaseIdx = null;
-function scorePhaseVite(r){
+function scorePhaseVite(r, phase){
+  phase = phase || db.phaseActuelle;
   const idx = indexAliments();
   if(memoPhaseIdx !== idx){ memoPhase = new Map(); memoPhaseIdx = idx; }
-  const k = r.id + "|" + r.maj + "|" + db.phaseActuelle;
-  if(!memoPhase.has(k)) memoPhase.set(k, scorePhase(r, db.phaseActuelle));
+  const k = r.id + "|" + r.maj + "|" + phase;
+  if(!memoPhase.has(k)) memoPhase.set(k, scorePhase(r, phase));
   return memoPhase.get(k);
+}
+/* une recette est « de ma phase » si je l'y ai rattachée (champ Cycle) ou si ses
+   ingrédients appartiennent à la phase ; le rattachement explicite compte davantage */
+function pertinencePhase(r, phase){
+  phase = phase || db.phaseActuelle;
+  if(!db.fc.actif || !phase) return 0;
+  return (r.cycles.indexOf(phase) >= 0 ? 5 : 0) + scorePhaseVite(r, phase);
 }
 function scoreReco(r){
   let s = (r.note || 3) * 2;               // non notée : on lui laisse sa chance
   if(estFavori(r)) s += 3;
   s += Math.min(r.cuisinee || 0, 5) * 0.5;
   if(deSaison(r)) s += 1.5;
-  if(db.fc.actif && db.phaseActuelle) s += Math.min(scorePhaseVite(r), 4) * 0.5;
+  s += Math.min(pertinencePhase(r), 6) * 0.5;
   if(r.statut === STATUTS[0]) s -= 1;
   if(r.derniereFois && Date.now() - r.derniereFois < 10 * J_MS) s -= 4;
   return Math.max(0.5, s);
@@ -1863,7 +1871,8 @@ function carte(r, opts){
     ? '<img src="' + esc(r.image) + '" alt="" loading="lazy">'
     : (MEAL_EMO[r.meal] || "🍳");
   const prevu = estPlanifiee(r);
-  const ph = db.fc.actif && db.phaseActuelle ? scorePhase(r, db.phaseActuelle) : 0;
+  const ph = db.fc.actif && db.phaseActuelle ? scorePhaseVite(r) : 0;
+  const tag = db.fc.actif && db.phaseActuelle && r.cycles.indexOf(db.phaseActuelle) >= 0;
   return '' +
   '<article class="card" data-open="' + r.id + '">' +
     '<div class="thumb">' + img + '</div>' +
@@ -1873,8 +1882,8 @@ function carte(r, opts){
     '<div class="card-body">' +
       '<div class="card-title">' + esc(r.nom) + '</div>' +
       (r.note ? '<div class="stars">' + stars(r.note) + '</div>' : "") +
-      (ph ? '<div class="fit">' + PHASES_BASE[db.phaseActuelle].emo + ' ' + ph + ' ingrédient' +
-          (ph > 1 ? "s" : "") + ' de ta phase</div>' : "") +
+      (tag || ph ? '<div class="fit">' + PHASES_BASE[db.phaseActuelle].emo + ' ' +
+          (tag ? "De ta phase" + (ph ? " · " + ph + " ingr." : "") : ph + ' ingrédient' + (ph > 1 ? "s" : "") + ' de ta phase') + '</div>' : "") +
       (opts.badge || "") +
       (meta.length ? '<div class="card-meta">' + meta.map(m => "<span>" + m + "</span>").join("") + '</div>' : "") +
     '</div>' +
@@ -1916,6 +1925,8 @@ function viewAccueil(){
     tuile("frigo", "🥕", "Mon frigo", "ce que j'ai") +
   '</div>';
 
+  html += blocPhase(vivantes);
+
   const meilleures = trier(vivantes.filter(r => r.note >= 4 || estFavori(r)), "meilleures");
   html += rail("⭐ Tes meilleures recettes", meilleures, "meilleures");
 
@@ -1924,12 +1935,6 @@ function viewAccueil(){
 
   const saison = saisonActuelle();
   html += rail(SAISON_LBL[saison], trier(vivantes.filter(deSaison), "meilleures"), "saison");
-
-  if(db.fc.actif && db.phaseActuelle){
-    const pourPhase = vivantes.filter(r => scorePhaseVite(r) > 0)
-      .sort((a,b) => scorePhaseVite(b) - scorePhaseVite(a) || b.note - a.note);
-    html += rail(PHASES_BASE[db.phaseActuelle].emo + " Pour ta phase " + db.phaseActuelle.toLowerCase(), pourPhase, "phase");
-  }
 
   // bien aimées mais pas faites depuis un mois : seulement si l'historique a commencé
   if(db.recettes.some(r => r.derniereFois)){
@@ -1960,6 +1965,27 @@ function viewAccueil(){
         esc(m) + ' <span class="count">' + n + '</span></button>').join("") + '</div></div>';
   }
   return html + '<div style="height:24px"></div>';
+}
+
+/* Food Cycling : les recettes de ma phase en tête d'accueil — ou de quoi la choisir */
+function blocPhase(vivantes){
+  if(!db.fc.actif) return "";
+  if(!db.phaseActuelle){
+    return '<div class="section"><div class="section-head"><h3>🌗 Dans quelle phase es-tu ?</h3></div>' +
+      '<div class="chips">' + CYCLES.map(c => '<button type="button" class="chip" data-setphase="' + esc(c) + '">' +
+        PHASES_BASE[c].emo + ' ' + esc(c) + '</button>').join("") + '</div>' +
+      '<p class="hint">Les recettes adaptées à ta phase apparaîtront ici.</p></div>';
+  }
+  const ph = db.phaseActuelle;
+  const list = vivantes.filter(r => pertinencePhase(r) > 0)
+    .sort((a,b) => (pertinencePhase(b) - pertinencePhase(a)) || (b.note - a.note) || a.nom.localeCompare(b.nom, "fr"));
+  const titre = PHASES_BASE[ph].emo + " Pour ta phase " + ph.toLowerCase();
+  if(list.length) return rail(titre, list, "phase");
+  return '<div class="section"><div class="section-head"><h3>' + titre + '</h3></div>' +
+    '<div class="panel"><p class="hint" style="margin:0 0 10px">Aucune recette rattachée à cette phase pour l\'instant. ' +
+    'Coche la phase dans le champ « Cycle » d\'une recette (✎ Modifier), ou rattache des aliments à la phase : ' +
+    'les recettes qui en contiennent remonteront ici.</p>' +
+    '<div class="actions" style="margin:0"><button class="btn sm" data-tab-go="cycle">Ouvrir la phase</button></div></div></div>';
 }
 
 function tuile(go, emo, titre, sous){
@@ -2151,8 +2177,8 @@ function viewCycle(){
   const P = phaseInfo(c);
   const notes = db.cycleNotes[c] || "";
   const ali = alimentsDeLaPhase(c);
-  const list = db.recettes.filter(r => r.cycles.indexOf(c) >= 0)
-    .sort((a,b) => scorePhase(b,c) - scorePhase(a,c) || a.nom.localeCompare(b.nom,"fr"));
+  const list = db.recettes.filter(r => pertinencePhase(r, c) > 0)
+    .sort((a,b) => pertinencePhase(b, c) - pertinencePhase(a, c) || a.nom.localeCompare(b.nom,"fr"));
   const actuelle = db.phaseActuelle === c;
 
   const fiche = [["Durée", P.duree], ["Hormones", P.hormones]]
@@ -2203,7 +2229,8 @@ function viewCycle(){
 
   html += '<div class="section"><div class="section-head"><h3>Recettes de cette phase</h3><span class="count">' + list.length + '</span></div>' +
     (list.length ? grille(list) :
-      '<div class="empty"><span class="big">🌾</span>Aucune recette rattachée à la phase ' + esc(c.toLowerCase()) + '.</div>') +
+      '<div class="empty"><span class="big">🌾</span>Aucune recette pour la phase ' + esc(c.toLowerCase()) + '.<br>' +
+      '<span class="hint">Coche la phase dans le champ « Cycle » d\'une recette, ou rattache des aliments à la phase ci-dessus.</span></div>') +
     '</div><div style="height:26px"></div>';
   return html;
 }
@@ -2233,10 +2260,11 @@ function barreRecherche(){
     ["rapide", "⚡ 30 min max", f.tempsMax === 30],
     ["top", "⭐ 4★ et plus", f.noteMin === 4],
     ["planning", "🗓 Au planning", f.semaine],
+    ["phase", db.fc.actif && db.phaseActuelle ? PHASES_BASE[db.phaseActuelle].emo + " Ma phase" : "", f.maPhase],
     ["tester", "🧪 À tester", f.aTester]
   ];
   html += '<div class="qchips">' +
-    raccourcis.map(([k, l, on]) => '<button type="button" class="chip' + (on ? " on" : "") + '" data-quick="' + k + '">' + l + '</button>').join("") +
+    raccourcis.filter(x => x[1]).map(([k, l, on]) => '<button type="button" class="chip' + (on ? " on" : "") + '" data-quick="' + k + '">' + l + '</button>').join("") +
     MEALS.filter(m => db.recettes.some(r => r.meal === m)).map(m =>
       '<button type="button" class="chip' + (f.meal.length === 1 && f.meal[0] === m ? " on" : "") + '" data-quickmeal="' + esc(m) + '">' +
       (MEAL_EMO[m] || "") + " " + esc(m) + '</button>').join("") +
@@ -2557,13 +2585,16 @@ function viewFiche(){
     const parIng = {};
     trouves.forEach(t => parIng[t.k] = t);
     const n = ph ? trouves.filter(t => t.pertinent).length : 0;
+    const rattachee = ph && r.cycles.indexOf(ph) >= 0;
     const coches = r.ingredients.some((i, k) => state.checked[r.id + "-" + k]);
 
     html += '<div class="section"><div class="section-head"><h3>Ingrédients</h3><span class="count">' +
       r.ingredients.length + '</span></div>' +
-      (ph ? '<div class="notice" style="margin-bottom:12px">' + PHASES_BASE[ph].emo + ' <b>' + n + ' ingrédient' +
-        (n>1?"s":"") + '</b> adapté' + (n>1?"s":"") + ' à ta phase ' + esc(ph.toLowerCase()) +
-        (n ? "." : " — cette recette n'est pas particulièrement ciblée.") + '</div>' : "") +
+      (ph ? '<div class="notice" style="margin-bottom:12px">' + PHASES_BASE[ph].emo + ' ' +
+        (rattachee ? '<b>Recette de ta phase ' + esc(ph.toLowerCase()) + '</b>' + (n ? ' · ' : '.') : "") +
+        (n ? '<b>' + n + ' ingrédient' + (n>1?"s":"") + '</b> adapté' + (n>1?"s":"") + ' à ta phase' + (rattachee ? "" : " " + esc(ph.toLowerCase())) + '.'
+           : rattachee ? "" : '<b>0 ingrédient</b> adapté à ta phase ' + esc(ph.toLowerCase()) + ' — cette recette n\'est pas particulièrement ciblée.') +
+        '</div>' : "") +
       '<div class="panel">' + barrePortions(r) + '<ul class="ing">' +
       r.ingredients.map((i, k) => {
         const t = db.fc.actif ? parIng[k] : null;
@@ -4212,6 +4243,7 @@ function raccourci(k){
     case "top":      f.noteMin = f.noteMin === 4 ? 0 : 4; break;
     case "planning": f.semaine = !f.semaine; break;
     case "tester":   f.aTester = !f.aTester; break;
+    case "phase":    f.maPhase = !f.maPhase; break;
   }
   render();
 }
@@ -4522,6 +4554,8 @@ function onAppClick(e){
     f.meal = (f.meal.length === 1 && f.meal[0] === m) ? [] : [m];
     render(); return;
   }
+  const tg = t.closest("[data-tab-go]");
+  if(tg){ onglet(tg.dataset.tabGo); return; }
   const cy = t.closest("[data-cycle]");
   if(cy){ state.cycle = cy.dataset.cycle; render(); return; }
 
