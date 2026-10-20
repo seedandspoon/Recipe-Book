@@ -772,7 +772,7 @@ function ico(nom, cls){
 /* Catalogue public : noms FR/EN, catégorie, index glycémique, repère pesticides.
    Aucune association avec les phases du cycle — celles-ci sont des données
    utilisateur, chargées au runtime (voir COUCHE FOOD CYCLING plus bas). */
-const ALIMENTS_BASE=[["Avocado","Avocat","F","","C"],["Cherry","Cerise","F","","D"],["Grapefruit","Pamplemousse","F","L",""],["Lemon","Citron","F","",""],["Lime","Citron vert","F","",""],["Orange","Orange","F","",""],["Plum","Prune","F","",""],["Pomegranate","Grenade","F","",""],["Sour cherry","Cerise aigre","F","","D"],["Barley","Orge","G","",""],["Oat","Avoine","G","",""],["Rye","Seigle","G","",""],["Wheat","Blé","G","",""],["Black-eyed pea","Haricot cornille","L","",""],["Green lentil","Lentille verte","L","",""],["Lima bean","Haricot de Lima","L","",""],["Mung bean","Haricot mungo","L","",""],["Split pea","Pois cassé","L","",""],["Chicken","Chicken","M","",""],["Eggs","Œufs","M","",""],["Brazil nut","Noix du Brésil","N","",""],["Cashew","Noix de cajou","N","",""],["Flaxseeds","Graines de lin","N","",""],["Lychee","Litchi","N","",""],["Pumpkin seeds","Graines de courge","N","",""],["Nut butter","Purée d'oléagineux","O","",""],["Olives","Olives","O","",""],["Pickles","Cornichons","O","",""],["Sauerkraut","Choucroute","O","",""],["Vinegar","Vinaigre","O","",""],["Fresh-water clam","Palourde","S","",""],["Soft-shell crab","Crabe","S","",""],["Trout","Truite","S","",""],["Artichoke","Artichaut","V","",""],["Broccoli","Brocoli","V","",""],["Carrot","Carotte","V","","C"],["Green peas","Petits pois","V","","C"],["Green/string bean","Haricot vert","V","","D"],["Lettuce","Laitue","V","",""],["Parsley","Persil","V","",""],["Rhubarb","Rhubarbe","V","",""],["Zucchini","Courgette","V","","C"],["Apricot","Abricot","F","L",""],["Cantaloupe","Melon cantaloup","F","L",""],["Coconut","Noix de coco","F","",""],["Fig","Figue","F","",""],["Guava","Goyave","F","",""],["Persimmon","Kaki","F","",""],["Raspberry","Framboise","F","",""],["Strawberry","Fraise","F","","D"],["Amaranth","Amarante","G","",""],["Corn","Maïs","G","","C"],["Quinoa","Quinoa","G","",""],["Red lentil","Lentille corail","L","",""],["Lamb","Agneau","M","",""],["Almond","Amande","N","",""],["Pecan","Noix de pécan","N","",""],["Pistachio","Pistaches","N","",""],["Alcohol (moderate)","Alcool (modéré)","O","",""],["Chocolate","Chocolat","O","",""],["Coffee","Café","O","",""],["Ketchup","Ketchup","O","",""],["Turmeric","Curcuma","O","",""],["Fresh tuna","Thon frais","S","",""],["Salmon","Saumon","S","",""],["Shrimp","Crevette","S","",""],["Tuna","Thon","S","",""],["Asparagus","Asperge","V","","C"],["Bell pepper","Poivron rouge","V","","D"],["Brussels sprouts","Choux de Bruxelles","V","",""],["Chard","Bettes","V","",""],["Chive","Ciboulette","V","",""],["Eggplant","Aubergine","V","",""],["Endive","Endive","V","",""],["Escarole","Chicorée scarole","V","",""],["Okra","Gombo","V","",""],["Scallion","Cébette","V","",""],["Spinach","Épinard","V","","D"],["Tomato","Tomate","V","",""],["Apple","Pomme","F","L","D"],["Date","Datte","F","",""],["Nectarine","Nectarine","F","","D"],["Peach","Pêche","F","","D"],["Pear","Poire","F","","D"],["Raisin/Grapes","Raisin","F","","D"],["Brown rice","Riz complet","G","",""],["Millet","Millet","G","",""],["Chickpea","Pois chiche","L","",""],["Great northern bean","Grand haricot blanc","L","",""],["Navy bean","Haricot blanc","L","",""],["Beef","Bœuf","M","",""],["Turkey","Dinde","M","",""],["Pine nut","Pignons de pin","N","",""],["Sesame seeds","Graines de sésame","N","",""],["Sunflower seeds","Graines de tournesol","N","",""],["Walnut","Noix","N","",""],["Mint","Menthe","O","",""],["Peppermint","Menthe poivrée","O","",""],["Spirulina","Spiruline","O","",""],["Cod","Morue/Cabillaud","S","",""],["Flounder","Plie","S","",""],["Halibut","Flétan","S","",""],["Cabbage","Chou","V","","C"],["Cauliflower","Chou-fleur","V","",""],["Celery","Céleri","V","",""],["Collard","Feuilles de chou","V","","D"],["Cucumber","Concombre","V","",""],["Daikon","Radis blanc","V","",""],["Garlic","Ail","V","",""],["Ginger","Gingembre","V","",""],["Leek","Poireau","V","",""],["Mustard greens","Feuilles de moutarde","V","","D"],["Onion","Oignon","V","","C"],["Parsnip","Panais","V","",""],["Pumpkin","Citrouille","V","",""],["Radish","Radis","V","",""],["Squash","Courge","V","",""],["Sweet potato","Patate douce","V","","C"],["Watercress","Cresson","V","",""],["Blackberry","Mûre","F","",""],["Blueberry","Myrtille","F","L","D"],["Watermelon","Pastèque","F","","C"],["Buckwheat","Sarrasin","G","",""],["Wild rice","Riz sauvage","G","",""],["Adzuki bean","Haricot azuki (rouge japonais)","L","",""],["Black soybean","Soja noir","L","",""],["Black turtle bean","Haricot noir","L","",""],["Kidney bean","Haricot rouge","L","",""],["Duck","Canard","M","",""],["Pork","Porc","M","",""],["Chestnut","Châtaigne","N","",""],["Bancha tea","Thé vert Bancha","O","",""],["Decaf coffee","Café déca","O","",""],["Miso","Miso","O","",""],["Tamari","Tamari","O","",""],["Lobster","Homard","S","",""],["Mussel","Moules de corde (mer)","S","",""],["Octopus","Poulpe","S","",""],["Oyster","Huîtres","S","",""],["Sardine","Sardine","S","",""],["Scallop","Pétoncle","S","",""],["Squid","Calamar","S","",""],["Beets","Betterave","V","",""],["Burdock","Bardane","V","",""],["Button mushroom","Champignon de Paris","V","","C"],["Dulse","Dulse (algue)","V","",""],["Hijiki","Hijiki (algue)","V","",""],["Kale","Chou kale","V","","D"],["Kelp","Varech","V","",""],["Kombu","Kombu (algue)","V","",""],["Nori","Nori (algue)","V","",""],["Shiitake mushroom","Shiitake","V","","C"],["Wakame","Wakamé (algue)","V","",""],["Water chestnut","Châtaigne d'eau","V","",""],["Banana (ripe)","Banane (mûre)","F","H",""],["Banana (unripe)","Banane (verte)","F","L",""],["Kiwi","Kiwi","F","","C"],["Mango","Mangue","F","","C"],["Melon","Melon","F","","C"],["Pineapple","Ananas","F","","C"],["Soba noodles","Nouilles soba","G","",""],["Honey","Miel","O","",""],["Salt","Sel","O","",""],["Coriander","Coriandre","V","",""],["Edamame beans","Édamame","V","",""],["Hot pepper","Piment","V","","D"],["Mushroom","Champignon","V","","C"],["Red chili","Piment rouge","V","",""],["Spring onion","Oignon nouveau","V","",""],["Mixed berries","Fruits rouges mélangés","F","",""],["Brown basmati rice","Riz basmati complet","G","",""],["Buckwheat noodles","Nouilles de sarrasin","G","",""],["Polenta","Polenta","G","",""],["Chicken breast","Blanc de poulet","M","",""],["Peanut butter","Beurre de cacahuète","N","",""],["Peanuts","Cacahuètes","N","",""],["Capers","Câpres","O","",""],["Cinnamon","Cannelle","O","",""],["Coconut yogurt","Yaourt de coco","O","",""],["Creamed coconut","Crème de coco","O","",""],["Ginger & garlic paste","Pâte ail-gingembre","O","",""],["Italian dried herbs","Herbes italiennes séchées","O","",""],["Maple syrup","Sirop d'érable","O","",""],["Nigella seeds","Graines de nigelle","O","",""],["Oil","Huile","O","",""],["Pasanda spice blend","Mélange d'épices pasanda","O","",""],["Red Thai curry paste","Pâte de curry rouge thaï","O","",""],["Sesame oil","Huile de sésame","O","",""],["Unsweetened plant milk","Lait végétal non sucré","O","",""],["Vegetable stock powder","Bouillon de légumes en poudre","O","",""],["West African spice blend","Mélange d'épices ouest-africain","O","",""],["Hake fillet","Filet de colin/merlu","S","",""],["Baby spinach","Jeunes pousses d'épinard","V","",""],["Baby sweetcorn","Mini-maïs","V","",""],["Choi Sum","Choi sum (chou chinois)","V","",""],["Coriander (fresh)","Coriandre fraîche","V","",""],["Mange-tout","Pois mange-tout","V","",""],["Red pepper","Poivron rouge","V","",""],["Shallot","Échalote","V","",""],["Sugar snap peas","Pois gourmands","V","",""],["Tenderstem broccoli","Brocoli tige tendre","V","",""]];
+const ALIMENTS_BASE=[["Avocado","Avocat","F","","C"],["Cherry","Cerise","F","","D"],["Grapefruit","Pamplemousse","F","L",""],["Lemon","Citron","F","",""],["Lime","Citron vert","F","",""],["Orange","Orange","F","",""],["Plum","Prune","F","",""],["Pomegranate","Grenade","F","",""],["Sour cherry","Cerise aigre","F","","D"],["Barley","Orge","G","",""],["Oat","Avoine","G","",""],["Rye","Seigle","G","",""],["Wheat","Blé","G","",""],["Black-eyed pea","Haricot cornille","L","",""],["Green lentil","Lentille verte","L","",""],["Lima bean","Haricot de Lima","L","",""],["Mung bean","Haricot mungo","L","",""],["Split pea","Pois cassé","L","",""],["Chicken","Chicken","M","",""],["Eggs","Œufs","M","",""],["Brazil nut","Noix du Brésil","N","",""],["Cashew","Noix de cajou","N","",""],["Flaxseeds","Graines de lin","N","",""],["Lychee","Litchi","N","",""],["Pumpkin seeds","Graines de courge","N","",""],["Nut butter","Purée d'oléagineux","O","",""],["Olives","Olives","O","",""],["Pickles","Cornichons","O","",""],["Sauerkraut","Choucroute","O","",""],["Vinegar","Vinaigre","O","",""],["Fresh-water clam","Palourde","S","",""],["Soft-shell crab","Crabe","S","",""],["Trout","Truite","S","",""],["Artichoke","Artichaut","V","",""],["Broccoli","Brocoli","V","",""],["Carrot","Carotte","V","","C"],["Green peas","Petits pois","V","","C"],["Green/string bean","Haricot vert","V","","D"],["Lettuce","Laitue","V","",""],["Parsley","Persil","V","",""],["Rhubarb","Rhubarbe","V","",""],["Zucchini","Courgette","V","","C"],["Apricot","Abricot","F","L",""],["Cantaloupe","Melon cantaloup","F","L",""],["Coconut","Noix de coco","F","",""],["Fig","Figue","F","",""],["Guava","Goyave","F","",""],["Persimmon","Kaki","F","",""],["Raspberry","Framboise","F","",""],["Strawberry","Fraise","F","","D"],["Amaranth","Amarante","G","",""],["Corn","Maïs","G","","C"],["Quinoa","Quinoa","G","",""],["Red lentil","Lentille corail","L","",""],["Lamb","Agneau","M","",""],["Almond","Amande","N","",""],["Pecan","Noix de pécan","N","",""],["Pistachio","Pistaches","N","",""],["Alcohol (moderate)","Alcool (modéré)","O","",""],["Chocolate","Chocolat","O","",""],["Coffee","Café","O","",""],["Ketchup","Ketchup","O","",""],["Turmeric","Curcuma","O","",""],["Fresh tuna","Thon frais","S","",""],["Salmon","Saumon","S","",""],["Shrimp","Crevette","S","",""],["Tuna","Thon","S","",""],["Asparagus","Asperge","V","","C"],["Bell pepper","Poivron rouge","V","","D"],["Brussels sprouts","Choux de Bruxelles","V","",""],["Chard","Bettes","V","",""],["Chive","Ciboulette","V","",""],["Eggplant","Aubergine","V","",""],["Endive","Endive","V","",""],["Escarole","Chicorée scarole","V","",""],["Okra","Gombo","V","",""],["Scallion","Cébette","V","",""],["Spinach","Épinard","V","","D"],["Tomato","Tomate","V","",""],["Apple","Pomme","F","L","D"],["Date","Datte","F","",""],["Nectarine","Nectarine","F","","D"],["Peach","Pêche","F","","D"],["Pear","Poire","F","","D"],["Raisin/Grapes","Raisin","F","","D"],["Brown rice","Riz complet","G","",""],["Millet","Millet","G","",""],["Chickpea","Pois chiche","L","",""],["Great northern bean","Grand haricot blanc","L","",""],["Navy bean","Haricot blanc","L","",""],["Beef","Bœuf","M","",""],["Turkey","Dinde","M","",""],["Pine nut","Pignons de pin","N","",""],["Sesame seeds","Graines de sésame","N","",""],["Sunflower seeds","Graines de tournesol","N","",""],["Walnut","Noix","N","",""],["Mint","Menthe","O","",""],["Peppermint","Menthe poivrée","O","",""],["Spirulina","Spiruline","O","",""],["Cod","Morue/Cabillaud","S","",""],["Flounder","Plie","S","",""],["Halibut","Flétan","S","",""],["Cabbage","Chou","V","","C"],["Cauliflower","Chou-fleur","V","",""],["Celery","Céleri","V","",""],["Collard","Feuilles de chou","V","","D"],["Cucumber","Concombre","V","",""],["Daikon","Radis blanc","V","",""],["Garlic","Ail","V","",""],["Ginger","Gingembre","V","",""],["Leek","Poireau","V","",""],["Mustard greens","Feuilles de moutarde","V","","D"],["Onion","Oignon","V","","C"],["Parsnip","Panais","V","",""],["Pumpkin","Citrouille","V","",""],["Radish","Radis","V","",""],["Squash","Courge","V","",""],["Sweet potato","Patate douce","V","","C"],["Watercress","Cresson","V","",""],["Blackberry","Mûre","F","",""],["Blueberry","Myrtille","F","L","D"],["Watermelon","Pastèque","F","","C"],["Buckwheat","Sarrasin","G","",""],["Wild rice","Riz sauvage","G","",""],["Adzuki bean","Haricot azuki (rouge japonais)","L","",""],["Black soybean","Soja noir","L","",""],["Black turtle bean","Haricot noir","L","",""],["Kidney bean","Haricot rouge","L","",""],["Duck","Canard","M","",""],["Pork","Porc","M","",""],["Chestnut","Châtaigne","N","",""],["Bancha tea","Thé vert Bancha","O","",""],["Decaf coffee","Café déca","O","",""],["Miso","Miso","O","",""],["Tamari","Tamari","O","",""],["Lobster","Homard","S","",""],["Mussel","Moules de corde (mer)","S","",""],["Octopus","Poulpe","S","",""],["Oyster","Huîtres","S","",""],["Sardine","Sardine","S","",""],["Scallop","Pétoncle","S","",""],["Squid","Calamar","S","",""],["Beets","Betterave","V","",""],["Burdock","Bardane","V","",""],["Button mushroom","Champignon de Paris","V","","C"],["Dulse","Dulse (algue)","V","",""],["Hijiki","Hijiki (algue)","V","",""],["Kale","Chou kale","V","","D"],["Kelp","Varech","V","",""],["Kombu","Kombu (algue)","V","",""],["Nori","Nori (algue)","V","",""],["Shiitake mushroom","Shiitake","V","","C"],["Wakame","Wakamé (algue)","V","",""],["Water chestnut","Châtaigne d'eau","V","",""],["Banana (ripe)","Banane (mûre)","F","H",""],["Banana (unripe)","Banane (verte)","F","L",""],["Kiwi","Kiwi","F","","C"],["Mango","Mangue","F","","C"],["Melon","Melon","F","","C"],["Pineapple","Ananas","F","","C"],["Soba noodles","Nouilles soba","G","",""],["Honey","Miel","O","",""],["Salt","Sel","O","",""],["Coriander","Coriandre","V","",""],["Edamame beans","Édamame","V","",""],["Hot pepper","Piment","V","","D"],["Mushroom","Champignon","V","","C"],["Red chili","Piment rouge","V","",""],["Spring onion","Oignon nouveau","V","",""],["Mixed berries","Fruits rouges mélangés","F","",""],["Brown basmati rice","Riz basmati complet","G","",""],["Buckwheat noodles","Nouilles de sarrasin","G","",""],["Polenta","Polenta","G","",""],["Chicken breast","Blanc de poulet","M","",""],["Peanut butter","Beurre de cacahuète","N","",""],["Peanuts","Cacahuètes","N","",""],["Capers","Câpres","O","",""],["Cinnamon","Cannelle","O","",""],["Coconut yogurt","Yaourt de coco","O","",""],["Creamed coconut","Crème de coco","O","",""],["Ginger & garlic paste","Pâte ail-gingembre","O","",""],["Italian dried herbs","Herbes italiennes séchées","O","",""],["Maple syrup","Sirop d'érable","O","",""],["Nigella seeds","Graines de nigelle","O","",""],["Oil","Huile","O","",""],["Pasanda spice blend","Mélange d'épices pasanda","O","",""],["Red Thai curry paste","Pâte de curry rouge thaï","O","",""],["Sesame oil","Huile de sésame","O","",""],["Unsweetened plant milk","Lait végétal non sucré","O","",""],["Vegetable stock powder","Bouillon de légumes en poudre","O","",""],["West African spice blend","Mélange d'épices ouest-africain","O","",""],["Hake fillet","Filet de colin/merlu","S","",""],["Baby spinach","Jeunes pousses d'épinard","V","",""],["Baby sweetcorn","Mini-maïs","V","",""],["Choi Sum","Choi sum (chou chinois)","V","",""],["Coriander (fresh)","Coriandre fraîche","V","",""],["Mange-tout","Pois mange-tout","V","",""],["Red pepper","Poivron rouge","V","",""],["Shallot","Échalote","V","",""],["Sugar snap peas","Pois gourmands","V","",""],["Tenderstem broccoli","Brocoli tige tendre","V","",""],["Potato","Pomme de terre","V","H",""],["Coconut milk","Lait de coco","O","",""],["Nutmeg","Noix de muscade","O","",""],["Cream","Crème","O","",""]];
 
 /* ---------- Phases du cycle ---------- */
 const CAT_LBL = {G:"Céréales",V:"Légumes",F:"Fruits",L:"Légumineuses",N:"Noix & graines",M:"Viandes",S:"Poissons & fruits de mer",O:"Autres"};
@@ -856,13 +856,18 @@ const RAYONS = ["🥬 Fruits & légumes","🥩 Boucherie & volaille","🐟 Poiss
 
 const RAYON_PAR_CAT = {V:RAYONS[0], F:RAYONS[0], M:RAYONS[1], S:RAYONS[2], G:RAYONS[4], L:RAYONS[4], N:RAYONS[8]};
 
+/* quelques aliments dont la catégorie trompe sur le rayon */
+const RAYON_PAR_ALI = {"Eggs": RAYONS[3], "Coconut milk": RAYONS[4], "Nutmeg": RAYONS[7], "Cream": RAYONS[3]};
+
 const RAYON_MOTS = [
-  [RAYONS[3], "lait|creme|fromage|yaourt|yoghurt|yogurt|beurre|butter|cheese|milk|cream|oeuf|egg|feta|mozzarella|parmesan|ricotta|mascarpone|skyr|kefir"],
+  [RAYONS[4], "bouillon|stock|broth|fond de volaille|fond de veau"],
+  [RAYONS[3], "lait|creme|fromage|yaourt|yoghurt|yogurt|beurre|butter|cheese|milk|cream|oeuf|egg|feta|mozzarella|parmesan|ricotta|mascarpone|skyr|kefir|comte|emmental|gruyere|chevre|cheddar|halloumi|burrata|reblochon|camembert|brie|roquefort|pecorino"],
+  [RAYONS[1], "chorizo|jambon|lardon|bacon|saucisse|saucisson|merguez|viande|steak|poulet|dinde|veau|boeuf|porc|agneau|canard|ham|sausage|pancetta|prosciutto|guanciale|chicken|beef|pork|lamb|turkey"],
   [RAYONS[6], "pain|baguette|tortilla|pita|wrap|bread|brioche|muffin|naan|bagel|crouton"],
   [RAYONS[9], "surgele|congele|frozen|glace|petits pois surgeles"],
-  [RAYONS[10], "jus|juice|eau|water|vin|wine|biere|beer|bouillon|stock|broth|the|tea|cafe|coffee|kombucha"],
+  [RAYONS[10], "jus|juice|eau|water|vin|wine|biere|beer|the|tea|cafe|coffee|kombucha"],
   [RAYONS[5], "sucre|sugar|miel|honey|sirop|syrup|chocolat|chocolate|cacao|confiture|jam|flocon|oat|avoine|cereale|granola|compote|vanille|vanilla|levure|farine|flour"],
-  [RAYONS[7], "huile|oil|vinaigre|vinegar|sauce|soja|soy|moutarde|mustard|sel|salt|poivre|pepper|epice|spice|curry|cumin|paprika|cannelle|curcuma|gingembre|ginger|ail|garlic|herbe|herb|basilic|basil|persil|parsley|coriandre|coriander|menthe|mint|thym|thyme|romarin|laurier|origan|harissa|tahini|miso|pesto|concentre de tomate|tomato puree|bouillon cube|nduja"],
+  [RAYONS[7], "huile|oil|vinaigre|vinegar|sauce|soja|soy|moutarde|mustard|sel|salt|poivre|pepper|epice|spice|curry|cumin|paprika|cannelle|curcuma|gingembre|ginger|ail|garlic|herbe|herb|basilic|basil|persil|parsley|coriandre|coriander|menthe|mint|thym|thyme|romarin|laurier|origan|harissa|tahini|miso|pesto|concentre de tomate|tomato puree|nduja|muscade|garam masala|ras el hanout|piment|chili|sumac|za atar|baie"],
   [RAYONS[4], "conserve|boite|can|haricot|bean|pois chiche|chickpea|lentille|lentil|pate|pasta|spaghetti|penne|casarecce|nouille|noodle|riz|rice|quinoa|couscous|boulgour|polenta|semoule|thon|tuna|sardine|olive|coco|coconut milk"],
   [RAYONS[8], "graine|seed|noix|nut|amande|almond|noisette|hazelnut|cajou|cashew|pistache|sesame|tournesol|sunflower|courge|pumpkin seed|lin|flax|chia|raisin sec|datte|date|abricot sec|pruneau"],
   [RAYONS[0], "salade|laitue|roquette|rocket|epinard|spinach|tomate|tomato|courgette|carotte|carrot|brocoli|broccoli|chou|cabbage|poireau|leek|oignon|onion|echalote|shallot|poivron|pepper|aubergine|concombre|cucumber|champignon|mushroom|pomme de terre|potato|patate douce|citron|lemon|lime|pomme|apple|poire|pear|banane|banana|orange|fraise|strawberry|framboise|raspberry|myrtille|blueberry|avocat|avocado|mangue|mango|ananas|pineapple|peche|pear|raisin|grape|fenouil|fennel|celeri|celery|radis|radish|betterave|beet|navet|panais|butternut|potiron|asperge|asparagus|haricot vert|green bean|petit pois|pea|mais|corn|cresson|kale|bok choy|pak choi"]
@@ -888,7 +893,15 @@ const SYN_INTERNES = {
   "cilantro":"Coriander", "spring onions":"Spring onion", "scallion":"Spring onion",
   "aubergine":"Eggplant", "courgette":"Zucchini", "chickpeas":"Chickpea",
   "linseed":"Flaxseeds", "graines de lin":"Flaxseeds", "flax seeds":"Flaxseeds",
-  "sweet potatoes":"Sweet potato", "patates douces":"Sweet potato"
+  "sweet potatoes":"Sweet potato", "patates douces":"Sweet potato",
+  "olive oil":"Oil", "huile d'olive":"Oil", "huile de colza":"Oil", "huile de tournesol":"Oil",
+  "rapeseed oil":"Oil", "sunflower oil":"Oil", "vegetable oil":"Oil",
+  "butter beans":"Lima bean", "poivron":"Bell pepper", "poivron vert":"Bell pepper", "poivron jaune":"Bell pepper",
+  "green pepper":"Bell pepper", "yellow pepper":"Bell pepper",
+  "lait d'amande":"Unsweetened plant milk", "lait d'avoine":"Unsweetened plant milk", "lait de soja":"Unsweetened plant milk",
+  "almond milk":"Unsweetened plant milk", "oat milk":"Unsweetened plant milk", "soy milk":"Unsweetened plant milk",
+  "pommes de terre":"Potato", "potatoes":"Potato",
+  "bouillon de légumes":"Vegetable stock powder", "vegetable stock":"Vegetable stock powder", "cube de bouillon":"Vegetable stock powder"
 };
 function normAli(s){
   let t = String(s == null ? "" : s).toLowerCase();
@@ -924,20 +937,24 @@ function indexAliments(){
   // dernier recours : le nom de tête (« green pea » → « pea »), testé seulement si rien d'autre ne colle.
   // Exception : un dernier mot précédé de « non »/« sans » est nié par la phrase (« lait non sucré »
   // ne parle pas de sucre) et ne doit surtout pas devenir un synonyme de cet aliment.
-  const tetes = [];
-  const vus = {};
+  // Un adjectif n'est jamais une tête : « vert » ne désigne pas le citron vert, « butter » pas le
+  // beurre de cacahuète, « fraîche » pas la coriandre. Les précisions entre parenthèses non plus.
+  const tetes = {};
   const NEGATIONS = ["non", "sans"];
+  const ADJECTIFS = ("vert verte rouge jaune blanc blanche noir noire frais fraiche sec seche doux douce fort " +
+    "entier entiere moulu complet complete poudre pate melange red green yellow white black fresh dried sweet hot " +
+    "whole ground baby brown butter creamed powder paste blend mini petit grand gros ripe unripe").split(" ").map(normAli);
   ALIMENTS.forEach(a => {
     [a.en, a.fr].forEach(nom => {
-      const mots = normAli(nom).split(" ");
+      const mots = normAli(nom.split("(")[0]).split(" ");
       const tete = mots[mots.length - 1];
       const precedent = mots[mots.length - 2];
-      if(tete && tete.length > 3 && !vus[tete] && NEGATIONS.indexOf(precedent) < 0){
-        vus[tete] = 1; tetes.push({mot:tete, ali:a});
+      if(tete && tete.length > 3 && !tetes[tete] && ADJECTIFS.indexOf(tete) < 0 && NEGATIONS.indexOf(precedent) < 0){
+        tetes[tete] = a;
       }
     });
   });
-  IDX_ALI = {plein: idx, tetes: tetes.sort((a,b) => b.mot.length - a.mot.length)};
+  IDX_ALI = {plein: idx, tetes: tetes};
   return IDX_ALI;
 }
 
@@ -948,18 +965,23 @@ function trouverAliment(txt){
   for(let i = 0; i < idx.plein.length; i++){
     if(s.indexOf(" " + idx.plein[i].mot + " ") >= 0) return idx.plein[i].ali;
   }
-  for(let i = 0; i < idx.tetes.length; i++){
-    if(s.indexOf(" " + idx.tetes[i].mot + " ") >= 0) return idx.tetes[i].ali;
+  // le nom principal est en fin de ligne en anglais (« butter beans » → « bean ») : on part de la fin
+  const mots = s.trim().split(" ");
+  for(let i = mots.length - 1; i >= 0; i--){
+    if(idx.tetes[mots[i]]) return idx.tetes[mots[i]];
   }
   return null;
 }
+
+/* l'aliment d'une ligne d'ingrédient, cherché sur le nom seul : la quantité et l'unité
+   ne doivent jamais être prises pour un aliment (« 1 c. à café de cumin » n'est pas du café) */
+function alimentDeLigne(txt){ return trouverAliment(parseIngredient(txt).nom); }
 
 /* aliments d'une recette rattachés à une phase donnée */
 function alimentsDeRecette(r, phase){
   const out = [];
   (r.ingredients || []).forEach((ing, k) => {
-    // on cherche d'abord sur le nom seul : « 1 c. à café d'ail » ne doit pas devenir du café
-    const a = trouverAliment(parseIngredient(ing.txt).nom) || trouverAliment(ing.txt);
+    const a = alimentDeLigne(ing.txt);
     if(!a) return;
     const pertinent = alimentEstDeLaPhase(a, phase);
     out.push({k:k, ali:a, pertinent:pertinent});
@@ -1012,12 +1034,14 @@ function normUnite(u){
 /* « 1 1/2 kg », « 2,5 l », « 400 ml », « ½ citron » → nombre */
 function lireNombre(s){
   s = String(s).replace(",", ".").trim();
-  const frac = {"½":0.5,"¼":0.25,"¾":0.75,"⅓":1/3,"⅔":2/3};
+  const frac = {"½":0.5,"¼":0.25,"¾":0.75,"⅓":1/3,"⅔":2/3,"⅛":0.125};
   if(frac[s] !== undefined) return frac[s];
-  let m = s.match(/^(\d+)\s+(\d+)\/(\d+)$/);        // 1 1/2
-  if(m) return +m[1] + (+m[2]) / (+m[3]);
+  let m = s.match(/^(\d+(?:\.\d+)?)\s*([½¼¾⅓⅔⅛])$/);  // 1½, 1 ½
+  if(m) return +m[1] + frac[m[2]];
+  m = s.match(/^(\d+)\s+(\d+)\/(\d+)$/);            // 1 1/2
+  if(m) return +m[3] ? +m[1] + (+m[2]) / (+m[3]) : null;
   m = s.match(/^(\d+)\/(\d+)$/);                     // 3/4
-  if(m) return (+m[1]) / (+m[2]);
+  if(m) return +m[2] ? (+m[1]) / (+m[2]) : null;
   m = s.match(/^(\d+(?:\.\d+)?)$/);
   return m ? +m[1] : null;
 }
@@ -1032,12 +1056,13 @@ function parseIngredient(ligne){
   if(par){ res.note = par[1].trim(); t = t.slice(0, par.index).trim(); }
 
   // 1. quantité en tête
-  const m = t.match(/^(\d+(?:[.,]\d+)?\s+\d+\/\d+|\d+\/\d+|\d+(?:[.,]\d+)?|[½¼¾⅓⅔])\s*(.*)$/);
+  // « 2-3 gousses », « 2 à 3 c. à soupe » : pour les courses, on prévoit la borne haute
+  const m = t.match(new RegExp("^(" + NB_QTE + ")(?:\\s*(?:-|–|à|to)\\s*(" + NB_QTE + "))?\\s*(.*)$"));
   if(!m){ res.nom = nettoyerNom(t) || t; return res; }
-  const q = lireNombre(m[1]);
-  if(q === null){ res.nom = nettoyerNom(t) || t; return res; }
+  const q = lireNombre(m[2] !== undefined ? m[2] : m[1]);
+  if(q === null || !isFinite(q)){ res.nom = nettoyerNom(t) || t; return res; }
   res.qte = q;
-  let reste = m[2];
+  let reste = m[3];
 
   // 2. unité éventuelle : on essaie les 3 premiers mots, puis 2, puis 1 (« c. à soupe » avant « c »)
   const mots = reste.split(/\s+/).filter(Boolean);
@@ -1061,6 +1086,7 @@ function rayonDe(nom, ali){
   if(db.rayons[cle]) return db.rayons[cle];
   // correction posée depuis la liste : enregistrée sous le nom de l'aliment seul
   if(ali){ const ca = normAli(ali.fr + " " + ali.en); if(db.rayons[ca]) return db.rayons[ca]; }
+  if(ali && RAYON_PAR_ALI[ali.en]) return RAYON_PAR_ALI[ali.en];
   if(ali && RAYON_PAR_CAT[ali.cat]) return RAYON_PAR_CAT[ali.cat];
   const n = " " + cle + " ";
   for(const [rayon, mots] of RAYON_MOTS){
@@ -1088,7 +1114,7 @@ function construireCourses(sem){
     const echelle = echelleEntree(e);
     (r.ingredients || []).forEach(ing => {
       const p = parseIngredient(ing.txt);
-      const ali = trouverAliment(p.nom) || trouverAliment(ing.txt);
+      const ali = trouverAliment(p.nom);
       const cle = ali ? ("a:" + ali.en) : ("t:" + normAli(p.nom));
       if(!cle || cle === "t:") return;
       if(C.retires.indexOf(cle) >= 0) return;
@@ -1115,7 +1141,7 @@ function construireCourses(sem){
         const f = p.unite.fam;
         if(!L.parts[f]) L.parts[f] = {qte:0, aff:p.unite.aff};
         L.parts[f].qte += p.qte * p.unite.vers * echelle;
-        qteAff = formatUneQte(p.qte * p.unite.vers * echelle, p.unite.aff, false);
+        qteAff = formatUneQte(p.qte * p.unite.vers * echelle, p.unite.aff, p.unite.fam);
       }else if(p.qte !== null){
         if(!L.parts["piece"]) L.parts["piece"] = {qte:0, aff:""};
         L.parts["piece"].qte += p.qte * echelle;
@@ -1162,21 +1188,23 @@ function construireCourses(sem){
 }
 
 /* « 1,5 kg » plutôt que « 1500 g » — partagé entre le total agrégé et le détail par recette */
-function formatUneQte(qte, aff, piece){
+const FAM_A_L_UNITE = ["piece", "boite", "sachet", "gousse", "botte", "tranche"];
+function formatUneQte(qte, aff, famille){
   let q = qte;
   if(aff === "g" && q >= 1000){ q = q / 1000; aff = "kg"; }
   else if(aff === "ml" && q >= 1000){ q = q / 1000; aff = "l"; }
-  // un ingrédient compté à la pièce ne s'achète pas en fraction : la mise à
-  // l'échelle par portions peut produire « 4.5 œufs », qu'on arrondit au-dessus
-  q = piece ? Math.ceil(q - 1e-9) : Math.round(q * 100) / 100;
-  return aff ? (q + " " + aff) : String(q);
+  // ce qui s'achète à l'unité (pièce, boîte, sachet, gousse…) ne s'achète pas en fraction :
+  // la mise à l'échelle par portions peut produire « 4.5 œufs » ou « 0.5 boîte », arrondis au-dessus
+  const unite = famille === true || FAM_A_L_UNITE.indexOf(famille) >= 0;
+  const t = unite ? String(Math.ceil(q - 1e-9)) : joliNombre(q, true);
+  return aff ? (t + " " + aff) : t;
 }
 
 function afficheQte(L){
   const bouts = [];
   Object.keys(L.parts).forEach(f => {
     const p = L.parts[f];
-    bouts.push(formatUneQte(p.qte, p.aff, f === "piece"));
+    bouts.push(formatUneQte(p.qte, p.aff, f));
   });
   if(!bouts.length && L.sansQte) return L.sansQte > 1 ? "×" + L.sansQte : "";
   if(L.sansQte) bouts.push("+ " + L.sansQte + " sans quantité");
@@ -1338,7 +1366,8 @@ function normEntree(e){
   if(!e || !e.rid || !/^\d{4}-\d{2}-\d{2}$/.test(String(e.sem || ""))) return null;
   const j = parseInt(e.jour, 10);
   return {id: idSur(e.id), rid: String(e.rid), sem: lundiDe(dateDe(e.sem)),
-          jour: (j >= 0 && j <= 6) ? j : -1, portions: num(e.portions), fait: !!e.fait};
+          jour: (j >= 0 && j <= 6) ? j : -1, portions: num(e.portions), fait: !!e.fait,
+          mult: num(e.mult) > 0 ? num(e.mult) : undefined};
 }
 
 /* le planning garde six mois d'historique, les listes de courses deux */
@@ -1582,8 +1611,7 @@ function aliDeLigne(txt){
   const idx = indexAliments();
   if(memoIdx !== idx){ memoAli = new Map(); memoIdx = idx; }
   if(memoAli.has(txt)) return memoAli.get(txt);
-  // on cherche d'abord sur le nom seul : « 1 c. à café d'ail » ne doit pas devenir du café
-  const a = trouverAliment(parseIngredient(txt).nom) || trouverAliment(txt);
+  const a = alimentDeLigne(txt);
   memoAli.set(txt, a);
   return a;
 }
@@ -1708,17 +1736,18 @@ function libJour(sem, j){ return j < 0 ? "Sans jour précis" : JOURS[j] + " " + 
 function entreesSemaine(sem){ return db.plan.filter(e => e.sem === sem && getRecette(e.rid)); }
 function estPlanifiee(r, sem){ sem = sem || semaineCourante(); return db.plan.some(e => e.rid === r.id && e.sem === sem); }
 function portionsParDefaut(r){ return db.prefs.portions || r.portions || 4; }
-function planifier(rid, sem, jour, portions){
+function planifier(rid, sem, jour, portions, mult){
   const r = getRecette(rid);
   if(!r) return null;
   const e = {id: uid(), rid: rid, sem: sem, jour: jour, portions: portions || portionsParDefaut(r), fait: false};
+  if(!r.portions && mult && mult !== 1) e.mult = mult;   // recette sans portions de base : le ×2 choisi sur la fiche
   db.plan.push(e);
   save();
   return e;
 }
 function echelleEntree(e){
   const r = getRecette(e.rid);
-  return (r && r.portions && e.portions) ? e.portions / r.portions : 1;
+  return (r && r.portions && e.portions) ? e.portions / r.portions : (e.mult || 1);
 }
 function coursesDe(sem){
   if(!db.courses[sem]) db.courses[sem] = {coches:{}, ajouts:[], retires:[]};
@@ -1765,7 +1794,7 @@ function joliNombre(q, virgule){
     const e = best[0] === 1 ? ent + 1 : ent;
     return best[1] ? (e ? e : "") + best[1] : String(e);
   }
-  const t = String(Math.round(q * 10) / 10);
+  const t = String(q > 0 && q < 0.2 ? Math.round(q * 100) / 100 : Math.round(q * 10) / 10);
   return virgule ? t.replace(".", ",") : t;
 }
 
@@ -1776,12 +1805,15 @@ function ajusterLigne(txt, f){
   const m = String(txt).match(RE_QTE_TETE);
   if(!m) return non;
   const a = lireQte(m[2]);
-  if(a === null || isNaN(a)) return non;
-  const virgule = /,/.test(m[2] + (m[4] || ""));
-  let q = joliNombre(a * f, virgule);
+  if(a === null || !isFinite(a)) return non;
+  const virgule = !/\d\.\d/.test(m[2] + (m[4] || ""));   // la virgule, sauf si la recette écrit « 1.5 »
+  // sans unité, on compte des choses entières (œufs, oignons) : au demi près, jamais moins d'un demi
+  const entier = !parseIngredient(txt).unite;
+  const mettre = x => joliNombre(entier ? Math.max(0.5, Math.round(x * 2) / 2) : x, virgule);
+  let q = mettre(a * f);
   if(m[4] !== undefined){
     const b = lireQte(m[4]);
-    q += m[3] + ((b === null || isNaN(b)) ? m[4] : joliNombre(b * f, virgule));
+    q += m[3] + ((b === null || !isFinite(b)) ? m[4] : mettre(b * f));
   }
   const apres = txt.slice(m[0].length);
   return {txt: m[1] + q + apres, ok: true, avant: m[1], qte: q, apres: apres};
@@ -3845,7 +3877,8 @@ function feuilleNouvelle(){
 function ouvrirPlanifier(rid){
   const r = getRecette(rid);
   if(!r) return;
-  ouvrirFeuille({type:"planifier", rid: rid, sem: semaineCourante(), portions: r.portions ? portionsFiche(r) : portionsParDefaut(r)});
+  ouvrirFeuille({type:"planifier", rid: rid, sem: semaineCourante(), portions: r.portions ? portionsFiche(r) : portionsParDefaut(r),
+    mult: r.portions ? 0 : (state.mult[rid] || 1)});
 }
 function feuillePlanifier(f){
   const r = getRecette(f.rid);
@@ -4380,7 +4413,7 @@ function faireAction(a){
     case "pl-plus":  f.portions = f.portions + 1; renderFeuille(); return;
     case "pl-jour": {
       const j = parseInt(a.dataset.jour, 10);
-      const e = planifier(f.rid, f.sem, j, f.portions);
+      const e = planifier(f.rid, f.sem, j, f.portions, f.mult);
       fermerFeuille(); render();
       if(e) toast("Prévu " + (j >= 0 ? libJour(f.sem, j).toLowerCase() : f.sem === semaineCourante() ? "cette semaine" : "la semaine prochaine") +
         " ✓", () => annulerPlan(e.id));
@@ -4729,7 +4762,7 @@ function onAppClick(e){
       if(!r) return;
       const cur = semaineCourante();
       if(estPlanifiee(r, cur)){ toast("Déjà au planning cette semaine : ses ingrédients sont sur la liste"); return; }
-      const e = planifier(r.id, cur, -1, r.portions ? portionsFiche(r) : 0);
+      const e = planifier(r.id, cur, -1, r.portions ? portionsFiche(r) : 0, state.mult[r.id]);
       render();
       toast("Ingrédients ajoutés à la liste de la semaine ✓", () => annulerPlan(e.id));
       return;

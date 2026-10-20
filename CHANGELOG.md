@@ -38,6 +38,10 @@ The recipe book becomes a pocket cooking app: find what to cook, plan the week, 
 - When the browser's storage is full, nothing pretends to be saved anymore: a banner stays until saving works again, with a one-tap export; the recipe form stays open; notes say "Non enregistré". Settings show how much space is used, photos included.
 - Recipe identifiers from imported files are sanitised (a crafted file could inject markup).
 - Malformed import files are rejected cleanly instead of failing silently or creating empty recipes.
+- **Shopping list accuracy.** Ingredients are recognised from their name only, never from the unit: "2 c. à café de cumin" no longer becomes coffee, and sugar, yeast or garam masala no longer merge into one "Café" line. An adjective is never taken for the food ("poivron vert" is not a lime, "butter beans" not peanut butter, "crème fraîche" not coriander). Potato, coconut milk, nutmeg and cream join the catalogue, with synonyms for olive oil, plant milks, peppers and stock. Stock goes to the grocery aisle, eggs to dairy, cured meats to the butcher's and cheeses to dairy.
+- Shopping quantities read like a cookbook ("½ c. à soupe", "1½ kg") and whatever is bought whole is rounded up ("1 boîte", not "0.5 boîte"). "1½ kg", "⅛" and ranges ("2-3 gousses", using the upper bound) are understood.
+- Scaled quantities use a French decimal comma unless the recipe writes "1.5", never show "0", and things counted whole (eggs, onions) move by halves.
+- For a recipe without base portions, the ×2 chosen on its page now carries over to the planner and the shopping list.
 - An aisle chosen for a recognised ingredient (e.g. moving "Oignon" to another aisle) was saved under one key and looked up under another, so it never stuck. It now does.
 
 ---
