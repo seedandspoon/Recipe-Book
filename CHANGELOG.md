@@ -25,6 +25,21 @@ The recipe book becomes a pocket cooking app: find what to cook, plan the week, 
 - **Recipe form**: essentials first (name, photo, portions, times), then ingredients and steps, then classification; nutrition and source fold away. ↵ in an ingredient opens the next line, and pasting a whole ingredient list fills one line per ingredient. A sticky save bar stays in reach.
 - Bottom sheets replace the old `prompt()` dialogs for planning, aisles and the "new recipe" menu.
 
+### Design
+- **Readable everywhere:** text and controls meet WCAG AA contrast in light and dark (slightly deeper terracotta, darker greys, visible checkbox outlines, gold stars); buttons on the accent use dark text in dark mode.
+- **Easier to tap:** every button has a 44-point target, including steppers, stars, the shopping-list ⋯ and the planner's portions.
+- **A calmer accent:** terracotta is kept for actions, selection and quantities; labels, notices and the planned ✓ are neutral.
+- **Cookbook typography:** recipe titles in the system serif (New York on iPhone and Mac), 17 pt ingredients and steps, one label style, tabular figures, French spacing before ? and !.
+- **Recipe page:** the photo goes edge to edge under the status bar (no app header on stacked screens), metadata uses line icons, nutrition shows "—" instead of "0 g", classification pills move below the recipe.
+- **Recipes without a photo** get a gradient tinted by meal type instead of a beige box.
+- **Cards:** one meta line (★ note · time · kcal · protein), titles clamped to two lines, the heart on a card un-favourites in one tap.
+- **Cook mode:** larger step text readable from across the kitchen, a preview of the next step, bigger timer pills, a timer button that shows it's running.
+- **Planner:** empty days take one line with a "+ Repas" button.
+- **Shopping list:** one line of provenance per item; the exact wording from each recipe moves into the item's options.
+- **Home:** two wide tiles (Surprise, Mon frigo); "recently added" only shows when it doesn't repeat "not yet tested"; each collection gets its own photo.
+- **Form:** a photo tile instead of the native file button, portions/prep/cook on one line, no redundant tabs.
+- Settings use a gear (distinct from the filter icon), sheets are elevated in dark mode, press feedback on touch, hover and keyboard focus styles on Mac, the menstrual phase uses one icon (🌙) everywhere, and selects no longer make iPhone zoom.
+
 ### Changed
 - "Cette semaine" is now the planner. Existing data migrates automatically on first launch: recipes that were in "this week" become meals of the current week with their chosen portions, and the shopping list keeps its ticks and manual items.
 - The JSON backup now carries the planner (current and future weeks), cook history and notes; importing a pre-3.0 backup turns its "this week" recipes into planned meals.

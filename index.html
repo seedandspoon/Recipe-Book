@@ -19,15 +19,24 @@
   --glass:rgba(255,255,255,.88);
   --ink:#2b2622;
   --on-ink:#ffffff;
-  --muted:#8b8177;
+  --muted:#746a60;
   --line:#e9e3db;
   --line2:#f2ede6;
-  --accent:#c0703f;
-  --accent-d:#a25b2e;
+  --accent:#b05f2d;
+  --accent-d:#9a5326;
+  --on-accent:#ffffff;
+  --line-strong:#9f9285;
+  --star:#a67c00;
+  --fav:#d23f57;
+  --sheet:var(--bg);
+  --card-border:transparent;
+  --shadow-2:0 2px 6px rgba(43,38,34,.08), 0 12px 32px rgba(43,38,34,.12);
+  --font-display:ui-serif, "New York", "Iowan Old Style", Georgia, serif;
+  --tap:44px;
   --soft:#f7ece3;
   --ok:#4f8a5b;
   --ok-soft:#e8f3ea;
-  --ok-ink:#3f7a4d;
+  --ok-ink:#357043;
   --warn:#c9a227;
   --warn-soft:#fdf6e3;
   --warn-line:#e2c563;
@@ -35,12 +44,12 @@
   --danger:#b4453a;
   --danger-soft:#fdeeec;
   --danger-line:#ecd6d3;
-  --gim-bg:#fbf1d8; --gim:#8a6d18;
+  --gim-bg:#fbf1d8; --gim:#7a5f12;
   --gih-bg:#fbe6e3; --gih:#a8443a;
-  --bio-bg:#eaf4e9; --bio:#4a7c43;
+  --bio-bg:#eaf4e9; --bio:#3f6e39;
   --code-bg:#fbf9f7;
   --r:14px;
-  --shadow:0 1px 2px rgba(43,38,34,.05), 0 6px 18px rgba(43,38,34,.05);
+  --shadow:0 1px 2px rgba(43,38,34,.06), 0 4px 14px rgba(43,38,34,.06);
   --shadow-lg:0 12px 40px rgba(43,38,34,.2);
 }
 /* sombre : suit le réglage du téléphone, sauf choix contraire dans ⚙ Réglages */
@@ -50,6 +59,8 @@
     --bg:#161311; --bg-glass:rgba(22,19,17,.88); --card:#221d1a; --glass:rgba(34,29,26,.86);
     --ink:#f2ece5; --on-ink:#161311; --muted:#a39689; --line:#3a322c; --line2:#2a2420;
     --accent:#d9824d; --accent-d:#eb9a68; --soft:#3a271c;
+    --on-accent:#1b1410; --line-strong:#7a6d62; --star:#e3bb3e; --fav:#ff6b81; --sheet:#211c19; --card-border:var(--line);
+    --shadow-2:0 12px 40px rgba(0,0,0,.5);
     --ok:#6db07a; --ok-soft:#1e3123; --ok-ink:#93d19f;
     --warn:#e3bb3e; --warn-soft:#33290f; --warn-line:#6e5916; --warn-ink:#efd48b;
     --danger:#e47a6e; --danger-soft:#3a1f1b; --danger-line:#5c2e28;
@@ -64,6 +75,8 @@
   --bg:#161311; --bg-glass:rgba(22,19,17,.88); --card:#221d1a; --glass:rgba(34,29,26,.86);
   --ink:#f2ece5; --on-ink:#161311; --muted:#a39689; --line:#3a322c; --line2:#2a2420;
   --accent:#d9824d; --accent-d:#eb9a68; --soft:#3a271c;
+    --on-accent:#1b1410; --line-strong:#7a6d62; --star:#e3bb3e; --fav:#ff6b81; --sheet:#211c19; --card-border:var(--line);
+    --shadow-2:0 12px 40px rgba(0,0,0,.5);
   --ok:#6db07a; --ok-soft:#1e3123; --ok-ink:#93d19f;
   --warn:#e3bb3e; --warn-soft:#33290f; --warn-line:#6e5916; --warn-ink:#efd48b;
   --danger:#e47a6e; --danger-soft:#3a1f1b; --danger-line:#5c2e28;
@@ -87,7 +100,7 @@ input,select,textarea{
   width:100%; background:var(--card); border:1px solid var(--line);
   border-radius:10px; padding:10px 12px; outline:none;
 }
-input:focus,select,textarea:focus{border-color:var(--accent)}
+input:focus,select:focus,textarea:focus{border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent)}
 select{-webkit-appearance:none; appearance:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%238b8177' stroke-width='1.6' fill='none' stroke-linecap='round'/></svg>");
   background-repeat:no-repeat; background-position:right 12px center; padding-right:32px}
@@ -688,6 +701,128 @@ details.grp[open] > summary{margin-bottom:14px}
 .alerte-save .btn{margin-left:6px}
 .toast-act{border:none; background:none; color:var(--accent); font-weight:700; margin-left:12px; cursor:pointer; padding:0; font-size:14px}
 .toast.act{pointer-events:auto}
+
+/* =========================================================
+   v3 — revue de design : contraste, cibles tactiles, typographie
+   ========================================================= */
+body{overflow-wrap:anywhere}
+::placeholder{color:var(--muted); opacity:.75}
+/* une case non cochée est vide (le ✓ blanc se voyait en sombre), et seul le texte est barré */
+.box{color:transparent; border-color:var(--line-strong)}
+li.done .box{color:var(--on-accent)}
+ul.ing li.done{text-decoration:none}
+ul.ing li.done > span:nth-child(2){text-decoration:line-through; text-decoration-color:color-mix(in srgb, currentColor 55%, transparent)}
+/* texte posé sur l'accent */
+.btn.primary,.cta:not(.second),.fab,.tb-badge,.pill-auj,.bmlink,.timer.fini{color:var(--on-accent) !important}
+.fab{box-shadow:0 6px 20px color-mix(in srgb, var(--accent) 40%, transparent)}
+.cta:not(.second){box-shadow:0 4px 14px color-mix(in srgb, var(--accent) 28%, transparent)}
+/* cibles tactiles : 44 px, ou une zone invisible autour des petits boutons */
+.icon-btn,.round,.ov-btn,.cook-top .round{width:var(--tap); height:var(--tap)}
+.stepper button{width:40px; min-height:36px}
+.stepper.big button{width:var(--tap); height:var(--tap)}
+.week-btn{width:34px; height:34px}
+.mini{width:36px; height:36px}
+.round.sm,.mini,.rate button,.starpick button,.mini-chip,.voir{position:relative}
+.week-btn::after,.round.sm::after,.mini::after,.rate button::after,.starpick button::after,.mini-chip::after{content:""; position:absolute; inset:-7px}
+.voir::after{content:""; position:absolute; inset:-10px -6px}
+/* l'accent pour l'action, la sélection et les quantités ; le reste se calme */
+.kicker{color:var(--muted)}
+.today .kicker,.cook .kicker:not(.muted){color:var(--accent-d)}
+.notice:not(.warn):not(.ok){background:var(--line2); border-color:transparent; color:var(--ink)}
+.stars,.rate button.on,.starpick button.on,.note-c{color:var(--star)}
+.rate button,.starpick button{color:var(--line-strong)}
+.fav-dot,.ov-btn.fav{color:var(--fav)}
+.week-btn.on{background:var(--ink); color:var(--on-ink)}
+.tab.on{background:var(--soft); border-color:var(--accent); color:var(--accent-d)}
+/* cartes : sans bordure en clair, une seule ligne d'infos */
+.card,.panel,.today,.pe,.fakesearch,.opts{border-color:var(--card-border); box-shadow:var(--shadow)}
+.card-title{font-size:15px; font-weight:600; line-height:1.25; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.card-meta{font-size:12.5px; font-variant-numeric:tabular-nums; gap:4px 10px}
+.card-meta > span{display:inline-flex; align-items:center; gap:3px}
+.ico.xs{width:13px; height:13px; color:var(--muted)}
+.note-c{font-weight:650}
+/* typographie : une échelle, les titres de recettes en serif (New York sur iPhone et Mac) */
+.page-head h2,.hello h1{font-size:30px; font-weight:700; letter-spacing:-.022em; text-wrap:balance}
+.fiche-title,.today:not(.vide) .today-title{font-family:var(--font-display); font-weight:600; letter-spacing:-.01em}
+.fiche-title{font-size:30px; line-height:1.12; text-wrap:balance}
+.section-head h3{font-size:18px; font-weight:700}
+.sheet h3{font-size:21px}
+ul.ing li{font-size:17px; padding:11px 0}
+ul.ing li[data-course]{padding:12px 0; align-items:center}
+ul.ing li[data-course] > span:nth-child(2){min-width:0}
+ol.steps li{font-size:17px; line-height:1.55; padding:10px 0}
+.desc,ol.steps,p.txt{max-width:68ch}
+.field > label,.portions-label,.stat span,.repere span,.kicker{font-size:12px; font-weight:600; letter-spacing:.05em; text-transform:uppercase}
+.qte,.qa,.stepper-val,.stat b,.wk small,.prog-row{font-variant-numeric:tabular-nums}
+/* mode cuisine : lisible à 60 cm */
+.cook .kicker{font-size:15px; letter-spacing:.04em}
+.step-txt{font-size:clamp(26px, 7vw, 34px); line-height:1.38; font-weight:500; text-wrap:pretty}
+.step-ing{font-size:17px; padding:9px 13px}
+.tbtn{font-size:19px; padding:13px 18px}
+.tbtn.on{background:var(--accent); color:var(--on-accent)}
+body.immersif .timer{font-size:22px; padding:9px 9px 9px 18px}
+body.immersif .timer button{width:36px; height:36px}
+.next-step{margin-top:28px; padding-top:16px; border-top:1px solid var(--line2); color:var(--muted); font-size:16px; line-height:1.5}
+.next-step span{display:block; font-size:12px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; margin-bottom:4px}
+/* feuilles : surélevées en sombre */
+.sheet{background:var(--sheet)}
+.grip{background:var(--line-strong); opacity:.5}
+.opt-emo{width:32px; height:32px; border-radius:8px; background:var(--soft); color:var(--accent-d); display:flex; align-items:center; justify-content:center; font-size:18px}
+.opt.danger .opt-emo{background:var(--danger-soft); color:var(--danger)}
+/* toucher, survol (Mac), focus clavier */
+.btn,.chip,.opt,.tb,.round,.ov-btn,.week-btn,.qt,.card,.dayb,.cta{transition:transform .12s ease, background-color .15s ease, opacity .15s}
+.chip:active,.tb:active,.round:active,.ov-btn:active,.dayb:active,.qt:active{transform:scale(.96)}
+@media (hover:hover){
+  .card:hover{box-shadow:var(--shadow-2)}
+  .btn:hover,.chip:hover,.round:hover,.opt:hover,.dayb:hover{background-color:var(--line2)}
+  .btn.primary:hover,.cta:not(.second):hover{background-color:color-mix(in srgb, var(--accent) 88%, black)}
+}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.tb.on .ico{fill:color-mix(in srgb, currentColor 16%, transparent)}
+/* écrans empilés (fiche, formulaire, réglages) : pas d'en-tête global, la photo monte sous la barre d'état */
+body.pousse header.top{display:none}
+body.pousse #app > .page-head:first-child{margin-top:calc(env(safe-area-inset-top) + 14px)}
+.ov{top:calc(env(safe-area-inset-top) + 10px)}
+.fiche-hero{height:min(80vw, 440px)}
+/* recettes sans photo : un dégradé teinté par le type de plat, plutôt qu'une case beige */
+.sans-photo{--ph:var(--accent);
+  background:radial-gradient(120% 120% at 15% 0%, color-mix(in srgb, var(--ph) 16%, var(--card)) 0%, transparent 60%),
+             linear-gradient(160deg, color-mix(in srgb, var(--ph) 24%, var(--card)), color-mix(in srgb, var(--ph) 46%, var(--card)))}
+.thumb.sans-photo{font-size:46px}
+.fiche-hero.sans-photo{height:220px; font-size:80px}
+[data-meal="Main course"]{--ph:#c0703f} [data-meal="Dessert"]{--ph:#8a5a44} [data-meal="Breakfast"]{--ph:#d4a017}
+[data-meal="Side dish"]{--ph:#4f8a5b} [data-meal="Entertaining"]{--ph:#8c5a7d} [data-meal="Snacks"]{--ph:#b4453a} [data-meal="Beverages"]{--ph:#2e6f95}
+/* planning : un jour vide tient sur une ligne */
+.day.vide{display:flex; align-items:center; gap:10px; margin:0; min-height:52px; border-bottom:1px solid var(--line2)}
+.day:not(.vide) + .day.vide{margin-top:14px}
+.day.vide .day-head{flex:1; margin:0}
+.day.vide .day-add{width:auto; flex:0 0 auto; border:1px solid var(--line); border-radius:999px; padding:8px 14px; min-height:36px;
+  background:var(--card); color:var(--accent-d); font-size:14px; font-weight:600}
+.pe-bot .stepper button{width:40px; min-height:36px; font-size:18px}
+/* courses : une ligne de provenance, le détail dans les options de l'article */
+.src{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
+.src-detail{display:none}
+/* accueil : deux grandes tuiles */
+.quick{grid-template-columns:1fr 1fr}
+.qt{flex-direction:row; justify-content:flex-start; gap:12px; text-align:left; padding:13px 14px; font-size:15px}
+.qt small{font-size:12px}
+.qt-t{display:flex; flex-direction:column; min-width:0}
+/* la tuile photo est un <label> : elle ne doit pas prendre le style des intitulés de champ */
+.field > label.photo-pick{display:flex; text-transform:none; letter-spacing:normal; font-size:15px; font-weight:600; color:var(--muted); margin:0}
+/* formulaire : la photo comme une tuile */
+.photo-pick{display:flex; align-items:center; justify-content:center; width:100%; aspect-ratio:16/9; max-height:210px; border:1.5px dashed var(--line-strong);
+  border-radius:14px; background:var(--card); color:var(--muted); font-weight:600; cursor:pointer; overflow:hidden}
+.photo-pick.a-photo{border-style:solid; border-color:var(--line)}
+.photo-pick img{width:100%; height:100%; object-fit:cover}
+.row.trio > *{flex-basis:80px}
+/* divers */
+.ali-nom{flex:1 1 0; min-width:0}
+.ali-phases{order:3; flex-basis:100%}
+.section + .panel, .panel + .section{margin-top:14px}
+.cta-court{display:none}
+@media (max-width:360px){ .cta-long{display:none} .cta-court{display:inline} .ver{display:none} .brand{font-size:15px} }
+/* iPhone zoome sur un champ en dessous de 16 px : les sélecteurs passent à 16 au doigt */
+@media (pointer:coarse){ .tri-sel,.phase-sel{font-size:16px} }
 </style>
 </head>
 <body>
@@ -763,7 +898,10 @@ const ICONES = {
   x: '<path d="M6 6l12 12M18 6 6 18"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
-  minuteur: '<circle cx="12" cy="13.5" r="7"/><path d="M12 10v3.5l2.5 1.5M9.5 3h5"/>'
+  minuteur: '<circle cx="12" cy="13.5" r="7"/><path d="M12 10v3.5l2.5 1.5M9.5 3h5"/>',
+  horloge: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  flamme: '<path d="M12 21c-3.6 0-6.5-2.6-6.5-6.2 0-3.3 2.4-5.2 3.6-8.3.3 1.9 1.4 3 2.4 3.3C11.3 6.6 13 4.2 15 3c-.3 3 3.5 5.6 3.5 11.2 0 3.9-2.9 6.8-6.5 6.8z"/>',
+  engrenage: '<path d="M19.0 9.8 L21.5 10.4 L21.5 13.6 L19.0 14.2 L18.5 15.4 L19.8 17.5 L17.5 19.8 L15.4 18.5 L14.2 19.0 L13.6 21.5 L10.4 21.5 L9.8 19.0 L8.6 18.5 L6.5 19.8 L4.2 17.5 L5.5 15.4 L5.0 14.2 L2.5 13.6 L2.5 10.4 L5.0 9.8 L5.5 8.6 L4.2 6.5 L6.5 4.2 L8.6 5.5 L9.8 5.0 L10.4 2.5 L13.6 2.5 L14.2 5.0 L15.4 5.5 L17.5 4.2 L19.8 6.5 L18.5 8.6Z"/><circle cx="12" cy="12" r="3"/>'
 };
 function ico(nom, cls){
   return '<svg class="ico' + (cls ? " " + cls : "") + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONES[nom] || "") + '</svg>';
@@ -835,7 +973,7 @@ const PHASES_BASE = {
   "Folliculaire": {emo:"🌱", duree:"7 à 10 jours", hormones:"Œstrogènes en hausse"},
   "Ovulatoire":   {emo:"☀️", duree:"3 à 4 jours",  hormones:"Pic d'œstrogènes puis de LH"},
   "Lutéale":      {emo:"🍂", duree:"10 à 14 jours", hormones:"Progestérone qui monte puis chute"},
-  "Menstruelle":  {emo:"❄️", duree:"3 à 7 jours",  hormones:"Œstrogènes et progestérone au plus bas"}
+  "Menstruelle":  {emo:"🌙", duree:"3 à 7 jours",  hormones:"Œstrogènes et progestérone au plus bas"}
 };
 
 /* champs libres de la couche privée, dans l'ordre d'affichage */
@@ -1454,6 +1592,7 @@ function toast(msg, annuler){
 const ONGLETS = ["accueil", "galerie", "planning", "courses", "cycle"];
 let pile = [];
 let historique = true;   // pushState disponible ? sinon le retour se fait à la main
+let rembobinage = false; // le popstate qui suit notre propre history.go() n'est pas un geste retour
 
 function instantane(){
   return {view: state.view, ficheId: state.ficheId, cycle: state.cycle, y: window.scrollY,
@@ -1485,7 +1624,7 @@ function onglet(view, opts){
   // et le premier geste retour ne ferait rien
   const n = (history.state && history.state.n) || 0;
   pile = [];
-  if(n > 0 && historique){ try{ history.go(-n); }catch(e){} }
+  if(n > 0 && historique){ rembobinage = true; try{ history.go(-n); }catch(e){ rembobinage = false; } }
   else{ try{ history.replaceState({n: 0}, ""); }catch(e){} }
   afficher(view, opts);
   window.scrollTo(0, 0);
@@ -1859,6 +1998,7 @@ function render(){
   try{
     document.body.classList.toggle("immersif", state.view === "cuisine");
     document.body.classList.toggle("saisie", state.view === "form");
+    document.body.classList.toggle("pousse", ["fiche", "form", "reglages", "aliments"].indexOf(state.view) >= 0);
     renderTabbar();
     renderPhaseSel();
     let html = "";
@@ -1877,7 +2017,7 @@ function render(){
     }
     app.innerHTML = html;
     bind();
-    $("#fab").style.display = (state.view === "accueil" || state.view === "galerie") ? "" : "none";
+    $("#fab").style.display = ((state.view === "accueil" || state.view === "galerie") && db.recettes.length) ? "" : "none";
     garderEcranAllume(state.view === "cuisine");
     memoriserCuisson();
     if(state.focusQ){
@@ -1929,16 +2069,16 @@ function renderTabbar(){
 function vignette(r, cls){
   return r.image
     ? '<img class="' + cls + '" src="' + esc(r.image) + '" alt="" loading="lazy">'
-    : '<span class="' + cls + '">' + (MEAL_EMO[r.meal] || "🍳") + '</span>';
+    : '<span class="' + cls + ' sans-photo" data-meal="' + esc(r.meal) + '">' + (MEAL_EMO[r.meal] || "🍳") + '</span>';
 }
 
 function carte(r, opts){
   opts = opts || {};
   const meta = [];
-  if(total(r)) meta.push("⏱ " + fmtMin(total(r)));
-  if(r.diff && !opts.compact) meta.push(esc(r.diff));
-  if(r.kcal) meta.push("🔥 " + r.kcal + " kcal");
-  if(r.prot && !opts.compact) meta.push("🥩 " + r.prot + " g");
+  if(r.note) meta.push('<span class="note-c">★ ' + r.note + '</span>');
+  if(total(r)) meta.push(ico("horloge", "xs") + fmtMin(total(r)));
+  if(r.kcal) meta.push(ico("flamme", "xs") + r.kcal + " kcal");
+  if(r.prot && !opts.compact) meta.push(r.prot + " g prot.");
   const img = r.image
     ? '<img src="' + esc(r.image) + '" alt="" loading="lazy">'
     : (MEAL_EMO[r.meal] || "🍳");
@@ -1947,13 +2087,12 @@ function carte(r, opts){
   const tag = db.fc.actif && db.phaseActuelle && r.cycles.indexOf(db.phaseActuelle) >= 0;
   return '' +
   '<article class="card" data-open="' + r.id + '">' +
-    '<div class="thumb">' + img + '</div>' +
-    (estFavori(r) ? '<span class="fav-dot" title="Favori">' + ico("coeur", "rempli") + '</span>' : "") +
+    '<div class="thumb' + (r.image ? "" : " sans-photo") + '" data-meal="' + esc(r.meal) + '">' + img + '</div>' +
+    (estFavori(r) ? '<button type="button" class="fav-dot" data-fav="' + r.id + '" title="Retirer des favoris">' + ico("coeur", "rempli") + '</button>' : "") +
     '<button class="week-btn' + (prevu ? " on" : "") + '" data-plan="' + r.id + '" title="' +
       (prevu ? "Au planning cette semaine" : "Planifier") + '">' + (prevu ? "✓" : "＋") + '</button>' +
     '<div class="card-body">' +
       '<div class="card-title">' + esc(r.nom) + '</div>' +
-      (r.note ? '<div class="stars">' + stars(r.note) + '</div>' : "") +
       (tag || ph ? '<div class="fit">' + PHASES_BASE[db.phaseActuelle].emo + ' ' +
           (tag ? "De ta phase" + (ph ? " · " + ph + " ingr." : "") : ph + ' ingrédient' + (ph > 1 ? "s" : "") + ' de ta phase') + '</div>' : "") +
       (opts.badge || "") +
@@ -1981,11 +2120,8 @@ function viewAccueil(){
   const h = new Date().getHours();
   const salut = h < 5 ? "Bonne nuit" : h < 12 ? "Bonjour" : h < 18 ? "Bon après-midi" : "Bonsoir";
   const vivantes = db.recettes.filter(r => r.statut !== ARCHIVE);
-  const cur = semaineCourante();
-  const nRepas = entreesSemaine(cur).length;
-  const restants = articlesRestants(semaineCoursesParDefaut());
 
-  let html = '<div class="hello"><div class="hello-sub">' + salut + ' 👋</div><h1>Qu\'est-ce qu\'on mange ?</h1></div>' +
+  let html = '<div class="hello"><div class="hello-sub">' + salut + ' 👋</div><h1>Qu\'est-ce qu\'on mange ?</h1></div>' +
     '<button class="fakesearch" data-go="search">' + ico("loupe", "sm") + 'Rechercher une recette, un ingrédient…</button>';
 
   if(state.reprise && getRecette(state.reprise.rid)){
@@ -1999,11 +2135,10 @@ function viewAccueil(){
 
   html += blocAujourdhui();
 
+  // planning et courses sont déjà dans la barre du bas (avec leur badge)
   html += '<div class="quick">' +
-    tuile("planning", "🗓", "Planning", nRepas ? nRepas + " repas" : "à remplir") +
-    tuile("courses", "🧺", "Courses", restants ? restants + " article" + (restants > 1 ? "s" : "") : "à jour") +
-    tuile("surprise", "🎲", "Surprise", "une idée") +
-    tuile("frigo", "🥕", "Mon frigo", "ce que j'ai") +
+    tuile("surprise", "🎲", "Surprise", "une recette au hasard") +
+    tuile("frigo", "🥕", "Mon frigo", "avec ce que j'ai") +
   '</div>';
 
   html += blocPhase(vivantes);
@@ -2024,15 +2159,22 @@ function viewAccueil(){
       .sort((a,b) => a.derniereFois - b.derniereFois);
     html += rail("💭 À refaire bientôt", redecouvrir, "");
   }
-  html += rail("🧪 Pas encore testées", trier(vivantes.filter(r => !r.note), "recentes"), "tester");
-  html += rail("🆕 Ajoutées récemment", trier(vivantes.slice(), "recentes"), "recentes");
+  const aTester = trier(vivantes.filter(r => !r.note), "recentes");
+  html += rail("🧪 Pas encore testées", aTester, "tester");
+  // « ajoutées récemment » seulement si elle ne répète pas la rangée précédente
+  const recentes = trier(vivantes.slice(), "recentes");
+  if(recentes.slice(0, 8).filter(r => aTester.slice(0, 12).indexOf(r) < 0).length >= 3) html += rail("🆕 Ajoutées récemment", recentes, "recentes");
 
   // mes collections = mes tags, illustrés par la première photo trouvée
   const colls = db.tags.map(t => ({t: t, rs: db.recettes.filter(r => r.tags.indexOf(t) >= 0)})).filter(x => x.rs.length);
+  const photosVues = [];
   if(colls.length){
     html += '<div class="section"><div class="section-head"><h3>🏷 Mes collections</h3></div><div class="colls">' +
       colls.map(x => {
-        const img = (x.rs.find(r => r.image) || {}).image;
+        // chaque collection sa photo, autant que possible
+        const r0 = x.rs.find(r => r.image && photosVues.indexOf(r.image) < 0) || x.rs.find(r => r.image) || {};
+        const img = r0.image;
+        if(img) photosVues.push(img);
         return '<button type="button" class="coll" data-coll="' + esc(x.t) + '">' +
           (img ? '<img src="' + esc(img) + '" alt="" loading="lazy">' : '<span class="coll-emo">🏷</span>') +
           '<span>' + esc(x.t) + '<small>' + x.rs.length + ' recette' + (x.rs.length > 1 ? "s" : "") + '</small></span></button>';
@@ -2052,7 +2194,7 @@ function viewAccueil(){
 function blocPhase(vivantes){
   if(!db.fc.actif) return "";
   if(!db.phaseActuelle){
-    return '<div class="section"><div class="section-head"><h3>🌗 Dans quelle phase es-tu ?</h3></div>' +
+    return '<div class="section"><div class="section-head"><h3>🌗 Dans quelle phase es-tu ?</h3></div>' +
       '<div class="chips">' + CYCLES.map(c => '<button type="button" class="chip" data-setphase="' + esc(c) + '">' +
         PHASES_BASE[c].emo + ' ' + esc(c) + '</button>').join("") + '</div>' +
       '<p class="hint">Les recettes adaptées à ta phase apparaîtront ici.</p></div>';
@@ -2071,7 +2213,7 @@ function blocPhase(vivantes){
 
 function tuile(go, emo, titre, sous){
   return '<button type="button" class="qt" data-go="' + go + '"><span class="qt-emo">' + emo + '</span>' +
-    esc(titre) + '<small>' + esc(sous) + '</small></button>';
+    '<span class="qt-t">' + esc(titre) + '<small>' + esc(sous) + '</small></span></button>';
 }
 
 function blocAujourdhui(){
@@ -2085,7 +2227,7 @@ function blocAujourdhui(){
     const meta = [total(r) ? "⏱ " + fmtMin(total(r)) : "", r.kcal ? "🔥 " + r.kcal + " kcal" : "",
                   e.portions + " portion" + (e.portions > 1 ? "s" : "")].filter(Boolean);
     return '<div class="today">' +
-      '<div class="today-img" data-open-entree="' + e.id + '">' +
+      '<div class="today-img' + (r.image ? "" : " sans-photo") + '" data-meal="' + esc(r.meal) + '" data-open-entree="' + e.id + '">' +
         (r.image ? '<img src="' + esc(r.image) + '" alt="">' : (MEAL_EMO[r.meal] || "🍳")) + '</div>' +
       '<div class="today-body"><div class="kicker">' + (e.fait ? "✓ Cuisiné aujourd'hui" : "Au menu aujourd'hui") + '</div>' +
       '<div class="today-title" data-open-entree="' + e.id + '">' + esc(r.nom) + '</div>' +
@@ -2102,7 +2244,7 @@ function blocAujourdhui(){
     '<p class="hint" style="margin:0">' + (prochain
       ? 'Prochain au menu : ' + JOURS[prochain.jour].toLowerCase() + ' — ' + esc(getRecette(prochain.rid).nom)
       : 'Laisse-toi inspirer, ou planifie ta semaine en deux minutes.') + '</p>' +
-    '<div class="actions"><button class="btn primary" data-go="surprise">🎲 Une idée ?</button>' +
+    '<div class="actions"><button class="btn primary" data-go="surprise">🎲 Une idée ?</button>' +
     '<button class="btn" data-go="planning">🗓 Planifier</button></div></div></div>';
 }
 
@@ -2218,6 +2360,13 @@ function viewPlanning(){
     const d = ajouterJours(sem, j);
     const es = entrees.filter(e => e.jour === j);
     const passe = d < auj;
+    if(!es.length){
+      // un jour vide tient sur une ligne (estompée s'il est passé : on peut encore y noter un repas)
+      html += '<section class="day vide' + (passe ? " passe" : "") + (d === auj ? " auj" : "") + '"><div class="day-head"><h4>' + JOURS[j] + '</h4>' +
+        '<span class="date">' + dateCourte(d) + '</span>' + (d === auj ? '<span class="pill-auj">Aujourd\'hui</span>' : "") + '</div>' +
+        '<button type="button" class="day-add" data-addday="' + j + '">+ Repas</button></section>';
+      continue;
+    }
     html += '<section class="day' + (passe ? " passe" : "") + (d === auj ? " auj" : "") + '">' +
       '<div class="day-head"><h4>' + JOURS[j] + '</h4><span class="date">' + dateCourte(d) + '</span>' +
         (d === auj ? '<span class="pill-auj">Aujourd\'hui</span>' : "") +
@@ -2238,11 +2387,11 @@ function viewPlanning(){
 
 function ligneRepas(e){
   const r = getRecette(e.rid);
-  const meta = [total(r) ? "⏱ " + fmtMin(total(r)) : "", r.kcal ? "🔥 " + r.kcal + " kcal" : "", r.note ? "★ " + r.note : ""]
+  const meta = [r.note ? "★ " + r.note : "", total(r) ? fmtMin(total(r)) : "", r.kcal ? r.kcal + " kcal" : ""]
     .filter(Boolean).join(" · ");
   return '<div class="pe' + (e.fait ? " fait" : "") + '">' +
     '<div class="pe-top">' +
-      '<div class="pe-img" data-open-entree="' + e.id + '">' +
+      '<div class="pe-img' + (r.image ? "" : " sans-photo") + '" data-meal="' + esc(r.meal) + '" data-open-entree="' + e.id + '">' +
         (r.image ? '<img src="' + esc(r.image) + '" alt="" loading="lazy">' : (MEAL_EMO[r.meal] || "🍳")) +
         (e.fait ? '<span class="pe-fait">' + ico("check") + '</span>' : "") + '</div>' +
       '<div class="pe-info" data-open-entree="' + e.id + '"><b>' + esc(r.nom) + '</b><small>' + meta + '</small></div>' +
@@ -2332,7 +2481,7 @@ function barreRecherche(){
   const n = nbFiltresActifs(), f = state.filters;
   let html = '<div class="searchbar"><div class="search-in">' + ico("loupe", "sm") +
     '<input id="q" type="search" autocomplete="off" enterkeyhint="search" placeholder="' +
-      (state.frigo ? "Ce que j'ai : poulet, courgette, riz…" : "Rechercher une recette, un ingrédient…") +
+      (state.frigo ? "Ce que j'ai : poulet, courgette, riz…" : "Recette, ingrédient…") +
       '" value="' + esc(state.q) + '"></div>' +
     '<button type="button" class="btn' + (n || state.showFilters ? " on" : "") + '" id="toggle-filters" title="Filtres">' +
       ico("reglages", "sm") + (n ? ' <span class="badge">' + n + '</span>' : "") + '</button></div>';
@@ -2628,7 +2777,7 @@ function viewFiche(){
     .concat(r.seasons.map(c => '<span class="pill">' + esc(c) + '</span>'))
     .concat(db.fc.actif ? r.cycles.map(c => '<span class="pill acc">' + (CYCLE_EMO[c]||"") + " " + esc(c) + '</span>') : []);
 
-  let html = '<div class="fiche-hero">' +
+  let html = '<div class="fiche-hero' + (r.image ? "" : " sans-photo") + '" data-meal="' + esc(r.meal) + '">' +
     (r.image ? '<img src="' + esc(r.image) + '" alt="">' : '<span>' + (MEAL_EMO[r.meal] || "🍳") + '</span>') +
     '<div class="ov">' +
       '<button class="ov-btn" id="back" title="Retour" aria-label="Retour">' + ico("gauche") + '</button><span class="sp"></span>' +
@@ -2643,14 +2792,14 @@ function viewFiche(){
     '<div class="fiche-sub">' + noteCliquable(r, false) + '<span>' + esc(libCuisinee(r)) + '</span></div>';
 
   const metas = [];
-  if(total(r)) metas.push("⏱ " + fmtMin(total(r)) + (r.prep && r.cuisson ? ' <span class="count">(' + fmtMin(r.prep) + ' + ' + fmtMin(r.cuisson) + ')</span>' : ""));
+  if(total(r)) metas.push(ico("horloge", "xs") + fmtMin(total(r)) + (r.prep && r.cuisson ? ' <span class="count">(' + fmtMin(r.prep) + ' + ' + fmtMin(r.cuisson) + ')</span>' : ""));
   if(r.diff) metas.push(esc(r.diff));
-  if(r.kcal) metas.push("🔥 " + r.kcal + " kcal");
-  if(r.prot) metas.push("💪 " + r.prot + " g prot.");
+  if(r.kcal) metas.push(ico("flamme", "xs") + r.kcal + " kcal");
+  if(r.prot) metas.push(r.prot + " g protéines");
   if(metas.length) html += '<div class="metas">' + metas.map(m => '<span class="meta">' + m + '</span>').join("") + '</div>';
 
   html += '<div class="cta-row">' +
-    '<button class="cta" id="cook">' + ico("play", "plein") + ' Commencer à cuisiner</button>' +
+    '<button class="cta" id="cook">' + ico("play", "plein") + '<span class="cta-long">Commencer à cuisiner</span><span class="cta-court">Cuisiner</span></button>' +
     '<button class="cta second' + (prevus.length ? " on" : "") + '" data-plan="' + r.id + '" title="Planifier" aria-label="Planifier">' + ico("calendrier") + '</button>' +
   '</div>';
   if(prevus.length){
@@ -2660,7 +2809,6 @@ function viewFiche(){
   }
   if(r.description) html += '<p class="desc">' + esc(r.description) + '</p>';
   if(r.url) html += '<div style="margin-top:8px; font-size:14px"><a href="' + esc(r.url) + '" target="_blank" rel="noopener">🔗 Voir la source</a></div>';
-  if(pills.length) html += '<div style="margin-top:12px">' + pills.join("") + '</div>';
   html += '</div>';
 
   // ingrédients, à l'échelle des portions choisies + reconnaissance des aliments de la phase
@@ -2715,12 +2863,14 @@ function viewFiche(){
   if(r.kcal || r.prot || r.gluc || r.lip){
     html += '<div class="section"><div class="section-head"><h3>Nutrition</h3><span class="count">par portion</span></div>' +
       '<div class="panel"><div class="stat-grid">' +
-      '<div class="stat"><b>' + (r.kcal||0) + '</b><span>kcal</span></div>' +
-      '<div class="stat"><b>' + (r.prot||0) + ' g</b><span>Protéines</span></div>' +
-      '<div class="stat"><b>' + (r.gluc||0) + ' g</b><span>Glucides</span></div>' +
-      '<div class="stat"><b>' + (r.lip||0) + ' g</b><span>Lipides</span></div>' +
+      '<div class="stat"><b>' + (r.kcal || "—") + '</b><span>kcal</span></div>' +
+      '<div class="stat"><b>' + (r.prot ? r.prot + ' g' : "—") + '</b><span>Protéines</span></div>' +
+      '<div class="stat"><b>' + (r.gluc ? r.gluc + ' g' : "—") + '</b><span>Glucides</span></div>' +
+      '<div class="stat"><b>' + (r.lip ? r.lip + ' g' : "—") + '</b><span>Lipides</span></div>' +
       '</div></div></div>';
   }
+  // le classement (statut, type, cuisines, collections, saisons) : utile, mais après la recette
+  if(pills.length) html += '<div class="section"><div class="section-head"><h3>Classement</h3></div><div>' + pills.join("") + '</div></div>';
 
   // mes notes : ce que j'ai changé, pour la prochaine fois
   html += '<div class="section"><div class="section-head"><h3>📝 Mes notes</h3></div><div class="panel">' +
@@ -2819,11 +2969,10 @@ function viewForm(){
       'Enregistrer la mettra à jour au lieu de créer un doublon — ta note, ta phase de cycle, ton statut, tes tags, tes notes et ton historique sont conservés.</div>';
   }
 
-  if(!edition){
-    html += '<div class="subtabs" style="margin-top:14px">' +
-      [["manuel","✎ Formulaire"],["web","🔗 Depuis le web"],["coller","📋 Coller du texte"],["json","⇪ Import JSON"]].map(([v,l]) =>
-        '<button class="tab' + (state.formTab===v?" on":"") + '" data-ftab="' + v + '">' + l + '</button>').join("") +
-      '</div>';
+  // pas d'onglets : le « + » propose déjà les quatre façons d'ajouter une recette
+  if(!edition && state.formTab !== "manuel"){
+    html += '<p class="hint" style="margin:6px 0 12px">' + ({web: "Depuis un site", coller: "À partir d'un texte copié", json: "Depuis un fichier"})[state.formTab] +
+      ' · <button type="button" class="voir" data-ftab="manuel">ou écrire à la main</button></p>';
   }
 
   if(!edition && state.formTab === "coller"){
@@ -2854,13 +3003,11 @@ function viewForm(){
     '<div class="field"><label>Nom de la recette</label>' +
       '<input id="in-nom" value="' + esc(d.nom) + '" placeholder="Dahl de lentilles corail" autocomplete="off"></div>' +
     '<div class="field"><label>Photo</label>' +
-      '<div style="display:flex; gap:10px; align-items:center">' +
-        '<div class="thumb" style="width:84px; height:64px; aspect-ratio:auto; border-radius:10px; flex:0 0 auto" id="img-prev">' +
-          (d.image ? '<img src="' + esc(d.image) + '" alt="">' : "📷") + '</div>' +
-        '<div style="flex:1; min-width:0"><input type="file" id="in-img" accept="image/*">' +
-        (d.image ? '<button class="btn sm ghost" id="rm-img" style="margin-top:7px">Retirer la photo</button>' : "") +
-        '</div></div></div>' +
-    '<div class="row">' +
+      '<label class="photo-pick' + (d.image ? " a-photo" : "") + '">' +
+        (d.image ? '<img src="' + esc(d.image) + '" alt="">' : '<span>📷 Ajouter une photo</span>') +
+        '<input type="file" id="in-img" accept="image/*" style="display:none"></label>' +
+      (d.image ? '<button class="btn sm ghost" id="rm-img" style="margin-top:7px">Retirer la photo</button>' : "") + '</div>' +
+    '<div class="row trio">' +
       '<div class="field"><label>Portions</label><input id="in-portions" type="number" min="0" inputmode="numeric" placeholder="4" value="' + (d.portions||"") + '"></div>' +
       '<div class="field"><label>Prépa (min)</label><input id="in-prep" type="number" min="0" inputmode="numeric" value="' + (d.prep||"") + '"></div>' +
       '<div class="field"><label>Cuisson (min)</label><input id="in-cuisson" type="number" min="0" inputmode="numeric" value="' + (d.cuisson||"") + '"></div>' +
@@ -3752,7 +3899,7 @@ function viewReglages(){
     '<p class="hint" style="margin:0 0 12px">Nombre de portions proposé quand j\'ouvre une recette ou que je la planifie. ' +
     'Les quantités et la liste de courses s\'ajustent toutes seules.</p>' +
     '<div class="chips">' + [[0,"Selon la recette"],[1,"1"],[2,"2"],[3,"3"],[4,"4"],[5,"5"],[6,"6"],[8,"8"]].map(([v, l]) =>
-      '<button type="button" class="chip' + (pp === v ? " on" : "") + '" data-prefportions="' + v + '">' + (v ? "👤 " : "") + l + '</button>').join("") +
+      '<button type="button" class="chip' + (pp === v ? " on" : "") + '" data-prefportions="' + v + '">' + l + '</button>').join("") +
     '</div>' +
   '</div>' +
 
@@ -4053,7 +4200,11 @@ function feuilleArticle(f){
   const L = trouverLigneCourses(f.cle, f.sem);
   if(!L) return "";
   const auPlacard = db.placard.indexOf(L.cle) >= 0;
-  return '<h3>' + esc(L.nom) + '</h3><p class="sub">' + esc(L.rayon) + (L.recettes.length ? ' · ' + esc(L.recettes.join(", ")) : "") + '</p>' +
+  const q = afficheQte(L);
+  return '<h3>' + esc(L.nom) + (q ? ' <span class="qte">' + esc(q) + '</span>' : "") + '</h3><p class="sub">' + esc(L.rayon) +
+      (L.recettes.length ? ' · ' + esc(L.recettes.join(", ")) : "") + '</p>' +
+    (L.details && L.details.length ? '<div class="panel" style="margin:0 0 14px; padding:10px 14px">' + L.details.map(d =>
+      '<div class="hint" style="margin:3px 0">' + esc(d.texte) + (d.qte ? " · <b>" + esc(d.qte) + "</b>" : "") + " — " + esc(d.recette) + '</div>').join("") + '</div>' : "") +
     '<div class="opts">' +
       (L.manuel ? "" : auPlacard
         ? opt("ar-placard-non", "🛒", "Remettre dans la liste", "Il n'en reste plus à la maison")
@@ -4153,9 +4304,10 @@ function viewCuisine(){
       html += '<div class="kicker muted" style="margin-top:18px">Dans cette étape</div><div class="step-ings">' +
         ings.map(kk => '<span class="step-ing">' + ligneIngHTML(r.ingredients[kk].txt, f) + '</span>').join("") + '</div>';
     }
+    if(k < n - 1) html += '<p class="next-step"><span>Ensuite</span>' + esc(r.etapes[k + 1]) + '</p>';
   }else{
-    html += '<div class="fin"><div class="big">🎉</div><h2>Bon appétit !</h2>' +
-      '<p class="hint" style="margin:0 0 10px">Comment c\'était ?</p>' + noteCliquable(r, true) +
+    html += '<div class="fin"><div class="big">🎉</div><h2>Bon appétit !</h2>' +
+      '<p class="hint" style="margin:0 0 10px">Comment c\'était ?</p>' + noteCliquable(r, true) +
       (c.marque
         ? '<div class="notice ok" style="margin-top:18px">✓ Noté dans ton historique — cuisinée ' + r.cuisinee + ' fois</div>'
         : '<button class="cta" id="cook-done" style="margin-top:20px; width:100%">' + ico("check") + ' J\'ai cuisiné ce plat</button>') +
@@ -4678,7 +4830,7 @@ function bind(){
   bound = true;
 
   $("#btn-search").innerHTML = ico("loupe");
-  $("#btn-settings").innerHTML = ico("reglages");
+  $("#btn-settings").innerHTML = ico("engrenage");
   $("#fab").innerHTML = ico("plus");
   $("#brand").onclick = () => { resetFiltres(); onglet("accueil"); };
   $("#btn-search").onclick = () => allerA("search");
@@ -4772,6 +4924,7 @@ function bind(){
 
   // geste retour du navigateur : on dépile l'écran précédent
   window.addEventListener("popstate", e => {
+    if(rembobinage){ rembobinage = false; return; }
     const n = (e.state && e.state.n) || 0;
     // une feuille ouverte : le geste retour la ferme, sans quitter l'écran
     if(state.feuille){
