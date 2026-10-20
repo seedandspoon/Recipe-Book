@@ -26,6 +26,11 @@ The recipe book becomes a pocket cooking app: find what to cook, plan the week, 
 - Bottom sheets replace the old `prompt()` dialogs for planning, aisles and the "new recipe" menu.
 
 ### Design
+- **Three styles to try**, in ⚙ Réglages → Apparence → Style, on your own recipes — each with its dark mode, all switchable live, your data untouched:
+  - **Carnet** — the cookbook: cream paper, ink, one brick spot colour, New York serif throughout, rules instead of boxes.
+  - **Marché** — bold and appetising, closest to Mob: tomato and saffron, big SF Pro Rounded titles, full-photo cards with the title on the image, pastel tiles, a floating tab bar.
+  - **Épure** — calm and native: iOS greys, grouped lists, large titles, a single basil green.
+  "Actuel" keeps today's look. All three keep WCAG AA contrast and 44-point targets.
 - **Readable everywhere:** text and controls meet WCAG AA contrast in light and dark (slightly deeper terracotta, darker greys, visible checkbox outlines, gold stars); buttons on the accent use dark text in dark mode.
 - **Easier to tap:** every button has a 44-point target, including steppers, stars, the shopping-list ⋯ and the planner's portions.
 - **A calmer accent:** terracotta is kept for actions, selection and quantities; labels, notices and the planned ✓ are neutral.
