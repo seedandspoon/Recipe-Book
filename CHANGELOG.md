@@ -4,6 +4,16 @@ All notable changes to Recipe Book. The version number is visible in the browser
 
 ---
 
+## [3.1] — 2026-10-21
+
+### Added
+- **Shopping list → Apple Reminders.** A "Vers Rappels" button copies what's left to buy as one item per line ("Oignon (3)"), with no title, aisle headers or bullets. On iPhone, paste it into a new reminder and each line becomes its own reminder. In a list of type Courses, Reminders sorts the items into its own sections. "Partager la liste" still sends the formatted list, which Reminders would turn into a single reminder.
+
+### Changed
+- **Shopping list shows only the items.** The recipe names under each item are gone; tap ⋯ on an item to see which recipes it comes from and their exact wording.
+
+---
+
 ## [3.0] — 2026-10-20
 
 The recipe book becomes a pocket cooking app: find what to cook, plan the week, shop, and cook step by step — with your own recipes.
