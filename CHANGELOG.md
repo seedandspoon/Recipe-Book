@@ -26,15 +26,11 @@ The recipe book becomes a pocket cooking app: find what to cook, plan the week, 
 - Bottom sheets replace the old `prompt()` dialogs for planning, aisles and the "new recipe" menu.
 
 ### Design
-- **Three styles to try**, in ⚙ Réglages → Apparence → Style, on your own recipes — each with its dark mode, all switchable live, your data untouched:
-  - **Carnet** — the cookbook: cream paper, ink, one brick spot colour, New York serif throughout, rules instead of boxes.
-  - **Marché** — bold and appetising, closest to Mob: tomato and saffron, big SF Pro Rounded titles, full-photo cards with the title on the image, pastel tiles, a floating tab bar.
-  - **Épure** — calm and native: iOS greys, grouped lists, large titles, a single basil green.
-  "Actuel" keeps today's look. All three keep WCAG AA contrast and 44-point targets.
-- **Readable everywhere:** text and controls meet WCAG AA contrast in light and dark (slightly deeper terracotta, darker greys, visible checkbox outlines, gold stars); buttons on the accent use dark text in dark mode.
+- **New look, « Marché »:** bold and appetising — tomato and saffron on cream, big rounded titles (SF Pro Rounded), full-photo cards with the title on the image, pastel tiles and a floating tab bar, with its own dark mode. Chosen from three proposals (Carnet, Marché, Épure) tried on real recipes; it keeps WCAG AA contrast and 44-point targets.
+- **Readable everywhere:** text and controls meet WCAG AA contrast in light and dark (darker greys, visible checkbox outlines, gold stars); buttons on the accent use dark text in dark mode.
 - **Easier to tap:** every button has a 44-point target, including steppers, stars, the shopping-list ⋯ and the planner's portions.
-- **A calmer accent:** terracotta is kept for actions, selection and quantities; labels, notices and the planned ✓ are neutral.
-- **Cookbook typography:** recipe titles in the system serif (New York on iPhone and Mac), 17 pt ingredients and steps, one label style, tabular figures, French spacing before ? and !.
+- **A calmer accent:** the tomato red is kept for actions, selection and quantities; labels, notices and the planned ✓ are neutral.
+- **Typography:** 17 pt ingredients and steps, one label style, tabular figures, French spacing before ? and !.
 - **Recipe page:** the photo goes edge to edge under the status bar (no app header on stacked screens), metadata uses line icons, nutrition shows "—" instead of "0 g", classification pills move below the recipe.
 - **Recipes without a photo** get a gradient tinted by meal type instead of a beige box.
 - **Cards:** one meta line (★ note · time · kcal · protein), titles clamped to two lines, the heart on a card un-favourites in one tap.
