@@ -345,8 +345,6 @@ p.txt{margin:0; font-size:15px; line-height:1.62}
 .tagali.bio{background:var(--bio-bg); color:var(--bio)}
 li.done .tagali{opacity:.5}
 .qte{font-size:13px; color:var(--accent-d); font-weight:600; margin-left:6px; white-space:nowrap}
-.src{display:block; font-size:11.5px; color:var(--muted); margin-top:2px}
-.src-detail{display:block; font-size:11px; color:var(--muted); margin-top:1px; padding-left:9px; opacity:.85}
 ul.ing li .mini{width:30px; height:30px; font-size:13px; margin-top:-2px}
 
 /* ---------- éditeur d'aliments ---------- */
@@ -799,9 +797,6 @@ body.pousse #app > .page-head:first-child{margin-top:calc(env(safe-area-inset-to
 .day.vide .day-add{width:auto; flex:0 0 auto; border:1px solid var(--line); border-radius:999px; padding:8px 14px; min-height:36px;
   background:var(--card); color:var(--accent-d); font-size:14px; font-weight:600}
 .pe-bot .stepper button{width:40px; min-height:36px; font-size:18px}
-/* courses : une ligne de provenance, le détail dans les options de l'article */
-.src{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
-.src-detail{display:none}
 /* accueil : deux grandes tuiles */
 .quick{grid-template-columns:1fr 1fr}
 .qt{flex-direction:row; justify-content:flex-start; gap:12px; text-align:left; padding:13px 14px; font-size:15px}
@@ -1040,7 +1035,6 @@ html[data-look="marche"] .prog-row{font-weight:700}
 html[data-look="marche"] .section-head h3:has(+ .count){font-size:21px}
 html[data-look="marche"] ul.ing li[data-course] b{font-weight:800}
 html[data-look="marche"] .qte{color:var(--accent-d); font-weight:900; font-size:14px}
-html[data-look="marche"] .src{font-weight:600}
 html[data-look="marche"] .mini{border:none; background:var(--line2); border-radius:50%}
 
 /* ---------- mode cuisine : gros, gai, lisible de loin ---------- */
@@ -1622,7 +1616,7 @@ function afficheQte(L){
 }
 
 const KEY = "base-recettes-v1";
-const APP_VERSION = "3.0";   // affichée dans l'onglet Safari : permet de vérifier qu'on lit bien le fichier à jour
+const APP_VERSION = "3.1";   // affichée dans l'onglet Safari : permet de vérifier qu'on lit bien le fichier à jour
 
 /* =========================================================
    2. ÉTAT + PERSISTANCE
@@ -2886,6 +2880,7 @@ function viewCourses(){
   }
 
   html += '<div class="actions" style="margin-top:20px">' +
+    (nLignes ? '<button class="btn" id="rappels-courses">' + ico("check", "sm") + ' Vers Rappels</button>' : "") +
     '<button class="btn" id="share-courses">' + ico("partager", "sm") + ' Partager la liste</button>' +
     (nCochees ? '<button class="btn ghost" id="reset-courses">Tout décocher</button>' : "") + '</div>';
   return html + '<div style="height:30px"></div>';
@@ -2906,10 +2901,6 @@ function ligneCourse(L, C, placard){
     '<span style="flex:1"><b>' + esc(L.nom) + '</b>' + (q ? ' <span class="qte">' + esc(q) + '</span>' : "") +
     (L.ali && L.ali.pest === "D" ? '<span class="tagali bio">bio</span>' : "") +
     (L.alg ? '<span class="alg" style="margin-left:6px">allergène</span>' : "") +
-    (L.recettes.length ? '<span class="src">' + esc(L.recettes.join(" · ")) + '</span>' : "") +
-    (L.details && L.details.length ? L.details.map(d =>
-      '<span class="src-detail">' + esc(d.texte) + (d.qte ? " · " + esc(d.qte) : "") + " — " + esc(d.recette) + '</span>'
-    ).join("") : "") +
     '</span>' +
     '<button class="mini" data-coursemenu="' + esc(L.cle) + '" title="Options">⋯</button>' +
     '</li>';
@@ -2937,6 +2928,19 @@ function texteCourses(sem){
     if(!ls.length) return "";
     return g.rayon + "\n" + ls.map(L => { const q = afficheQte(L); return "• " + L.nom + (q ? " — " + q : ""); }).join("\n");
   }).filter(Boolean).join("\n\n");
+}
+
+/* pour l'app Rappels : un article par ligne, sans titre, rayon ni puce.
+   Collé dans un nouveau rappel sur iPhone, chaque ligne devient un rappel ;
+   l'ordre des rayons est gardé, une liste de type Courses les re-range elle-même. */
+function texteRappels(sem){
+  const C = coursesDe(sem);
+  const lignes = construireCourses(sem).reduce((t, g) => t.concat(g.lignes), []);
+  const reste = lignes.filter(L => !C.coches[L.cle]);
+  return (reste.length ? reste : lignes).map(L => {
+    const q = afficheQte(L);
+    return (L.nom + (q ? " (" + q + ")" : "")).replace(/\s+/g, " ").trim();
+  }).join("\n");
 }
 
 function trouverLigneCourses(cle, sem){
@@ -4375,6 +4379,7 @@ function renderFeuille(){
     case "entree":    html = feuilleEntree(f); break;
     case "semaine":   html = feuilleSemaine(f); break;
     case "article":   html = feuilleArticle(f); break;
+    case "rappels":   html = feuilleRappels(f); break;
     case "fiche":     html = feuilleMenuFiche(f); break;
   }
   if(!html){ fermerFeuille(); return; }
@@ -4519,6 +4524,18 @@ function feuilleArticle(f){
     '<div class="kicker">Ranger dans le rayon</div><div class="opts">' +
       RAYONS.map(ry => '<button type="button" class="opt' + (ry === L.rayon ? " on" : "") + '" data-act="ar-rayon" data-rayon="' + esc(ry) + '">' +
         esc(ry) + (ry === L.rayon ? ' <span style="margin-left:auto">✓</span>' : "") + '</button>').join("") + '</div>';
+}
+
+function feuilleRappels(f){
+  const etape = (k, txt) => '<div class="hint" style="margin:6px 0"><b>' + k + '.</b> ' + txt + '</div>';
+  return '<h3>Vers Rappels</h3><p class="sub">' + f.n + ' article' + (f.n > 1 ? "s" : "") + ' copié' + (f.n > 1 ? "s" : "") +
+      ', un par ligne</p>' +
+    '<div class="panel" style="margin:0 0 14px; padding:10px 14px">' +
+      etape(1, "Ouvre <b>Rappels</b> sur ton iPhone et choisis ta liste.") +
+      etape(2, "Touche <b>Nouveau rappel</b>, puis <b>Coller</b>.") +
+      etape(3, "Chaque ligne devient un rappel à cocher.") +
+    '</div>' +
+    '<p class="hint" style="margin:0">Si la liste est de type <b>Courses</b>, Rappels range les articles par rayon tout seul.</p>';
 }
 
 function feuilleMenuFiche(f){
@@ -5378,6 +5395,13 @@ function onAppClick(e){
     }
     case "add-course":    ajouterArticle(); return;
     case "share-courses": partager("Courses", texteCourses(state.semCourses), "Liste copiée ✓"); return;
+    case "rappels-courses": {
+      // copié tout de suite (le presse-papiers veut le geste), le mode d'emploi à côté
+      const txt = texteRappels(state.semCourses);
+      copier(txt, "Copié ✓");
+      ouvrirFeuille({type:"rappels", n: txt.split("\n").length});
+      return;
+    }
     case "back":
       if(brouillonModifie() && !confirm("Abandonner les modifications ?")) return;
       if(state.view === "form") state.formDraft = null;
