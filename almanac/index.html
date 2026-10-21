@@ -1,0 +1,2157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes" data-standalone>
+<meta name="mobile-web-app-capable" content="yes" data-standalone>
+<meta name="apple-mobile-web-app-status-bar-style" content="default" data-standalone>
+<meta name="apple-mobile-web-app-title" content="Almanac" data-standalone>
+<meta name="theme-color" content="#F4F5EF" media="(prefers-color-scheme: light)" data-standalone>
+<meta name="theme-color" content="#121613" media="(prefers-color-scheme: dark)" data-standalone>
+<link rel="manifest" href="manifest.webmanifest" data-standalone>
+<link rel="apple-touch-icon" href="icon-180.png" data-standalone>
+<link rel="icon" type="image/png" href="icon-192.png" data-standalone>
+<title>Almanac</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap">
+<style>
+/* Layout: one calm column like a page of an almanac; dates sit in a numeral margin,
+   the year is drawn as a wheel, and the accent follows the season you are in. */
+:root{
+  --paper:#F4F5EF;
+  --sheet:#FFFFFF;
+  --ink:#1C2420;
+  --ink-2:#56605A;
+  --ink-3:#848C85;
+  --rule:#DCE0D6;
+  --wash:#E8EBE2;
+  --winter:#44678A;
+  --spring:#3D8350;
+  --summer:#A57410;
+  --autumn:#AE4E26;
+  --accent:var(--autumn);
+  --on-accent:#FFFFFF;
+  --danger:#A63D32;
+  --scrim:rgba(18,24,20,.38);
+  --shadow:0 1px 2px rgba(20,30,24,.06), 0 12px 32px rgba(20,30,24,.10);
+
+  --f-display:"IM Fell English", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --f-sc:"IM Fell English SC", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --f-ui:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --fs-xs:12.5px; --fs-s:14px; --fs-m:16px; --fs-l:19px; --fs-xl:26px; --fs-xxl:52px;
+  --r-s:10px; --r-m:14px; --r-l:22px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#121613; --sheet:#1A201C; --ink:#E8E9E2; --ink-2:#AAB1A8; --ink-3:#7A827B;
+    --rule:#2A322D; --wash:#222924;
+    --winter:#8EB0D3; --spring:#86BF8E; --summer:#E0B457; --autumn:#E58C61;
+    --on-accent:#121613; --danger:#E5806F; --scrim:rgba(0,0,0,.55);
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.4);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#121613; --sheet:#1A201C; --ink:#E8E9E2; --ink-2:#AAB1A8; --ink-3:#7A827B;
+  --rule:#2A322D; --wash:#222924;
+  --winter:#8EB0D3; --spring:#86BF8E; --summer:#E0B457; --autumn:#E58C61;
+  --on-accent:#121613; --danger:#E5806F; --scrim:rgba(0,0,0,.55);
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+:root[data-season="winter"]{--accent:var(--winter)}
+:root[data-season="spring"]{--accent:var(--spring)}
+:root[data-season="summer"]{--accent:var(--summer)}
+:root[data-season="autumn"]{--accent:var(--autumn)}
+.t-winter{--tone:var(--winter)} .t-spring{--tone:var(--spring)}
+.t-summer{--tone:var(--summer)} .t-autumn{--tone:var(--autumn)}
+
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%; padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font:var(--fs-m)/1.5 var(--f-ui);
+  padding-bottom:calc(92px + env(safe-area-inset-bottom,0px));
+}
+body.locked{overflow:hidden}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:30; background:var(--paper)}
+button,input,select,textarea{font:inherit; color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+h1,h2,h3,p{margin:0}
+.ic{width:20px; height:20px; flex:0 0 auto; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round}
+.wrap{
+  max-width:680px; margin:0 auto;
+  padding-left:max(16px, env(safe-area-inset-left,0px));
+  padding-right:max(16px, env(safe-area-inset-right,0px));
+}
+
+/* ---------- Top bar & tab bar ---------- */
+.bar{position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--paper); background:color-mix(in srgb, var(--paper) 90%, transparent);
+  -webkit-backdrop-filter:blur(14px) saturate(160%); backdrop-filter:blur(14px) saturate(160%); border-bottom:1px solid transparent}
+.bar.scrolled{border-bottom-color:var(--rule)}
+.bar-in{display:flex; align-items:center; justify-content:space-between; gap:12px; padding-block:10px; max-width:680px; margin:0 auto;
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px))}
+.wordmark{background:none; border:0; padding:0; font-family:var(--f-display); font-size:23px; letter-spacing:.01em; color:var(--ink)}
+.wordmark i{font-style:italic; color:var(--accent)}
+.icon-btn{width:40px; height:40px; border-radius:50%; border:1px solid var(--rule); background:var(--sheet); color:var(--ink-2);
+  display:inline-flex; align-items:center; justify-content:center}
+.tabbar{
+  position:fixed; left:0; right:0; bottom:0; z-index:25; background:var(--sheet); background:color-mix(in srgb, var(--sheet) 92%, transparent);
+  -webkit-backdrop-filter:blur(16px) saturate(160%); backdrop-filter:blur(16px) saturate(160%);
+  border-top:1px solid var(--rule);
+  padding:6px max(10px, env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(10px, env(safe-area-inset-left,0px));
+}
+.tabbar-in{display:grid; grid-template-columns:repeat(5,1fr); align-items:center; max-width:520px; margin:0 auto}
+.tab{background:none; border:0; display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 0 4px; color:var(--ink-3); font-size:11.5px; font-weight:560; letter-spacing:.01em}
+.tab .ic{width:23px; height:23px}
+.tab.on{color:var(--ink)}
+.tab.on .ic{color:var(--accent); stroke-width:1.9}
+.tab-add{justify-self:center; width:54px; height:54px; border-radius:50%; border:0; background:var(--accent); color:var(--on-accent);
+  display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px color-mix(in srgb, var(--accent) 35%, transparent); margin-top:-6px}
+.tab-add .ic{width:26px; height:26px; stroke-width:2}
+.tab-add:active{transform:scale(.96)}
+
+/* ---------- Type & sections ---------- */
+.eyebrow{font-family:var(--f-sc); font-size:15px; letter-spacing:.06em; color:var(--ink-3); text-transform:lowercase}
+.sec{display:flex; flex-direction:column; gap:2px; margin-top:34px; padding-bottom:6px}
+.sec h2{font-family:var(--f-display); font-weight:400; font-size:var(--fs-xl); line-height:1.15; text-wrap:balance; color:var(--ink)}
+.sec-row{display:flex; align-items:baseline; justify-content:space-between; gap:12px}
+.lede{color:var(--ink-2); font-size:var(--fs-s); max-width:60ch}
+.page-title{font-family:var(--f-display); font-weight:400; font-size:38px; line-height:1.05; margin-top:18px; text-wrap:balance}
+.muted{color:var(--ink-3)}
+.link{background:none; border:0; padding:0; color:var(--accent); font-weight:560; font-size:var(--fs-s)}
+
+/* ---------- Masthead (Now) ---------- */
+.mast{display:grid; grid-template-columns:1fr auto; gap:6px 16px; align-items:end; padding-top:18px; padding-bottom:4px; border-bottom:1px solid var(--rule); padding-bottom:22px}
+.mast-date{grid-column:1 / -1; font-family:var(--f-sc); font-size:16px; letter-spacing:.06em; color:var(--ink-2); text-transform:lowercase}
+.mast-season{font-family:var(--f-display); font-weight:400; font-size:var(--fs-xxl); line-height:.95; color:var(--tone); letter-spacing:-.01em}
+.mast-line{grid-column:1 / -1; font-family:var(--f-display); font-style:italic; font-size:var(--fs-l); line-height:1.35; color:var(--ink-2); max-width:34ch; margin-top:6px}
+.mast-wheel{width:76px; height:76px; border:0; background:none; padding:0; align-self:center}
+.mast-wheel svg{width:100%; height:100%; display:block}
+
+/* ---------- Rows ---------- */
+.list{display:flex; flex-direction:column}
+.row{display:flex; align-items:flex-start; gap:14px; width:100%; text-align:left; background:none; border:0; border-bottom:1px solid var(--rule);
+  padding:13px 0; color:inherit}
+.row:last-child{border-bottom:0}
+.row:active{background:var(--wash)}
+.row-main{display:flex; flex-direction:column; gap:3px; min-width:0; flex:1}
+.row-title{font-size:16.5px; font-weight:560; line-height:1.3; text-wrap:pretty}
+.row-meta{display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; font-size:var(--fs-xs); color:var(--ink-3); line-height:1.35}
+.row-meta .ic{width:14px; height:14px}
+.row-note{font-family:var(--f-display); font-style:italic; color:var(--ink-2); font-size:15.5px; line-height:1.35}
+.row .chev{color:var(--ink-3); margin-top:2px}
+.tag{display:inline-flex; align-items:center; gap:4px; color:var(--tone, var(--ink-3))}
+.row.has-sub{border-bottom:0; padding-bottom:4px}
+.sub{margin-left:62px}
+.list > .sub{border-bottom:1px solid var(--rule); padding-bottom:6px}
+.list > .sub:last-child{border-bottom:0}
+.sub .row{padding:9px 0; border-bottom:0}
+.sub .row-title{font-size:15.5px; font-weight:500}
+.empty-line{font-size:var(--fs-s); color:var(--ink-3); padding:2px 0 12px; display:flex; flex-wrap:wrap; gap:4px 12px; align-items:center}
+
+/* almanac day numerals */
+.day{flex:0 0 48px; display:flex; flex-direction:column; align-items:center; line-height:1; padding-top:1px; color:var(--ink-2)}
+.day small{font-family:var(--f-sc); font-size:13px; letter-spacing:.05em; text-transform:lowercase; color:var(--ink-3)}
+.day b{font-family:var(--f-display); font-weight:400; font-size:30px; line-height:1; color:var(--ink); margin:1px 0}
+.day.past b{color:var(--ink-3)}
+.day.tone b{color:var(--tone)}
+.glyph{flex:0 0 48px; display:flex; justify-content:center; padding-top:3px; color:var(--tone, var(--ink-3))}
+.glyph .ic{width:22px; height:22px}
+
+/* avatars */
+.avs{display:inline-flex}
+.av{--c:#666; width:22px; height:22px; border-radius:50%; background:var(--c); color:#fff; font-size:10.5px; font-weight:650; letter-spacing:.02em;
+  display:inline-flex; align-items:center; justify-content:center; border:2px solid var(--paper); margin-left:-6px; flex:0 0 auto}
+.avs .av:first-child{margin-left:0}
+.av.lg{width:56px; height:56px; font-size:20px; border:0}
+.av.md{width:40px; height:40px; font-size:15px; border:0}
+
+/* ---------- Cards that ask something ---------- */
+.ask{background:var(--sheet); border:1px solid var(--rule); border-radius:var(--r-m); padding:14px 16px; display:flex; flex-direction:column; gap:10px; box-shadow:var(--shadow)}
+.ask + .ask{margin-top:10px}
+.ask p{font-size:15.5px}
+.ask b{font-weight:600}
+.btns{display:flex; flex-wrap:wrap; gap:8px}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:40px; padding:8px 15px; border-radius:var(--r-s);
+  border:1px solid var(--rule); background:var(--sheet); color:var(--ink); font-size:15px; font-weight:560; white-space:nowrap}
+.btn .ic{width:18px; height:18px}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+.btn.quiet{background:transparent; border-color:transparent; color:var(--ink-2); padding-inline:8px}
+.btn.danger{color:var(--danger)}
+.btn.wide{flex:1}
+.btn:disabled{opacity:.45}
+.btn:active{transform:scale(.98)}
+
+.banner{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:12px; padding:10px 14px;
+  border-radius:var(--r-m); background:var(--wash); background:color-mix(in srgb, var(--accent) 11%, var(--paper)); color:var(--ink); font-size:var(--fs-s)}
+.banner .btn{min-height:34px; padding:5px 12px; font-size:14px}
+
+.welcome{padding-top:26px; display:flex; flex-direction:column; gap:16px}
+.welcome h1{font-family:var(--f-display); font-weight:400; font-size:36px; line-height:1.1; text-wrap:balance}
+.welcome p{color:var(--ink-2); max-width:52ch}
+
+.foot{margin-top:36px; padding-top:16px; border-top:1px solid var(--rule); color:var(--ink-3); font-size:var(--fs-s); display:flex; flex-direction:column; gap:6px}
+
+/* ---------- Year ---------- */
+.seg{display:inline-grid; grid-auto-flow:column; gap:2px; padding:3px; border-radius:12px; background:var(--wash); margin-top:16px}
+.seg button{border:0; background:none; padding:7px 14px; border-radius:9px; font-size:14px; font-weight:560; color:var(--ink-2)}
+.seg button.on{background:var(--sheet); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.wheel{display:block; width:100%; max-width:380px; margin:14px auto 0}
+.wheel svg{width:100%; height:auto; display:block; overflow:visible}
+.wheel .wm{cursor:pointer}
+.legend{display:flex; flex-wrap:wrap; justify-content:center; gap:6px 16px; font-size:var(--fs-xs); color:var(--ink-3); margin-top:6px}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.legend svg{width:16px; height:10px}
+.month{padding-top:30px; scroll-margin-top:70px}
+.month-head{display:flex; align-items:baseline; gap:10px; border-bottom:1px solid var(--rule); padding-bottom:8px}
+.month-head h3{font-family:var(--f-display); font-weight:400; font-size:30px; line-height:1; color:var(--tone)}
+.month-head .yr{font-family:var(--f-sc); color:var(--ink-3); font-size:15px; letter-spacing:.05em}
+.month-head .add{margin-left:auto}
+.month-line{font-family:var(--f-display); font-style:italic; color:var(--ink-2); font-size:16px; padding:8px 0 4px}
+.month .row{border-bottom:0; padding:9px 0}
+.month .lived .row-title{font-weight:500}
+.room{display:flex; align-items:center; gap:10px; color:var(--ink-3); font-size:var(--fs-s); padding:10px 0 0}
+
+/* ---------- People ---------- */
+.person-row .row-title{font-size:17px}
+.person-head{display:flex; align-items:center; gap:16px; margin-top:16px}
+.person-head h1{font-family:var(--f-display); font-weight:400; font-size:36px; line-height:1.05}
+.back{display:inline-flex; align-items:center; gap:4px; background:none; border:0; padding:6px 0; margin-top:10px; color:var(--ink-2); font-size:15px}
+.notes{font-family:var(--f-display); font-size:18px; line-height:1.45; color:var(--ink-2); white-space:pre-wrap}
+.facts{display:flex; flex-direction:column; gap:4px; margin-top:12px; font-size:15px; color:var(--ink-2)}
+
+/* ---------- Ideas ---------- */
+.search{position:relative; margin-top:14px}
+.search .ic{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--ink-3)}
+.search input[type=search]{padding-left:40px}
+.filters{display:flex; gap:7px; overflow-x:auto; padding:12px 0 2px; scrollbar-width:none; margin-inline:-2px}
+.filters::-webkit-scrollbar{display:none}
+
+/* ---------- Form controls ---------- */
+input[type=text], input[type=search], input[type=date], input[type=number], input:not([type]), select, textarea{
+  width:100%; background:var(--sheet); border:1px solid var(--rule); border-radius:var(--r-s); padding:11px 13px; font-size:16px; outline:none; color:var(--ink);
+}
+input:focus, select:focus, textarea:focus{border-color:var(--accent)}
+input:focus-visible, select:focus-visible, textarea:focus-visible{outline:none; box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
+textarea{resize:vertical; min-height:84px; line-height:1.45}
+select{-webkit-appearance:none; appearance:none; padding-right:30px;
+  background-image:linear-gradient(45deg, transparent 50%, var(--ink-3) 50%), linear-gradient(135deg, var(--ink-3) 50%, transparent 50%);
+  background-position:calc(100% - 17px) 52%, calc(100% - 12px) 52%; background-size:5px 5px, 5px 5px; background-repeat:no-repeat}
+label.field{display:flex; flex-direction:column; gap:6px; font-size:var(--fs-s); color:var(--ink-2); font-weight:520}
+.chips{display:flex; flex-wrap:wrap; gap:7px}
+.chip{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--rule); background:var(--sheet); color:var(--ink-2);
+  padding:7px 13px; border-radius:999px; font-size:14.5px; font-weight:520; white-space:nowrap}
+.chip .av{width:18px; height:18px; font-size:9px; border:0; margin:0 0 0 -5px}
+.chip.on{border-color:var(--tone, var(--accent)); color:var(--ink); background:var(--wash); background:color-mix(in srgb, var(--tone, var(--accent)) 13%, var(--sheet)); font-weight:600}
+.chip.add{border-style:dashed; color:var(--ink-3)}
+.chip .ic{width:16px; height:16px}
+.chip small{color:var(--ink-3); font-weight:500}
+.months12{display:grid; grid-template-columns:repeat(6,1fr); gap:6px}
+.months12 .chip{justify-content:center; padding:7px 0}
+.switch-row{display:flex; align-items:center; gap:14px; padding:12px 14px; border:1px solid var(--rule); border-radius:var(--r-m); background:var(--sheet)}
+.switch-row div{flex:1; min-width:0}
+.switch-row b{display:block; font-weight:600; font-size:15.5px}
+.switch-row small{display:block; color:var(--ink-3); font-size:13px; line-height:1.35}
+.switch{position:relative; width:50px; height:30px; flex:0 0 auto}
+.switch input{position:absolute; inset:0; opacity:0; margin:0; cursor:pointer}
+.switch span{position:absolute; inset:0; border-radius:999px; background:var(--wash); border:1px solid var(--rule); transition:background .2s}
+.switch span::after{content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:var(--sheet); box-shadow:0 1px 3px rgba(0,0,0,.25); transition:transform .2s}
+.switch input:checked + span{background:var(--accent); border-color:var(--accent)}
+.switch input:checked + span::after{transform:translateX(20px)}
+.switch input:focus-visible + span{outline:2px solid var(--accent); outline-offset:2px}
+.promise{font-family:var(--f-display); font-style:italic; font-size:16.5px; color:var(--accent); line-height:1.35}
+.date-row{display:grid; grid-template-columns:1fr 1.4fr 1fr; gap:8px}
+.inline-new{display:flex; gap:8px}
+.inline-new input{flex:1}
+
+/* ---------- Sheet ---------- */
+#sheet-root{position:fixed; inset:0; z-index:60; pointer-events:none}
+.scrim{position:absolute; inset:0; background:var(--scrim); opacity:0; transition:opacity .25s}
+.sheet{position:absolute; left:0; right:0; bottom:0; max-height:calc(100% - 28px - env(safe-area-inset-top,0px)); overflow-y:auto; -webkit-overflow-scrolling:touch;
+  background:var(--paper); border-radius:var(--r-l) var(--r-l) 0 0; box-shadow:0 -10px 40px rgba(0,0,0,.18);
+  transform:translateY(105%); transition:transform .3s cubic-bezier(.2,.8,.2,1); overscroll-behavior:contain}
+#sheet-root.open{pointer-events:auto}
+#sheet-root.open .scrim{opacity:1}
+#sheet-root.open .sheet{transform:none}
+.sheet-in{max-width:620px; margin:0 auto; padding:10px max(18px, env(safe-area-inset-right,0px)) calc(22px + env(safe-area-inset-bottom,0px)) max(18px, env(safe-area-inset-left,0px));
+  display:flex; flex-direction:column; gap:18px}
+.grab{width:38px; height:5px; border-radius:3px; background:var(--rule); margin:0 auto}
+.sheet-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
+.sheet-head h2{font-family:var(--f-display); font-weight:400; font-size:28px; line-height:1.1; text-wrap:balance}
+.sheet-head .icon-btn{flex:0 0 auto}
+.group{display:flex; flex-direction:column; gap:9px}
+.group > .eyebrow{font-size:14.5px}
+.cap-text{font-size:20px !important; line-height:1.35; min-height:92px; font-weight:520; border-radius:var(--r-m) !important; padding:14px 15px !important}
+.sheet-foot{display:flex; gap:10px; position:sticky; bottom:0; background:var(--paper); z-index:2;
+  padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px)); margin-bottom:calc(-22px - env(safe-area-inset-bottom,0px)); border-top:1px solid var(--rule)}
+.detail-title{font-size:23px; font-weight:600; line-height:1.25; text-wrap:pretty}
+.facts-list{display:flex; flex-direction:column; border-top:1px solid var(--rule)}
+.fact{display:flex; gap:12px; padding:11px 0; border-bottom:1px solid var(--rule); font-size:15.5px; align-items:flex-start}
+.fact .ic{color:var(--ink-3); margin-top:1px}
+.fact span{min-width:0}
+.panel{background:var(--sheet); border:1px solid var(--rule); border-radius:var(--r-m); padding:14px; display:flex; flex-direction:column; gap:12px}
+.settings h3{font-family:var(--f-display); font-weight:400; font-size:22px}
+.settings p{font-size:var(--fs-s); color:var(--ink-2)}
+.kv{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0; font-size:15px}
+.kv + .kv{border-top:1px solid var(--rule); padding-top:10px}
+.check{display:flex; align-items:center; gap:10px; font-size:15px}
+.check input{width:20px; height:20px; accent-color:var(--accent); margin:0}
+
+/* ---------- Toast ---------- */
+#toast{position:fixed; left:50%; bottom:calc(92px + env(safe-area-inset-bottom,0px)); transform:translate(-50%, 20px); z-index:80;
+  max-width:min(92vw, 520px); width:max-content; background:var(--ink); color:var(--paper); border-radius:14px; padding:11px 16px;
+  font-size:14.5px; line-height:1.35; display:flex; gap:14px; align-items:center; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
+  box-shadow:0 10px 30px rgba(0,0,0,.25)}
+#toast.on{opacity:1; transform:translate(-50%, 0); pointer-events:auto}
+#toast button{background:none; border:0; color:var(--paper); font-weight:650; text-decoration:underline; padding:0}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important; animation:none !important}
+}
+@media (min-width:700px){
+  .mast-season{font-size:64px}
+}
+</style>
+</head>
+<body>
+<header class="bar" id="bar">
+  <div class="bar-in">
+    <button class="wordmark" data-act="tab" data-tab="now" aria-label="Almanac, go to Now">Alm<i>a</i>nac</button>
+    <button class="icon-btn" data-act="settings" aria-label="Settings" id="settings-btn"></button>
+  </div>
+</header>
+<main id="main" class="wrap"></main>
+<nav class="tabbar" aria-label="Sections"><div class="tabbar-in" id="tabs"></div></nav>
+<div id="sheet-root"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   1. CONSTANTS
+   ========================================================= */
+const APP_VERSION = "1.0";
+const KEY = "almanac.v1";
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MON = MONTHS.map(m => m.slice(0, 3));
+const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const DOW_LONG = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const SEASONS = ["winter","spring","summer","autumn"];
+const SEASON_LBL = {winter:"Winter", spring:"Spring", summer:"Summer", autumn:"Autumn"};
+const SEASON_BASE = {winter:[11,0,1], spring:[2,3,4], summer:[5,6,7], autumn:[8,9,10]};   // northern hemisphere
+const KINDS = [
+  {id:"time",    label:"Time together"},
+  {id:"trip",    label:"A trip or weekend"},
+  {id:"gift",    label:"A gift"},
+  {id:"make",    label:"Make or cook"},
+  {id:"gesture", label:"A small gesture"}
+];
+const HOLIDAY_IDS = ["christmas","nye","easter","mothers","fathers","valentine"];
+const PERSON_COLORS = ["#7B5E9E","#3B7A82","#B4632F","#567A37","#A44B6E","#4A6FA6","#86722B","#5F6B74"];
+const DATE_LABELS = ["Birthday","Name day","Anniversary"];
+const OCC_WINDOW = 42;          // days ahead an occasion appears on Now
+const CHRISTMAS_WINDOW = 56;
+
+/* One line per month, written for the northern hemisphere and shifted six months
+   in the south. Nature and light only, so they hold wherever you live. */
+const ALMANAC = [
+  "The quiet month. Frost on the grass, and long evenings that suit slow plans.",
+  "The light comes back a couple of minutes a day. Snowdrops first.",
+  "Buds and blossom, and mornings loud with birds.",
+  "Spring proper. Gardens wake up and the evenings stretch out.",
+  "Long light evenings and the first meals outside.",
+  "The longest days of the year. Strawberries and late sunsets.",
+  "High summer. Fruit, warm nights, time away.",
+  "Late summer. The light softens and the blackberries ripen.",
+  "Apples and the first cool mornings. A good month for new starts.",
+  "Harvest month: walnuts, chestnuts, mushrooms after rain.",
+  "Short days, candles and soup. Bright skies on a good day.",
+  "The year draws in. Gatherings, lights, and a moment to look back."
+];
+
+const ICONS = {
+  now:     '<path d="M3 17.5h18M6.5 17.5a5.5 5.5 0 0 1 11 0M12 6v2.5M5.4 9.9l1.7 1.4M18.6 9.9l-1.7 1.4"/>',
+  year:    '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.6"/><path d="M12 3.5v5"/>',
+  people:  '<circle cx="9" cy="8.5" r="3.2"/><path d="M3 19.5c.6-3.3 3-5.2 6-5.2s5.4 1.9 6 5.2"/><circle cx="16.8" cy="9.4" r="2.6"/><path d="M16 14.4c2.6-.2 4.5 1.4 5 4.2"/>',
+  ideas:   '<path d="M7 3.5h10v17l-5-3.6-5 3.6z"/>',
+  plus:    '<path d="M12 5v14M5 12h14"/>',
+  sliders: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
+  close:   '<path d="M6 6l12 12M18 6L6 18"/>',
+  back:    '<path d="M15 5l-7 7 7 7"/>',
+  chev:    '<path d="M9 5l7 7-7 7"/>',
+  check:   '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  cal:     '<rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  gift:    '<rect x="3.5" y="8.5" width="17" height="4" rx="1"/><path d="M5 12.5v8h14v-8M12 8.5v12M12 8.5c-1.6-3.4-5.5-3.9-5.5-1.5 0 1.4 2.4 1.5 5.5 1.5zM12 8.5c1.6-3.4 5.5-3.9 5.5-1.5 0 1.4-2.4 1.5-5.5 1.5z"/>',
+  heart:   '<path d="M12 19.5s-7.5-4.5-7.5-10A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.3c0 5.5-7.5 10-7.5 10z"/>',
+  repeat:  '<path d="M17 3.5l3 3-3 3M20 6.5H8.5A4.5 4.5 0 0 0 4 11v.5M7 20.5l-3-3 3-3M4 17.5h11.5A4.5 4.5 0 0 0 20 13v-.5"/>',
+  person:  '<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.7-3.8 3.4-6 7-6s6.3 2.2 7 6"/>',
+  clock:   '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  note:    '<path d="M5 4.5h14v15H5zM8.5 9h7M8.5 12.5h7M8.5 16h4"/>',
+  search:  '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>',
+  winter:  '<path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9.5 4.5L12 7l2.5-2.5M9.5 19.5L12 17l2.5 2.5"/>',
+  spring:  '<path d="M12 20.5v-8.5"/><path d="M12 12c0-4 2.5-6.5 7-6.5 0 4-2.5 6.5-7 6.5zM12 14.5c0-3.3-2-5.3-6-5.3 0 3.3 2 5.3 6 5.3z"/>',
+  summer:  '<circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/>',
+  autumn:  '<path d="M5 19c0-8 5-13.6 14-14 0 9-5.6 14-14 14z"/><path d="M5 19l8.5-8.5"/>',
+  someday: '<path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3"/><circle cx="12" cy="12" r="3"/>'
+};
+function ic(name, cls){ return '<svg class="ic' + (cls ? " " + cls : "") + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[name] || "") + "</svg>"; }
+
+/* =========================================================
+   2. SMALL HELPERS
+   ========================================================= */
+const $ = (s, r) => (r || document).querySelector(s);
+function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function pad(n){ return (n < 10 ? "0" : "") + n; }
+function ymd(d){ return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+function parseYmd(s){
+  const p = String(s || "").split("-").map(Number);
+  return p.length === 3 && p[0] && p[1] ? new Date(p[0], p[1] - 1, p[2]) : null;
+}
+function addDays(d, n){ return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+function daysBetween(a, b){ return Math.round((b - a) / 86400000); }
+function sameDay(a, b){ return !!a && !!b && ymd(a) === ymd(b); }
+function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+function hash(s){ let h = 2166136261; for(let k = 0; k < s.length; k++){ h = Math.imul(h ^ s.charCodeAt(k), 16777619); } return h >>> 0; }
+
+/* ?today=2026-12-01 lets you look at the app as it will be on another day */
+const TODAY_OVERRIDE = (/[?&]today=(\d{4}-\d{2}-\d{2})/.exec(location.search || "") || [])[1] || "";
+function today(){
+  if(TODAY_OVERRIDE) return parseYmd(TODAY_OVERRIDE);
+  const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function fmtDay(d){ return DOW[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()]; }
+function fmtLong(d, T){
+  const s = d.getDate() + " " + MONTHS[d.getMonth()];
+  return T && d.getFullYear() !== T.getFullYear() ? s + " " + d.getFullYear() : s;
+}
+function ago(n){
+  if(n < 7) return n + " days ago";
+  if(n < 11) return "a week ago";
+  if(n < 46) return Math.round(n / 7) + " weeks ago";
+  if(n < 335){ const mo = Math.round(n / 30.4); return mo <= 1 ? "a month ago" : mo + " months ago"; }
+  const y = Math.round(n / 365); return y <= 1 ? "a year ago" : y + " years ago";
+}
+function rel(n){
+  if(n === 0) return "today";
+  if(n === 1) return "tomorrow";
+  if(n === -1) return "yesterday";
+  if(n < 0) return ago(-n);
+  if(n < 7) return "in " + n + " days";
+  if(n < 11) return "in a week";
+  if(n < 46) return "in " + Math.round(n / 7) + " weeks";
+  const mo = Math.round(n / 30.4); return mo <= 1 ? "in a month" : "in " + mo + " months";
+}
+function partOfMonth(d){ const x = d.getDate(); return (x <= 10 ? "early " : x <= 20 ? "mid-" : "late ") + MONTHS[d.getMonth()]; }
+/* "in mid-October", or "next year, in mid-October" when that is a year away */
+function whenBack(d, T){ return (daysBetween(T, d) > 300 ? "next year, in " : "in ") + partOfMonth(d); }
+function initials(name){
+  const w = String(name || "?").split(/[\s&,+]+/).filter(Boolean);
+  return (w.length > 1 ? w[0][0] + w[1][0] : (w[0] || "?").slice(0, 1)).toUpperCase();
+}
+function possessive(n){ return /s$/i.test(n) ? n + "'" : n + "'s"; }
+function listNames(names){
+  if(names.length <= 1) return names.join("");
+  return names.slice(0, -1).join(", ") + " & " + names[names.length - 1];
+}
+
+/* =========================================================
+   3. DATA, STORAGE, SYNC
+   ========================================================= */
+function emptyDb(){
+  return {
+    v: 1,
+    people: [],      // {id, name, color, dates:[{id,label,m,d,y}], notes}
+    ideas: [],       // {id, text, people, kind, when:{t,months,occ,date}, yearly, note, status, plan, snooze, doneYears}
+    lived: [],       // {id, ideaId, text, people, date, note}
+    occasions: [],   // custom yearly dates: {id, label, m, d}
+    settings: {
+      hemi: "N", region: "uk",
+      holidays: {christmas:true, nye:false, easter:true, mothers:true, fathers:true, valentine:false},
+      started: "", lastBackup: ""
+    }
+  };
+}
+let db = emptyDb();
+
+function normalizeDb(p){
+  const d = emptyDb();
+  p = p || {};
+  const s = p.settings || {};
+  d.settings.hemi = s.hemi === "S" ? "S" : "N";
+  d.settings.region = ["uk","fr","us"].indexOf(s.region) >= 0 ? s.region : "uk";
+  Object.assign(d.settings.holidays, s.holidays || {});
+  d.settings.started = s.started || "";
+  d.settings.lastBackup = s.lastBackup || "";
+  d.people = (Array.isArray(p.people) ? p.people : []).filter(x => x && x.id && x.name).map((x, k) => ({
+    id: String(x.id), name: String(x.name), color: x.color || PERSON_COLORS[k % PERSON_COLORS.length],
+    dates: (Array.isArray(x.dates) ? x.dates : []).filter(t => t && t.m >= 0 && t.m < 12 && t.d >= 1 && t.d <= 31)
+      .map(t => ({id: String(t.id || uid()), label: String(t.label || "Birthday"), m: +t.m, d: +t.d, y: +t.y || 0})),
+    notes: String(x.notes || ""), ex: !!x.ex
+  }));
+  d.ideas = (Array.isArray(p.ideas) ? p.ideas : []).filter(x => x && x.id && x.text).map(x => ({
+    id: String(x.id), text: String(x.text), people: Array.isArray(x.people) ? x.people.map(String) : [],
+    kind: x.kind || "", when: normalizeWhen(x.when), yearly: !!x.yearly, note: String(x.note || ""),
+    status: ["open","done","gone"].indexOf(x.status) >= 0 ? x.status : "open",
+    plan: x.plan && x.plan.date ? {date: x.plan.date} : null, snooze: x.snooze || "",
+    doneYears: Array.isArray(x.doneYears) ? x.doneYears.map(Number) : [],
+    created: x.created || "", updated: x.updated || "", ex: !!x.ex
+  }));
+  d.lived = (Array.isArray(p.lived) ? p.lived : []).filter(x => x && x.id && x.date).map(x => ({
+    id: String(x.id), ideaId: x.ideaId || "", text: String(x.text || ""), people: Array.isArray(x.people) ? x.people.map(String) : [],
+    date: x.date, note: String(x.note || ""), ex: !!x.ex
+  }));
+  d.occasions = (Array.isArray(p.occasions) ? p.occasions : []).filter(x => x && x.id && x.label)
+    .map(x => ({id: String(x.id), label: String(x.label), m: +x.m || 0, d: +x.d || 1}));
+  return d;
+}
+function normalizeWhen(w){
+  w = w || {};
+  const out = {t: "someday", months: [], occ: "", date: ""};
+  if(w.t === "months"){
+    const ms = Array.from(new Set((w.months || []).map(Number).filter(m => m >= 0 && m < 12))).sort((a, b) => a - b);
+    if(ms.length && ms.length < 12){ out.t = "months"; out.months = ms; }
+  }else if(w.t === "occasion" && w.occ){ out.t = "occasion"; out.occ = String(w.occ); }
+  else if(w.t === "date" && parseYmd(w.date)){ out.t = "date"; out.date = w.date; }
+  return out;
+}
+
+const store = {cloud: null, writing: false, again: false, rev: "", timer: 0, held: null, dl: null, failures: 0};
+
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(db)); }
+  catch(e){ if(!store.cloud) toast("Couldn't save on this device. The storage may be full."); }
+  if(store.cloud){ clearTimeout(store.timer); store.timer = setTimeout(pushCloud, 400); }
+}
+async function pushCloud(){
+  if(!store.cloud) return;
+  if(store.writing){ store.again = true; return; }
+  store.writing = true;
+  try{
+    store.rev = uid();
+    await store.cloud.set({json: JSON.stringify(db), rev: store.rev, savedAt: new Date().toISOString()});
+    store.failures = 0;
+  }catch(e){
+    console.warn("Saving to your account failed", e);
+    store.failures++;
+    if(store.failures === 1) toast("Couldn't reach your account. Your change is kept here and will be sent again.");
+    if(store.failures < 5) setTimeout(pushCloud, 4000 * store.failures);
+  }
+  store.writing = false;
+  if(store.again){ store.again = false; pushCloud(); }
+}
+function load(){
+  let raw = null;
+  try{ raw = localStorage.getItem(KEY); }catch(e){}
+  if(!raw) return false;
+  try{ db = normalizeDb(JSON.parse(raw)); return true; }
+  catch(e){ console.warn("Couldn't read saved data", e); return false; }
+}
+function hasOwnData(){
+  return !!db.settings.started || db.people.some(p => !p.ex) || db.ideas.some(i => !i.ex) || db.lived.some(l => !l.ex);
+}
+function hasExamples(){ return db.people.some(p => p.ex) || db.ideas.some(i => i.ex) || db.lived.some(l => l.ex); }
+
+/* Inside claude.ai the page keeps its data in the artifact's own store, so phone and
+   computer see the same almanac. Anywhere else it stays in this browser. */
+async function connectCloud(){
+  const c = window.claude;
+  if(!c || typeof c.use !== "function") return;
+  const quiet = p => Promise.resolve(p).catch(() => null);
+  const got = await Promise.all([quiet(c.use("downloads")), quiet(c.use("db"))]);
+  store.dl = got[0];
+  const dbc = got[1];
+  if(!dbc){ render(); return; }
+  try{
+    const ref = dbc.doc("almanac/state");
+    const snap = await ref.get();
+    store.cloud = ref;
+    if(snap.exists) applyRemote(snap.data());
+    else if(hasOwnData()) pushCloud();
+    render();
+    ref.onSnapshot(s => {
+      if(!s.exists || s.metadata.hasPendingWrites) return;
+      const b = s.data();
+      if(!b || b.rev === store.rev) return;
+      if(state.sheet){ store.held = b; return; }
+      applyRemote(b); render();
+    }, e => console.warn("Live updates stopped", e));
+  }catch(e){ console.warn("Account storage unavailable", e); render(); }
+}
+function applyRemote(b){
+  try{
+    db = normalizeDb(JSON.parse(b.json));
+    store.rev = b.rev || "";
+    try{ localStorage.setItem(KEY, b.json); }catch(e){}
+  }catch(e){ console.warn("Couldn't read the saved almanac", e); }
+}
+
+/* lookups */
+function person(id){ return db.people.find(p => p.id === id) || null; }
+function idea(id){ return db.ideas.find(i => i.id === id) || null; }
+function peopleOf(ids){ return (ids || []).map(person).filter(Boolean); }
+
+/* =========================================================
+   4. THE YEAR: SEASONS, OCCASIONS, WINDOWS
+   ========================================================= */
+function seasonMonths(s){ const b = SEASON_BASE[s]; return db.settings.hemi === "S" ? b.map(m => (m + 6) % 12) : b.slice(); }
+function seasonOf(m){ return SEASONS.find(s => seasonMonths(s).indexOf(m) >= 0); }
+function almanacLine(m){ return ALMANAC[db.settings.hemi === "S" ? (m + 6) % 12 : m]; }
+function sameSet(a, b){ return a.length === b.length && a.every(x => b.indexOf(x) >= 0); }
+function seasonOfSet(months){ return SEASONS.find(s => sameSet(months, seasonMonths(s))) || ""; }
+
+function easter(y){
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4;
+  const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31), day = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(y, month - 1, day);
+}
+function nthSunday(y, m, n){ const first = new Date(y, m, 1); return new Date(y, m, 1 + (7 - first.getDay()) % 7 + (n - 1) * 7); }
+function lastSunday(y, m){ const last = new Date(y, m + 1, 0); return new Date(y, m, last.getDate() - last.getDay()); }
+function mothersDay(y){
+  const r = db.settings.region;
+  if(r === "uk") return addDays(easter(y), -21);                       // Mothering Sunday
+  if(r === "fr"){ const d = lastSunday(y, 4); return sameDay(d, addDays(easter(y), 49)) ? addDays(d, 7) : d; }
+  return nthSunday(y, 4, 2);
+}
+const HOLIDAYS = {
+  christmas: {label:"Christmas",       date: y => new Date(y, 11, 25)},
+  nye:       {label:"New Year's Eve",  date: y => new Date(y, 11, 31)},
+  easter:    {label:"Easter",          date: easter},
+  mothers:   {label:"Mother's Day",    date: mothersDay},
+  fathers:   {label:"Father's Day",    date: y => nthSunday(y, 5, 3)},
+  valentine: {label:"Valentine's Day", date: y => new Date(y, 1, 14)}
+};
+
+function personOcc(p, dt){
+  const label = dt.label === "Birthday" ? possessive(p.name) + " birthday"
+    : dt.label === "Name day" ? possessive(p.name) + " name day"
+    : dt.label === "Anniversary" ? possessive(p.name) + " anniversary" : dt.label;
+  return {key: "p:" + p.id + ":" + dt.id, label, people: [p.id], type: dt.label === "Birthday" || /birthday/i.test(dt.label) ? "birthday" : "date",
+    born: dt.y || 0, date: y => new Date(y, dt.m, dt.d)};
+}
+function holidayOcc(h){ return {key: "h:" + h, label: HOLIDAYS[h].label, people: [], type: "holiday", born: 0, date: HOLIDAYS[h].date}; }
+function customOcc(o){ return {key: "c:" + o.id, label: o.label, people: [], type: "custom", born: 0, date: y => new Date(y, o.m, o.d)}; }
+function allOccasions(){
+  const list = [];
+  db.people.forEach(p => p.dates.forEach(dt => list.push(personOcc(p, dt))));
+  HOLIDAY_IDS.forEach(h => { if(db.settings.holidays[h]) list.push(holidayOcc(h)); });
+  db.occasions.forEach(o => list.push(customOcc(o)));
+  return list;
+}
+function occByKey(key){
+  const p = String(key || "").split(":");
+  if(p[0] === "h" && HOLIDAYS[p[1]]) return holidayOcc(p[1]);
+  if(p[0] === "p"){ const who = person(p[1]); const dt = who && who.dates.find(x => x.id === p[2]); return dt ? personOcc(who, dt) : null; }
+  if(p[0] === "c"){ const o = db.occasions.find(x => x.id === p[1]); return o ? customOcc(o) : null; }
+  return null;
+}
+function nextOccDate(o, from){ let d = o.date(from.getFullYear()); if(d < from) d = o.date(from.getFullYear() + 1); return d; }
+function occurrencesBetween(a, b){
+  const out = [];
+  allOccasions().forEach(o => { for(let y = a.getFullYear(); y <= b.getFullYear(); y++){ const d = o.date(y); if(d >= a && d <= b) out.push({o, date: d}); } });
+  return out.sort((x, y) => x.date - y.date);
+}
+function occAgeNote(o, d){ return o.born && o.type === "birthday" ? "turns " + (d.getFullYear() - o.born) : ""; }
+
+/* a run of consecutive chosen months around month m (wrapping round the year) */
+function runAround(months, y, m){
+  let s = 0; while(s < 11 && months.indexOf((m - s - 1 + 12) % 12) >= 0) s++;
+  let e = 0; while(e < 11 && months.indexOf((m + e + 1) % 12) >= 0) e++;
+  return {start: new Date(y, m - s, 1), end: new Date(y, m + e + 1, 0)};
+}
+function monthsWindow(months, from){
+  const y = from.getFullYear(), m = from.getMonth();
+  if(months.indexOf(m) >= 0) return runAround(months, y, m);
+  for(let k = 1; k <= 12; k++){
+    const mm = (m + k) % 12;
+    if(months.indexOf(mm) >= 0) return runAround(months, y + Math.floor((m + k) / 12), mm);
+  }
+  return null;
+}
+/* The window in which an idea makes sense, at or after `from`. `key` identifies
+   which year's turn it is, so a tradition done this year waits for the next. */
+function windowFrom(i, from){
+  const w = i.when;
+  if(w.t === "months"){ const r = monthsWindow(w.months, from); return r && {start: r.start, end: r.end, key: r.start.getFullYear()}; }
+  if(w.t === "occasion"){ const o = occByKey(w.occ); if(!o) return null; const d = nextOccDate(o, from); return {start: d, end: d, key: d.getFullYear(), occ: o}; }
+  if(w.t === "date"){
+    const d = parseYmd(w.date); if(!d) return null;
+    if(!i.yearly) return {start: d, end: d, key: d.getFullYear()};
+    let n = new Date(from.getFullYear(), d.getMonth(), d.getDate());
+    if(n < from) n = new Date(from.getFullYear() + 1, d.getMonth(), d.getDate());
+    return {start: n, end: n, key: n.getFullYear()};
+  }
+  return null;
+}
+function nextWindow(i, from){
+  for(let guard = 0; guard < 3; guard++){
+    const w = windowFrom(i, from);
+    if(!w) return null;
+    if(i.yearly && i.doneYears.indexOf(w.key) >= 0){ from = addDays(w.end, 1); continue; }
+    return w;
+  }
+  return null;
+}
+/* which turn of a yearly idea a lived date belongs to */
+function turnKeyAt(i, d){
+  const w = i.when;
+  if(w.t === "occasion" || (w.t === "date" && i.yearly)){
+    const o = w.t === "occasion" ? occByKey(w.occ) : null;
+    const base = parseYmd(w.date);
+    const at = y => o ? o.date(y) : new Date(y, base.getMonth(), base.getDate());
+    if(!o && !base) return d.getFullYear();
+    let best = d.getFullYear(), bestGap = Infinity;
+    [d.getFullYear() - 1, d.getFullYear(), d.getFullYear() + 1].forEach(y => { const g = Math.abs(daysBetween(d, at(y))); if(g < bestGap){ bestGap = g; best = y; } });
+    return best;
+  }
+  const win = windowFrom(i, d);
+  return win ? win.key : d.getFullYear();
+}
+function leadDays(i){
+  if(i.kind === "trip") return 56;
+  if(i.kind === "gift") return i.when.occ === "h:christmas" ? 42 : 28;
+  return 21;
+}
+
+/* =========================================================
+   5. WHAT COMES BACK, AND WHEN
+   ========================================================= */
+function surface(T){
+  const res = {ask: [], coming: [], season: [], soon: [], someday: []};
+  const groups = {};
+  const group = (o, d) => { const k = o.key + "@" + ymd(d); return groups[k] || (groups[k] = {type: "occ", o, date: d, ideas: [], extra: []}); };
+
+  occurrencesBetween(T, addDays(T, CHRISTMAS_WINDOW)).forEach(x => {
+    if(daysBetween(T, x.date) <= (x.o.key === "h:christmas" ? CHRISTMAS_WINDOW : OCC_WINDOW)) group(x.o, x.date);
+  });
+
+  const pool = [];
+  db.ideas.forEach(i => {
+    if(i.status !== "open") return;
+    if(i.plan){
+      const d = parseYmd(i.plan.date);
+      if(d < T) res.ask.push({i, date: d});
+      else if(daysBetween(T, d) <= 60) res.coming.push({type: "plan", i, date: d});
+      return;
+    }
+    if(i.snooze && parseYmd(i.snooze) > T) return;
+    const w = nextWindow(i, T);
+    if(!w){
+      if(i.when.t === "date" && !i.yearly) return;
+      if(i.yearly && i.when.t === "someday" && i.doneYears.indexOf(T.getFullYear()) >= 0) return;
+      pool.push(i); return;
+    }
+    const n = daysBetween(T, w.start);
+    if(i.when.t === "months"){
+      if(n <= 0) res.season.push({i, w});
+      else if(n <= leadDays(i)) res.soon.push({i, w});
+    }else if(i.when.t === "occasion"){
+      if(n <= leadDays(i)) group(w.occ, w.start).ideas.push(i);
+    }else if(i.when.t === "date"){
+      if(n < 0) res.ask.push({i, date: w.start, unplanned: true});
+      else if(n <= leadDays(i)) res.coming.push({type: "date", i, date: w.start});
+    }
+  });
+
+  /* gift ideas kept without a date wait for that person's day, and for Christmas */
+  const gifts = pool.filter(i => i.kind === "gift");
+  Object.keys(groups).forEach(k => {
+    const g = groups[k];
+    if(g.o.people.length) g.extra = gifts.filter(i => i.people.some(pid => g.o.people.indexOf(pid) >= 0));
+    else if(g.o.key === "h:christmas") g.extra = gifts.slice();
+  });
+  const attached = new Set();
+  Object.keys(groups).forEach(k => groups[k].extra.forEach(i => attached.add(i.id)));
+
+  const wk = T.getFullYear() + ":" + Math.floor(daysBetween(new Date(T.getFullYear(), 0, 1), T) / 7);
+  res.someday = pool.filter(i => !attached.has(i.id)).sort((a, b) => hash(a.id + wk) - hash(b.id + wk)).slice(0, 2);
+
+  res.coming = res.coming.concat(Object.keys(groups).map(k => groups[k])).sort((a, b) => a.date - b.date);
+  res.season.sort((a, b) => a.w.end - b.w.end);
+  res.soon.sort((a, b) => a.w.start - b.w.start);
+  return res;
+}
+
+function whenText(i, short){
+  const w = i.when;
+  if(i.plan && i.status === "open" && w.t === "someday") return "Planned for " + fmtDay(parseYmd(i.plan.date));
+  let s = "Someday";
+  if(w.t === "months"){
+    const sn = seasonOfSet(w.months);
+    if(sn) s = SEASON_LBL[sn];
+    else{
+      const r = runAround(w.months, 2000, w.months[0]);
+      const len = Math.round((r.end - r.start) / (30.4 * 86400000));
+      if(len === w.months.length && w.months.length > 1){
+        const a = r.start.getMonth(), b = r.end.getMonth();
+        s = (short ? MON[a] : MONTHS[a]) + "–" + (short ? MON[b] : MONTHS[b]);
+      }else s = w.months.map(m => w.months.length > 2 || short ? MON[m] : MONTHS[m]).join(", ");
+    }
+  }else if(w.t === "occasion"){
+    const o = occByKey(w.occ);
+    s = o ? (i.kind === "gift" ? "For " : "Around ") + o.label : "Someday";
+  }else if(w.t === "date"){
+    const d = parseYmd(w.date);
+    s = d ? (i.yearly ? "Every " + d.getDate() + " " + MONTHS[d.getMonth()] : "On " + fmtDay(d)) : "Someday";
+  }
+  return s;
+}
+function toneOfIdea(i, T){
+  if(i.when.t === "months") return seasonOf(i.when.months[0]);
+  const w = nextWindow(i, T || today());
+  return w ? seasonOf(w.start.getMonth()) : "";
+}
+function promiseText(i){
+  const T = today();
+  if(i.plan) return "It's planned for " + fmtDay(parseYmd(i.plan.date)) + ".";
+  const w = nextWindow(i, T);
+  if(!w) return i.when.t === "date" ? "That date has passed." : "Kept for someday. It will come up now and then.";
+  const n = daysBetween(T, w.start), lead = leadDays(i);
+  if(i.when.t === "months" && n <= 0) return "It's in season now, so you'll find it on Now.";
+  if(n <= lead) return "It's close, so you'll find it on Now.";
+  const back = addDays(w.start, -lead);
+  let tail = "";
+  if(i.when.t === "months"){ const sn = seasonOfSet(i.when.months); tail = sn ? ", as " + SEASON_LBL[sn].toLowerCase() + " comes round" : ", ahead of " + MONTHS[w.start.getMonth()]; }
+  else if(i.when.t === "occasion") tail = ", before " + w.occ.label;
+  return "It will come back " + whenBack(back, T) + tail + ".";
+}
+
+/* =========================================================
+   6. EXAMPLES (shown once, on a first visit)
+   ========================================================= */
+function exampleDb(){
+  const T = today(), Y = T.getFullYear(), d0 = emptyDb(), now = new Date().toISOString();
+  const md = n => { const d = addDays(T, n); return {m: d.getMonth(), d: d.getDate()}; };
+  const sat = n => { let d = addDays(T, n); while(d.getDay() !== 6) d = addDays(d, 1); return ymd(d); };
+  const P = (id, name, c, dates, notes) => ({id, name, color: PERSON_COLORS[c], dates, notes, ex: true});
+  const nextSeason = SEASONS[(SEASONS.indexOf(seasonOf(T.getMonth())) + 1) % 4];
+  d0.people = [
+    P("ex-mum", "Mum", 0, [Object.assign({id: "b", label: "Birthday", y: Y - 64}, md(24))], "Loves the sea, early mornings and anything with lavender. Has been talking about Honfleur again."),
+    P("ex-dad", "Dad", 1, [Object.assign({id: "b", label: "Birthday", y: 0}, md(131))], "The walnut trees, his old camera, the Sunday crossword."),
+    P("ex-girls", "Lou & Jade", 4, [Object.assign({id: "l", label: "Lou's birthday", y: 0}, md(57)), Object.assign({id: "j", label: "Jade's birthday", y: 0}, md(212))], "Lou is mad about horses. Jade wants to be a baker."),
+    P("ex-clara", "Clara", 3, [Object.assign({id: "b", label: "Birthday", y: 0}, md(176))], "")
+  ];
+  const I = (id, text, people, kind, when, extra) => Object.assign({
+    id, text, people, kind, when: normalizeWhen(when), yearly: false, note: "", status: "open", plan: null,
+    snooze: "", doneYears: [], created: now, updated: now, ex: true
+  }, extra || {});
+  d0.ideas = [
+    I("ex-1", "Collect walnuts at Dad's", ["ex-dad"], "time", {t: "months", months: seasonMonths("autumn")}, {yearly: true, note: "Bring the long pole and the old crates from the garage."}),
+    I("ex-2", "A weekend by the sea with Mum, just the two of us", ["ex-mum"], "trip", {t: "months", months: seasonMonths("spring")}),
+    I("ex-3", "The blue cashmere scarf Mum stopped to look at in Lyon", ["ex-mum"], "gift", {t: "occasion", occ: "p:ex-mum:b"}),
+    I("ex-4", "Take Lou & Jade ice skating", ["ex-girls"], "time", {t: "months", months: seasonMonths("winter")}),
+    I("ex-5", "Bake Christmas biscuits with the girls", ["ex-girls"], "make", {t: "occasion", occ: "h:christmas"}, {yearly: true}),
+    I("ex-6", "Lunch at the little place by the river with Mum", ["ex-mum"], "time", {t: "someday"}, {plan: {date: sat(12)}}),
+    I("ex-7", "Teach Dad to send photos from his phone", ["ex-dad"], "gesture", {t: "someday"}),
+    I("ex-8", "Write Mum a proper letter, on paper", ["ex-mum"], "gesture", {t: "someday"}),
+    I("ex-9", "A good pocket knife for Dad", ["ex-dad"], "gift", {t: "someday"}),
+    I("ex-10", "Picnic in the park for Clara's birthday", ["ex-clara"], "time", {t: "occasion", occ: "p:ex-clara:b"}),
+    I("ex-11", "Camp in the garden with the girls", ["ex-girls"], "time", {t: "months", months: seasonMonths("summer")}, {yearly: true}),
+    I("ex-12", "A first riding lesson for Lou", ["ex-girls"], "gift", {t: "occasion", occ: "p:ex-girls:l"}),
+    I("ex-13", "Pottery class with Clara", ["ex-clara"], "time", {t: "someday"}, {plan: {date: ymd(addDays(T, -3))}}),
+    I("ex-14", {winter: "A snowy weekend in the mountains with Dad", spring: "A weekend walking in the hills with Dad",
+      summer: "A week by the lake with Dad", autumn: "A weekend of mushroom hunting with Dad"}[nextSeason], ["ex-dad"], "trip", {t: "months", months: seasonMonths(nextSeason)})
+  ];
+  const L = (id, text, people, date, note, ideaId) => ({id, ideaId: ideaId || "", text, people, date, note, ex: true});
+  d0.lived = [
+    L("ex-l1", "Collect walnuts at Dad's", ["ex-dad"], (Y - 1) + "-10-12", "He still climbed the ladder. We ate the first ones with honey.", "ex-1"),
+    L("ex-l2", "Sunday lunch at Mum's", ["ex-mum"], ymd(addDays(T, -24)), "Roast chicken and the good plates."),
+    L("ex-l3", "Cinema with Lou & Jade", ["ex-girls"], ymd(addDays(T, -70)), "Jade fell asleep before the end."),
+    L("ex-l4", "A long phone call with Clara", ["ex-clara"], ymd(addDays(T, -9)), "")
+  ];
+  return d0;
+}
+
+/* =========================================================
+   7. UI STATE
+   ========================================================= */
+let state = {
+  tab: "now",            // now | year | people | ideas
+  personId: "",          // person page open in People
+  yearMode: "ahead",     // ahead | back
+  q: "", fPerson: "", fStatus: "open",
+  sheet: null            // {type, ...} the bottom sheet in front
+};
+const TABS = [
+  {id: "now", label: "Now", icon: "now"},
+  {id: "year", label: "Year", icon: "year"},
+  {id: "add"},
+  {id: "people", label: "People", icon: "people"},
+  {id: "ideas", label: "Ideas", icon: "ideas"}
+];
+
+/* =========================================================
+   8. SHARED PIECES
+   ========================================================= */
+function avatars(ids){
+  const ps = peopleOf(ids);
+  if(!ps.length) return "";
+  return '<span class="avs">' + ps.map(p => '<span class="av" style="--c:' + esc(p.color) + '">' + esc(initials(p.name)) + "</span>").join("") + "</span>";
+}
+function names(ids){ return listNames(peopleOf(ids).map(p => p.name)); }
+/* the people not already named in the idea's own words */
+function withWhom(i){
+  const t = i.text.toLowerCase();
+  return listNames(peopleOf(i.people).filter(p => t.indexOf(p.name.toLowerCase()) < 0).map(p => p.name));
+}
+function dayCol(d, cls){
+  return '<span class="day ' + (cls || "") + '"><small>' + DOW[d.getDay()] + "</small><b>" + d.getDate() + "</b><small>" + MON[d.getMonth()] + "</small></span>";
+}
+function glyph(name, tone){ return '<span class="glyph ' + (tone ? "t-" + tone : "") + '">' + ic(name) + "</span>"; }
+function kindLabel(k){ const x = KINDS.find(y => y.id === k); return x ? x.label : ""; }
+function ideaMeta(i, opts){
+  opts = opts || {};
+  const bits = [];
+  if(i.people.length) bits.push(avatars(i.people) + "<span>" + esc(names(i.people)) + "</span>");
+  if(!opts.noWhen) bits.push("<span>" + esc(whenText(i)) + "</span>");
+  if(i.kind === "gift" && !opts.noKind) bits.push('<span class="tag">' + ic("gift") + "gift</span>");
+  if(i.yearly) bits.push('<span class="tag">' + ic("repeat") + "every year</span>");
+  if(opts.extra) bits.push("<span>" + opts.extra + "</span>");
+  return '<span class="row-meta">' + bits.join("") + "</span>";
+}
+function ideaRow(i, opts){
+  opts = opts || {};
+  return '<button class="row" data-act="idea" data-id="' + esc(i.id) + '">' + (opts.lead || "") +
+    '<span class="row-main"><span class="row-title">' + esc(i.text) + "</span>" + ideaMeta(i, opts) + "</span>" + ic("chev", "chev") + "</button>";
+}
+function livedRow(l, T, opts){
+  opts = opts || {};
+  const d = parseYmd(l.date);
+  return '<button class="row lived" data-act="lived" data-id="' + esc(l.id) + '">' + (opts.noDay ? glyph("heart", "") : dayCol(d, "past")) +
+    '<span class="row-main"><span class="row-title">' + esc(l.text) + "</span>" +
+    (l.note ? '<span class="row-note">' + esc(l.note) + "</span>" : "") +
+    '<span class="row-meta">' + (l.people.length ? avatars(l.people) + "<span>" + esc(names(l.people)) + "</span>" : "") +
+    (opts.showDate ? "<span>" + esc(fmtLong(d, T)) + "</span>" : "") + "</span></span></button>";
+}
+function sec(eyebrow, title, right){
+  return '<div class="sec"><div class="sec-row"><span class="eyebrow">' + esc(eyebrow) + "</span>" + (right || "") + "</div>" + (title ? "<h2>" + esc(title) + "</h2>" : "") + "</div>";
+}
+
+/* the year, drawn as a wheel: seasons round the rim, dates as dots,
+   seasonal ideas as arcs inside, the moments you've lived as ticks outside */
+function wheelSvg(T, opts){
+  opts = opts || {};
+  const Y = T.getFullYear(), C = 180, R1 = 150, R2 = 123;
+  const jan1 = new Date(Y, 0, 1), len = daysBetween(jan1, new Date(Y + 1, 0, 1));
+  const ang = d => daysBetween(jan1, d) / len * 2 * Math.PI - Math.PI / 2;
+  const f = n => n.toFixed(1);
+  const pt = (a, r) => [C + r * Math.cos(a), C + r * Math.sin(a)];
+  const sector = (a1, a2, r1, r2) => {
+    const L = a2 - a1 > Math.PI ? 1 : 0, p1 = pt(a1, r1), p2 = pt(a2, r1), p3 = pt(a2, r2), p4 = pt(a1, r2);
+    return "M" + f(p1[0]) + " " + f(p1[1]) + "A" + r1 + " " + r1 + " 0 " + L + " 1 " + f(p2[0]) + " " + f(p2[1]) +
+      "L" + f(p3[0]) + " " + f(p3[1]) + "A" + r2 + " " + r2 + " 0 " + L + " 0 " + f(p4[0]) + " " + f(p4[1]) + "Z";
+  };
+  const arc = (a1, a2, r) => {
+    const L = a2 - a1 > Math.PI ? 1 : 0, p1 = pt(a1, r), p2 = pt(a2, r);
+    return "M" + f(p1[0]) + " " + f(p1[1]) + "A" + r + " " + r + " 0 " + L + " 1 " + f(p2[0]) + " " + f(p2[1]);
+  };
+  let s = "";
+  for(let m = 0; m < 12; m++){
+    const a1 = ang(new Date(Y, m, 1)), a2 = ang(new Date(Y, m + 1, 1)), sn = seasonOf(m);
+    s += '<path class="wm t-' + sn + '" d="' + sector(a1, a2, R1, R2) + '" style="fill:var(--tone);fill-opacity:' + (m === T.getMonth() ? (opts.mini ? .9 : .42) : (opts.mini ? .4 : .2)) +
+      ';stroke:var(--paper);stroke-width:2"' + (opts.mini ? "" : ' data-act="wheel-month" data-m="' + m + '"') + "/>";
+    if(!opts.mini){
+      const p = pt((a1 + a2) / 2, (R1 + R2) / 2);
+      s += '<text x="' + f(p[0]) + '" y="' + f(p[1]) + '" text-anchor="middle" dominant-baseline="central" class="t-' + sn +
+        '" style="fill:' + (m === T.getMonth() ? "var(--ink)" : "var(--tone)") + ';font-family:var(--f-sc);font-size:13px;letter-spacing:.04em;pointer-events:none">' + MON[m].toLowerCase() + "</text>";
+    }
+  }
+  s += '<path d="' + sector(ang(jan1) + .0001, ang(T), R1 + 1, R2 - 1) + '" style="fill:var(--paper);fill-opacity:.5;pointer-events:none"/>';
+  if(!opts.mini){
+    /* seasonal ideas as arcs, each in the first free lane */
+    const lanes = [104, 95, 86, 77, 68], used = lanes.map(() => []);
+    const arcs = [];
+    db.ideas.filter(i => i.status === "open" && i.when.t === "months").forEach(i => {
+      const ms = i.when.months, seen = {};
+      ms.forEach(m => {
+        if(seen[m]) return;
+        const r = runAround(ms, Y, m);
+        let k = new Date(r.start); while(k <= r.end){ seen[k.getMonth()] = 1; k = new Date(k.getFullYear(), k.getMonth() + 1, 1); }
+        arcs.push({i, a1: ang(r.start), a2: ang(addDays(r.end, 1)), tone: seasonOf(r.start.getMonth())});
+      });
+    });
+    arcs.sort((a, b) => (b.a2 - b.a1) - (a.a2 - a.a1));
+    const overlaps = (x, y) => {
+      const norm = a => ((a % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      const segs = z => { const a = norm(z.a1), b = a + (z.a2 - z.a1); return b > 2 * Math.PI ? [[a, 2 * Math.PI], [0, b - 2 * Math.PI]] : [[a, b]]; };
+      return segs(x).some(p => segs(y).some(q => p[0] < q[1] - .02 && q[0] < p[1] - .02));
+    };
+    arcs.forEach(a => {
+      const k = used.findIndex(list => !list.some(b => overlaps(a, b)));
+      if(k < 0) return;
+      used[k].push(a);
+      s += '<path d="' + arc(a.a1 + .025, a.a2 - .025, lanes[k]) + '" class="t-' + a.tone + '" style="fill:none;stroke:var(--tone);stroke-width:5;stroke-linecap:round;stroke-opacity:' + (a.i.yearly ? 1 : .55) + '"/>';
+    });
+    /* dates */
+    occurrencesBetween(jan1, new Date(Y, 11, 31)).forEach(x => {
+      const p = pt(ang(x.date) + Math.PI / len, 114);
+      s += x.o.type === "holiday" || x.o.type === "custom"
+        ? '<circle cx="' + f(p[0]) + '" cy="' + f(p[1]) + '" r="3.2" style="fill:var(--paper);stroke:var(--ink-2);stroke-width:1.4"/>'
+        : '<circle cx="' + f(p[0]) + '" cy="' + f(p[1]) + '" r="3.6" style="fill:var(--ink)"/>';
+    });
+    /* moments lived this year */
+    db.lived.forEach(l => {
+      const d = parseYmd(l.date); if(!d || d.getFullYear() !== Y) return;
+      const a = ang(d) + Math.PI / len, p1 = pt(a, 154), p2 = pt(a, 162);
+      s += '<path d="M' + f(p1[0]) + " " + f(p1[1]) + "L" + f(p2[0]) + " " + f(p2[1]) + '" style="stroke:var(--accent);stroke-width:2.4;stroke-linecap:round"/>';
+    });
+    const sn = seasonOf(T.getMonth());
+    s += '<text x="180" y="174" text-anchor="middle" style="fill:var(--ink);font-family:var(--f-display);font-size:40px">' + Y + "</text>";
+    s += '<text x="180" y="200" text-anchor="middle" class="t-' + sn + '" style="fill:var(--tone);font-family:var(--f-display);font-style:italic;font-size:17px">' + SEASON_LBL[sn].toLowerCase() + "</text>";
+  }
+  const a = ang(T) + Math.PI / len, h1 = pt(a, opts.mini ? 0 : 58), h2 = pt(a, R1 + 3), dot = pt(a, R1 + 11);
+  s += '<path d="M' + f(h1[0]) + " " + f(h1[1]) + "L" + f(h2[0]) + " " + f(h2[1]) + '" style="stroke:var(--ink);stroke-width:' + (opts.mini ? 6 : 1.3) + ';stroke-linecap:round"/>';
+  s += '<circle cx="' + f(dot[0]) + '" cy="' + f(dot[1]) + '" r="' + (opts.mini ? 11 : 5) + '" style="fill:var(--accent)"/>';
+  const vb = opts.mini ? "4 4 352 352" : "0 0 360 360";
+  return '<svg viewBox="' + vb + '" role="img" aria-label="The year ' + Y + ', today in ' + MONTHS[T.getMonth()] + '">' + s + "</svg>";
+}
+
+/* =========================================================
+   9. NOW
+   ========================================================= */
+function renderNow(T){
+  const sn = seasonOf(T.getMonth());
+  let h = '<section class="mast"><p class="mast-date">' + DOW_LONG[T.getDay()].toLowerCase() + " " + T.getDate() + " " + MONTHS[T.getMonth()].toLowerCase() + "</p>" +
+    '<h1 class="mast-season t-' + sn + '">' + SEASON_LBL[sn] + "</h1>" +
+    '<button class="mast-wheel" data-act="tab" data-tab="year" aria-label="See the year">' + wheelSvg(T, {mini: true}) + "</button>" +
+    '<p class="mast-line">' + esc(almanacLine(T.getMonth())) + "</p></section>";
+  h += exampleBanner();
+
+  if(!db.ideas.length && !db.people.length && !db.lived.length) return h + welcome();
+
+  const s = surface(T);
+
+  if(s.ask.length){
+    h += sec("Since last time", "How did it go?");
+    s.ask.forEach(x => {
+      const i = x.i;
+      h += '<div class="ask"><p>' + (x.unplanned ? "You'd hoped to " : "You'd planned ") + "<b>" + esc(i.text) + "</b>" +
+        (withWhom(i) ? " with " + esc(withWhom(i)) : "") + " for " + esc(fmtDay(x.date)) + ".</p>" +
+        '<div class="btns"><button class="btn primary" data-act="happened" data-id="' + esc(i.id) + '">' + ic("heart") + (i.kind === "gift" ? "Given" : "It happened") + "</button>" +
+        '<button class="btn" data-act="didnt" data-id="' + esc(i.id) + '">It didn\'t happen</button></div></div>';
+    });
+  }
+
+  if(s.coming.length){
+    h += sec("The next few weeks", "Coming up");
+    h += '<div class="list">';
+    s.coming.forEach(c => {
+      const n = daysBetween(T, c.date), tone = seasonOf(c.date.getMonth());
+      if(c.type === "occ"){
+        const age = occAgeNote(c.o, c.date);
+        h += '<div class="row has-sub" style="cursor:default">' + dayCol(c.date, "tone t-" + tone) + '<span class="row-main"><span class="row-title">' + esc(c.o.label) + "</span>" +
+          '<span class="row-meta"><span>' + esc(rel(n)) + "</span>" + (age ? "<span>" + esc(age) + "</span>" : "") + "</span></span></div>";
+        const kids = c.ideas.concat(c.extra.filter(i => c.ideas.indexOf(i) < 0));
+        if(kids.length){
+          h += '<div class="sub list">' + kids.map(i => ideaRow(i, {noWhen: true})).join("") + "</div>";
+        }else{
+          h += '<div class="sub"><p class="empty-line">Nothing in mind yet.<button class="link" data-act="capture" data-occ="' + esc(c.o.key) + '" data-people="' + esc(c.o.people.join(",")) + '">Add an idea</button></p></div>';
+        }
+      }else{
+        h += ideaRow(c.i, {lead: dayCol(c.date, "tone t-" + tone), noWhen: true, extra: (c.type === "plan" ? "planned, " : "") + esc(rel(n))});
+      }
+    });
+    h += "</div>";
+  }
+
+  if(s.season.length){
+    h += sec("In season", "This " + SEASON_LBL[sn].toLowerCase());
+    h += '<div class="list">' + s.season.map(x => {
+      const left = daysBetween(T, x.w.end);
+      return ideaRow(x.i, {lead: glyph(toneOfIdea(x.i, T), toneOfIdea(x.i, T)), extra: left < 21 ? "until " + fmtLong(x.w.end) : ""});
+    }).join("") + "</div>";
+  }
+
+  if(s.soon.length){
+    h += sec("Coming round", "Worth planning now");
+    h += '<div class="list">' + s.soon.map(x => {
+      const tone = seasonOf(x.w.start.getMonth());
+      return ideaRow(x.i, {lead: glyph(tone, tone), extra: "from " + MONTHS[x.w.start.getMonth()] + ", " + rel(daysBetween(T, x.w.start))});
+    }).join("") + "</div>";
+  }
+
+  if(s.someday.length){
+    h += sec("Someday", "Still on your mind?");
+    s.someday.forEach(i => {
+      h += '<div class="ask"><button class="row" style="padding:0;border:0" data-act="idea" data-id="' + esc(i.id) + '"><span class="row-main"><span class="row-title">' + esc(i.text) + "</span>" + ideaMeta(i, {noWhen: true}) + "</span></button>" +
+        '<div class="btns"><button class="btn" data-act="find-time" data-id="' + esc(i.id) + '">' + ic("cal") + "Find a time</button>" +
+        '<button class="btn quiet" data-act="rest" data-id="' + esc(i.id) + '">Not now</button></div></div>';
+    });
+  }
+
+  const quiet = !s.ask.length && !s.coming.length && !s.season.length && !s.soon.length && !s.someday.length;
+  if(quiet){
+    h += sec("Right now", "Nothing pressing");
+    h += '<p class="lede">A good moment to look at the months ahead, or to keep something you\'ve been meaning to do.</p>' +
+      '<div class="btns" style="margin-top:12px"><button class="btn" data-act="tab" data-tab="year">' + ic("year") + "The months ahead</button>" +
+      '<button class="btn primary" data-act="capture">' + ic("plus") + "Keep an idea</button></div>";
+  }
+
+  const open = db.ideas.filter(i => i.status === "open");
+  const trad = open.filter(i => i.yearly).length;
+  const livedYear = db.lived.filter(l => l.date.slice(0, 4) === String(T.getFullYear())).length;
+  h += '<div class="foot"><span>You\'re holding ' + open.length + (open.length === 1 ? " idea" : " ideas") + " for " + db.people.length + (db.people.length === 1 ? " person" : " people") +
+    (trad ? ", " + trad + (trad === 1 ? " of them a tradition" : " of them traditions") : "") + ". " +
+    (livedYear ? livedYear + (livedYear === 1 ? " moment" : " moments") + " lived so far this year." : "") + "</span>" +
+    '<span><button class="link" data-act="tab" data-tab="ideas">All ideas</button> · <button class="link" data-act="year-back">This year so far</button></span>' + backupNudge(T) + "</div>";
+  return h;
+}
+function exampleBanner(){
+  if(!hasExamples()) return "";
+  return '<div class="banner"><span>These are examples, to show you how it works.</span><button class="btn primary" data-act="start-own">Start my own</button></div>';
+}
+function welcome(){
+  return '<section class="welcome"><h1>A year of your life, with the people you love.</h1>' +
+    "<p>Keep the things you'd love to do with them: a weekend away, a gift you spotted, a tradition you want to start. " +
+    "Almanac brings each one back when the time is right, in its season, before a birthday, or when you look at the months ahead.</p>" +
+    '<div class="btns"><button class="btn primary" data-act="people-setup">' + ic("people") + "Add the people in my life</button>" +
+    '<button class="btn" data-act="capture">' + ic("plus") + "Keep a first idea</button></div></section>";
+}
+function backupNudge(T){
+  if(store.cloud || !hasOwnData() || !db.ideas.some(i => !i.ex)) return "";
+  const last = parseYmd(db.settings.lastBackup);
+  if(last && daysBetween(last, T) < 30) return "";
+  return '<span>Your almanac lives on this phone only. <button class="link" data-act="backup">Save a backup</button></span>';
+}
+
+/* =========================================================
+   10. YEAR
+   ========================================================= */
+function monthPlan(y, m, T){
+  const a = new Date(y, m, 1), b = new Date(y, m + 1, 0);
+  const rows = [], byKey = {}, season = [];
+  occurrencesBetween(a, b).forEach(x => { const r = {date: x.date, kind: "occ", o: x.o, ideas: []}; rows.push(r); byKey[x.o.key] = r; });
+  db.ideas.forEach(i => {
+    if(i.status !== "open") return;
+    if(i.snooze && parseYmd(i.snooze) > b) return;
+    if(i.plan){ const d = parseYmd(i.plan.date); if(d >= a && d <= b) rows.push({date: d, kind: "plan", i}); return; }
+    const w = windowFrom(i, a);
+    if(!w) return;
+    if(i.yearly && i.doneYears.indexOf(w.key) >= 0) return;
+    if(i.when.t === "months"){ if(i.when.months.indexOf(m) >= 0) season.push(i); return; }
+    if(w.start < a || w.start > b) return;
+    if(i.when.t === "occasion"){
+      let r = byKey[i.when.occ];
+      if(!r){ r = byKey[i.when.occ] = {date: w.start, kind: "occ", o: w.occ, ideas: []}; rows.push(r); }
+      r.ideas.push(i); return;
+    }
+    rows.push({date: w.start, kind: "date", i});
+  });
+  if(y === T.getFullYear() && m === T.getMonth()){
+    db.lived.forEach(l => { const d = parseYmd(l.date); if(d && d >= a && d <= b) rows.push({date: d, kind: "lived", l}); });
+  }
+  rows.sort((x, z) => x.date - z.date);
+  return {rows, season};
+}
+function renderYear(T){
+  let h = '<h1 class="page-title">The year</h1>' +
+    '<div class="seg" role="tablist"><button class="' + (state.yearMode === "ahead" ? "on" : "") + '" data-act="year-mode" data-mode="ahead">The months ahead</button>' +
+    '<button class="' + (state.yearMode === "back" ? "on" : "") + '" data-act="year-mode" data-mode="back">Looking back</button></div>';
+  h += exampleBanner();
+  return h + (state.yearMode === "back" ? renderLookingBack(T) : renderAhead(T));
+}
+function renderAhead(T){
+  let h = '<div class="wheel">' + wheelSvg(T) + "</div>" +
+    '<div class="legend"><span><svg viewBox="0 0 16 10"><circle cx="8" cy="5" r="3.6" style="fill:var(--ink)"/></svg>birthdays &amp; dates</span>' +
+    '<span><svg viewBox="0 0 16 10"><circle cx="8" cy="5" r="3.2" style="fill:var(--paper);stroke:var(--ink-2);stroke-width:1.4"/></svg>occasions</span>' +
+    '<span><svg viewBox="0 0 16 10"><path d="M2 5h12" style="stroke:var(--accent);stroke-width:5;stroke-linecap:round"/></svg>seasonal ideas</span>' +
+    '<span><svg viewBox="0 0 16 10"><path d="M8 1v8" style="stroke:var(--accent);stroke-width:2.4;stroke-linecap:round"/></svg>moments lived</span></div>';
+  for(let k = 0; k < 12; k++){
+    const y = T.getFullYear() + Math.floor((T.getMonth() + k) / 12), m = (T.getMonth() + k) % 12, sn = seasonOf(m);
+    const plan = monthPlan(y, m, T);
+    h += '<section class="month" id="mon-' + m + '"><div class="month-head t-' + sn + '"><h3>' + MONTHS[m] + "</h3>" +
+      (k === 0 || m === 0 ? '<span class="yr">' + y + "</span>" : "") +
+      '<button class="link add" data-act="capture" data-months="' + m + '">' + "+ Add</button></div>" +
+      '<p class="month-line">' + esc(almanacLine(m)) + "</p>";
+    if(plan.rows.length || plan.season.length){
+      h += '<div class="list">';
+      plan.rows.forEach(r => {
+        const past = r.date < T;
+        if(r.kind === "occ"){
+          const age = occAgeNote(r.o, r.date);
+          h += '<div class="row' + (r.ideas.length ? " has-sub" : "") + '" style="cursor:default">' + dayCol(r.date, past ? "past" : "") + '<span class="row-main"><span class="row-title">' + esc(r.o.label) + "</span>" +
+            (age ? '<span class="row-meta"><span>' + esc(age) + "</span></span>" : "") + "</span></div>";
+          if(r.ideas.length) h += '<div class="sub list">' + r.ideas.map(i => ideaRow(i, {noWhen: true})).join("") + "</div>";
+        }else if(r.kind === "lived"){
+          h += livedRow(r.l, T);
+        }else{
+          h += ideaRow(r.i, {lead: dayCol(r.date, past ? "past" : ""), noWhen: true, extra: r.kind === "plan" ? "planned" : ""});
+        }
+      });
+      plan.season.forEach(i => { const tone = seasonOf(m); h += ideaRow(i, {lead: glyph(tone, tone)}); });
+      h += "</div>";
+    }else{
+      h += '<p class="room">Nothing here yet. <button class="link" data-act="room" data-m="' + m + '">Room for something?</button></p>';
+    }
+    h += "</section>";
+  }
+  return h;
+}
+function renderLookingBack(T){
+  const lived = db.lived.slice().sort((a, b) => b.date < a.date ? -1 : b.date > a.date ? 1 : 0);
+  const thisYear = lived.filter(l => l.date.slice(0, 4) === String(T.getFullYear()));
+  const who = new Set(); thisYear.forEach(l => l.people.forEach(p => who.add(p)));
+  let h = sec("Looking back", T.getFullYear() + " so far");
+  h += '<p class="lede">' + (thisYear.length
+    ? thisYear.length + (thisYear.length === 1 ? " moment" : " moments") + " lived" + (who.size ? " with " + who.size + (who.size === 1 ? " person" : " people") : "") + "."
+    : "Nothing kept yet this year. When something happens, mark it here or from the idea itself.") + "</p>";
+  h += '<div class="btns" style="margin-top:12px"><button class="btn" data-act="remember">' + ic("heart") + "Remember something</button></div>";
+  let cur = "";
+  lived.forEach(l => {
+    const d = parseYmd(l.date), k = d.getFullYear() + "-" + d.getMonth();
+    if(k !== cur){
+      if(cur) h += "</div></section>";
+      cur = k;
+      const sn = seasonOf(d.getMonth());
+      h += '<section class="month"><div class="month-head t-' + sn + '"><h3>' + MONTHS[d.getMonth()] + "</h3>" +
+        (d.getFullYear() !== T.getFullYear() || d.getMonth() === 0 ? '<span class="yr">' + d.getFullYear() + "</span>" : "") + '</div><div class="list">';
+    }
+    h += livedRow(l, T);
+  });
+  if(cur) h += "</div></section>";
+  return h;
+}
+
+/* =========================================================
+   11. PEOPLE
+   ========================================================= */
+function nextDateOf(p, T){
+  let best = null;
+  p.dates.forEach(dt => { const o = personOcc(p, dt), d = nextOccDate(o, T); if(!best || d < best.date) best = {o, date: d}; });
+  return best;
+}
+function lastLivedWith(pid){
+  return db.lived.filter(l => l.people.indexOf(pid) >= 0).sort((a, b) => a.date < b.date ? 1 : -1)[0] || null;
+}
+function renderPeople(T){
+  if(state.personId && person(state.personId)) return renderPerson(person(state.personId), T);
+  let h = '<h1 class="page-title">People</h1>' + exampleBanner();
+  if(!db.people.length){
+    return h + '<p class="lede" style="margin-top:12px">The people you\'d love to make more time for. Add them with their birthdays, and Almanac will bring their days round before they arrive.</p>' +
+      '<div class="btns" style="margin-top:14px"><button class="btn primary" data-act="people-setup">' + ic("people") + "Add people</button></div>";
+  }
+  const sorted = db.people.slice().sort((a, b) => {
+    const x = nextDateOf(a, T), y = nextDateOf(b, T);
+    if(x && y) return x.date - y.date;
+    return x ? -1 : y ? 1 : a.name.localeCompare(b.name);
+  });
+  h += '<div class="list" style="margin-top:10px">';
+  sorted.forEach(p => {
+    const nx = nextDateOf(p, T), last = lastLivedWith(p.id);
+    const open = db.ideas.filter(i => i.status === "open" && i.people.indexOf(p.id) >= 0).length;
+    const meta = [];
+    if(nx) meta.push(esc(nx.o.label.replace(possessive(p.name) + " ", "")) + " " + esc(rel(daysBetween(T, nx.date))));
+    if(open) meta.push(open + (open === 1 ? " idea" : " ideas"));
+    if(last) meta.push("last together " + esc(ago(Math.max(0, daysBetween(parseYmd(last.date), T)))));
+    h += '<button class="row person-row" data-act="person" data-id="' + esc(p.id) + '"><span class="av md" style="--c:' + esc(p.color) + '">' + esc(initials(p.name)) + "</span>" +
+      '<span class="row-main"><span class="row-title">' + esc(p.name) + '</span><span class="row-meta">' + meta.map(x => "<span>" + x + "</span>").join("<span>·</span>") + "</span></span>" + ic("chev", "chev") + "</button>";
+  });
+  h += "</div>" + '<div class="btns" style="margin-top:16px"><button class="btn" data-act="person-new">' + ic("plus") + "Add someone</button></div>";
+  return h;
+}
+function renderPerson(p, T){
+  let h = '<button class="back" data-act="people-back">' + ic("back") + "People</button>" +
+    '<div class="person-head"><span class="av lg" style="--c:' + esc(p.color) + '">' + esc(initials(p.name)) + "</span><h1>" + esc(p.name) + "</h1></div>";
+  if(p.dates.length){
+    h += '<div class="facts">' + p.dates.map(dt => {
+      const o = personOcc(p, dt), d = nextOccDate(o, T), age = occAgeNote(o, d);
+      return "<span>" + esc(dt.label === "Birthday" ? "Birthday" : o.label) + ", " + dt.d + " " + MONTHS[dt.m] + " · " + esc(rel(daysBetween(T, d))) + (age ? " · " + esc(age) : "") + "</span>";
+    }).join("") + "</div>";
+  }
+  h += '<div class="btns" style="margin-top:14px"><button class="btn primary" data-act="capture" data-people="' + esc(p.id) + '">' + ic("plus") + "An idea for " + esc(p.name) + "</button>" +
+    '<button class="btn" data-act="person-edit" data-id="' + esc(p.id) + '">Edit</button></div>';
+
+  const ideas = db.ideas.filter(i => i.status === "open" && i.people.indexOf(p.id) >= 0);
+  const gifts = ideas.filter(i => i.kind === "gift"), rest = ideas.filter(i => i.kind !== "gift");
+  if(rest.length){ h += sec("Things to do together", ""); h += '<div class="list">' + rest.map(i => ideaRow(i, {lead: glyph(i.yearly ? "repeat" : (i.when.t === "months" ? toneOfIdea(i, T) : "someday"), toneOfIdea(i, T))})).join("") + "</div>"; }
+  if(gifts.length){ h += sec("Gift ideas", ""); h += '<div class="list">' + gifts.map(i => ideaRow(i, {lead: glyph("gift", ""), noKind: true})).join("") + "</div>"; }
+  if(!ideas.length) h += '<p class="lede" style="margin-top:24px">No ideas kept for ' + esc(p.name) + " yet.</p>";
+
+  if(p.notes){ h += sec("What you know", ""); h += '<p class="notes">' + esc(p.notes) + "</p>"; }
+
+  const lived = db.lived.filter(l => l.people.indexOf(p.id) >= 0).sort((a, b) => a.date < b.date ? 1 : -1);
+  if(lived.length){ h += sec("Moments together", ""); h += '<div class="list">' + lived.map(l => livedRow(l, T, {showDate: false})).join("") + "</div>"; }
+  return h;
+}
+
+/* =========================================================
+   12. IDEAS
+   ========================================================= */
+function renderIdeas(T){
+  let h = '<h1 class="page-title">Ideas</h1>' + exampleBanner() +
+    '<div class="search">' + ic("search") + '<input id="q" type="search" placeholder="Search your ideas" value="' + esc(state.q) + '" autocomplete="off"></div>' +
+    '<div class="seg">' + [["open","Open"],["planned","Planned"],["lived","Lived"],["gone","Let go"]].map(x =>
+      '<button class="' + (state.fStatus === x[0] ? "on" : "") + '" data-act="f-status" data-v="' + x[0] + '">' + x[1] + "</button>").join("") + "</div>";
+  if(db.people.length){
+    h += '<div class="filters"><button class="chip ' + (!state.fPerson ? "on" : "") + '" data-act="f-person" data-v="">Everyone</button>' +
+      db.people.map(p => '<button class="chip ' + (state.fPerson === p.id ? "on" : "") + '" data-act="f-person" data-v="' + esc(p.id) + '"><span class="av" style="--c:' + esc(p.color) + '">' + esc(initials(p.name)) + "</span>" + esc(p.name) + "</button>").join("") + "</div>";
+  }
+  return h + '<div id="ideas-list">' + ideasList(T) + "</div>";
+}
+function ideasList(T){
+  const q = state.q.trim().toLowerCase();
+  const match = (text, ppl, note) => (!state.fPerson || ppl.indexOf(state.fPerson) >= 0) &&
+    (!q || (text + " " + (note || "") + " " + names(ppl)).toLowerCase().indexOf(q) >= 0);
+  if(state.fStatus === "lived"){
+    const l = db.lived.filter(x => match(x.text, x.people, x.note)).sort((a, b) => a.date < b.date ? 1 : -1);
+    return l.length ? '<div class="list" style="margin-top:8px">' + l.map(x => livedRow(x, T, {showDate: true})).join("") + "</div>" : emptyList();
+  }
+  const all = db.ideas.filter(i => match(i.text, i.people, i.note));
+  if(state.fStatus === "gone"){
+    const g = all.filter(i => i.status === "gone");
+    return g.length ? '<div class="list" style="margin-top:8px">' + g.map(i => ideaRow(i)).join("") + "</div>" : emptyList();
+  }
+  if(state.fStatus === "planned"){
+    const p = all.filter(i => i.status === "open" && i.plan).sort((a, b) => a.plan.date < b.plan.date ? -1 : 1);
+    return p.length ? '<div class="list" style="margin-top:8px">' + p.map(i => ideaRow(i, {lead: dayCol(parseYmd(i.plan.date), parseYmd(i.plan.date) < T ? "past" : ""), noWhen: true, extra: "planned"})).join("") + "</div>" : emptyList();
+  }
+  const open = all.filter(i => i.status === "open" && !i.plan);
+  const next = i => { const w = nextWindow(i, T); return w ? w.start : new Date(9999, 0, 1); };
+  const groups = [
+    ["Traditions", "Every year, in their time", open.filter(i => i.yearly)],
+    ["Seasonal", "Waiting for their season", open.filter(i => !i.yearly && i.when.t === "months")],
+    ["Occasions", "Around a day that matters", open.filter(i => !i.yearly && (i.when.t === "occasion" || i.when.t === "date") && nextWindow(i, T))],
+    ["Someday", "No particular time", open.filter(i => !i.yearly && (i.when.t === "someday" || !nextWindow(i, T)))]
+  ];
+  let h = "";
+  groups.forEach(g => {
+    if(!g[2].length) return;
+    g[2].sort((a, b) => next(a) - next(b));
+    h += sec(g[0], "", '<span class="muted" style="font-size:13px">' + esc(g[1]) + "</span>");
+    h += '<div class="list">' + g[2].map(i => { const tone = toneOfIdea(i, T); return ideaRow(i, {lead: glyph(i.yearly ? "repeat" : i.when.t === "months" ? tone : i.when.t === "someday" ? "someday" : "cal", tone)}); }).join("") + "</div>";
+  });
+  return h || emptyList();
+}
+function emptyList(){ return '<p class="lede" style="margin-top:22px">Nothing here' + (state.q || state.fPerson ? " for this search." : " yet.") + "</p>"; }
+
+/* =========================================================
+   13. RENDER
+   ========================================================= */
+function render(){
+  const T = today();
+  document.documentElement.setAttribute("data-season", seasonOf(T.getMonth()));
+  $("#tabs").innerHTML = TABS.map(t => t.id === "add"
+    ? '<button class="tab-add" data-act="capture" aria-label="Keep a new idea">' + ic("plus") + "</button>"
+    : '<button class="tab' + (state.tab === t.id ? " on" : "") + '" data-act="tab" data-tab="' + t.id + '"' + (state.tab === t.id ? ' aria-current="page"' : "") + ">" + ic(t.icon) + "<span>" + t.label + "</span></button>").join("");
+  let h = "";
+  try{
+    h = state.tab === "year" ? renderYear(T) : state.tab === "people" ? renderPeople(T) : state.tab === "ideas" ? renderIdeas(T) : renderNow(T);
+  }catch(e){
+    console.error(e);
+    h = '<div class="sec"><h2>Something went wrong showing this page.</h2></div><p class="lede">Your data is safe. Try another tab, or save a backup from Settings. (' + esc(e.message) + ")</p>";
+  }
+  $("#main").innerHTML = h;
+  renderSheet();
+}
+
+/* =========================================================
+   14. SHEETS
+   ========================================================= */
+let lastSheetKey = "";
+function openSheet(s){ state.sheet = s; $("#toast").classList.remove("on"); renderSheet(); }
+function closeSheet(){
+  state.sheet = null; renderSheet();
+  if(store.held){ const b = store.held; store.held = null; applyRemote(b); render(); }
+}
+function renderSheet(){
+  const root = $("#sheet-root");
+  if(!state.sheet){
+    lastSheetKey = "";
+    if(root.classList.contains("open")){
+      root.classList.remove("open");
+      setTimeout(() => { if(!state.sheet) root.innerHTML = ""; }, 320);
+    }
+    document.body.classList.remove("locked");
+    return;
+  }
+  let panel = root.querySelector(".sheet");
+  if(!panel){
+    root.innerHTML = '<div class="scrim" data-act="close-sheet"></div><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title"><div class="sheet-in"></div></div>';
+    panel = root.querySelector(".sheet");
+    void panel.offsetHeight;
+    root.classList.add("open");
+  }else root.classList.add("open");
+  const key = state.sheet.type + ":" + (state.sheet.id || "") + ":" + (state.sheet.mode || "");
+  const top = key === lastSheetKey ? panel.scrollTop : 0;
+  panel.querySelector(".sheet-in").innerHTML = '<div class="grab"></div>' + (SHEETS[state.sheet.type] || (() => ""))();
+  panel.scrollTop = top;
+  lastSheetKey = key;
+  document.body.classList.add("locked");
+}
+function sheetHead(title, eyebrow){
+  return '<div class="sheet-head"><div>' + (eyebrow ? '<span class="eyebrow">' + esc(eyebrow) + "</span>" : "") + '<h2 id="sheet-title">' + esc(title) + "</h2></div>" +
+    '<button class="icon-btn" data-act="close-sheet" aria-label="Close">' + ic("close") + "</button></div>";
+}
+function setPath(obj, path, v){
+  const k = path.split("."); let o = obj;
+  for(let n = 0; n < k.length - 1; n++) o = o[/^\d+$/.test(k[n]) ? +k[n] : k[n]];
+  o[k[k.length - 1]] = v;
+}
+function dayMonthSelects(prefix, d, m){
+  let h = '<select data-bind="' + prefix + '.d" data-num aria-label="Day"><option value="0">Day</option>';
+  for(let k = 1; k <= 31; k++) h += '<option value="' + k + '"' + (k === d ? " selected" : "") + ">" + k + "</option>";
+  h += '</select><select data-bind="' + prefix + '.m" data-num aria-label="Month"><option value="-1">Month</option>';
+  MONTHS.forEach((name, k) => { h += '<option value="' + k + '"' + (k === m ? " selected" : "") + ">" + name + "</option>"; });
+  return h + "</select>";
+}
+
+const SHEETS = {};
+
+/* ----- keep an idea ----- */
+function newDraft(pre){
+  pre = pre || {};
+  return {
+    id: "", text: "", people: pre.people || [], kind: pre.kind || "", yearly: false, note: "",
+    when: normalizeWhen(pre.when), whenOpen: pre.when && pre.when.t === "months" && !seasonOfSet(pre.when.months) ? "months" : "",
+    auto: {people: [], when: false, kind: false, yearly: false}, off: [],
+    set: {when: !!pre.when, kind: !!pre.kind, yearly: false},
+    adding: false, newName: ""
+  };
+}
+function draftFromIdea(i){
+  const d = newDraft();
+  Object.assign(d, {id: i.id, text: i.text, people: i.people.slice(), kind: i.kind, yearly: i.yearly, note: i.note,
+    when: normalizeWhen(i.when), set: {when: true, kind: true, yearly: true}});
+  d.whenOpen = d.when.t === "months" && !seasonOfSet(d.when.months) ? "months" : "";
+  return d;
+}
+const EXAMPLES_TEXT = ["spend a weekend by the sea with Mum", "collect walnuts at Dad's in the autumn", "take the girls ice skating", "start a Sunday-lunch tradition"];
+SHEETS.capture = function(){
+  const d = state.sheet.draft;
+  const ph = "e.g. " + EXAMPLES_TEXT[hash(String(state.sheet.seed || 0)) % EXAMPLES_TEXT.length];
+  return sheetHead(d.id ? "Edit idea" : "I'd love to…") +
+    '<textarea id="cap-text" class="cap-text" data-bind="text" placeholder="' + esc(ph) + '" rows="3" enterkeyhint="done">' + esc(d.text) + "</textarea>" +
+    '<div id="cap-rest" style="display:flex;flex-direction:column;gap:18px">' + captureRest() + "</div>" +
+    '<div class="group"><span class="eyebrow">A note</span><textarea data-bind="note" rows="2" placeholder="Anything to remember: where, what to bring, what they said">' + esc(d.note) + "</textarea></div>" +
+    '<div class="sheet-foot"><button class="btn wide" data-act="close-sheet">Cancel</button><button class="btn primary wide" id="cap-save" data-act="cap-save"' + (d.text.trim() ? "" : " disabled") + ">" +
+    (d.id ? "Save" : "Keep it") + "</button></div>";
+};
+function captureRest(){
+  const d = state.sheet.draft, T = today();
+  let h = '<div class="group"><span class="eyebrow">With or for</span><div class="chips">';
+  db.people.forEach(p => {
+    h += '<button class="chip ' + (d.people.indexOf(p.id) >= 0 ? "on" : "") + '" data-act="cap-person" data-id="' + esc(p.id) + '"><span class="av" style="--c:' + esc(p.color) + '">' + esc(initials(p.name)) + "</span>" + esc(p.name) + "</button>";
+  });
+  h += d.adding
+    ? '</div><div class="inline-new"><input id="cap-newname" type="text" data-bind="newName" placeholder="Their name" value="' + esc(d.newName) + '" enterkeyhint="done"><button class="btn" data-act="cap-addperson">Add</button></div>'
+    : '<button class="chip add" data-act="cap-adding">+ Someone new</button></div>';
+  h += "</div>";
+
+  h += '<div class="group"><span class="eyebrow">What kind of thing</span><div class="chips">' +
+    KINDS.map(k => '<button class="chip ' + (d.kind === k.id ? "on" : "") + '" data-act="cap-kind" data-v="' + k.id + '">' + esc(k.label) + "</button>").join("") + "</div></div>";
+
+  const w = d.when, sn = w.t === "months" ? seasonOfSet(w.months) : "";
+  const isMonths = w.t === "months" && (!sn || d.whenOpen === "months");
+  h += '<div class="group"><span class="eyebrow">When might it fit</span><div class="chips">' +
+    '<button class="chip ' + (w.t === "someday" ? "on" : "") + '" data-act="cap-when" data-v="someday">' + ic("someday") + "Someday</button>" +
+    SEASONS.slice(1).concat(["winter"]).map(s => '<button class="chip t-' + s + " " + (sn === s && !isMonths ? "on" : "") + '" data-act="cap-when" data-v="' + s + '">' + ic(s) + SEASON_LBL[s] + "</button>").join("") +
+    '<button class="chip ' + (isMonths ? "on" : "") + '" data-act="cap-when" data-v="months">Months…</button>' +
+    '<button class="chip ' + (w.t === "occasion" ? "on" : "") + '" data-act="cap-when" data-v="occasion">' + ic("cal") + "An occasion…</button>" +
+    '<button class="chip ' + (w.t === "date" ? "on" : "") + '" data-act="cap-when" data-v="date">A date…</button></div>';
+  if(isMonths){
+    h += '<div class="months12">' + MON.map((n, m) => '<button class="chip t-' + seasonOf(m) + " " + (w.months.indexOf(m) >= 0 ? "on" : "") + '" data-act="cap-month" data-m="' + m + '">' + n + "</button>").join("") + "</div>";
+  }
+  if(w.t === "occasion"){
+    const occs = allOccasions();
+    if(w.occ && !occs.some(o => o.key === w.occ)){ const o = occByKey(w.occ); if(o) occs.push(o); }
+    const mine = o => o.people.some(pid => d.people.indexOf(pid) >= 0) ? 0 : o.people.length ? 1 : 2;
+    occs.sort((a, b) => mine(a) - mine(b) || nextOccDate(a, T) - nextOccDate(b, T));
+    h += occs.length
+      ? '<div class="chips">' + occs.map(o => '<button class="chip ' + (w.occ === o.key ? "on" : "") + '" data-act="cap-occ" data-v="' + esc(o.key) + '">' + esc(o.label) + " <small>" + esc(fmtDay(nextOccDate(o, T)).slice(4)) + "</small></button>").join("") + "</div>"
+      : '<p class="muted" style="font-size:14px">Add birthdays to the people in your life, or your own dates in Settings, and they will appear here.</p>';
+  }
+  if(w.t === "date"){
+    h += '<input type="date" data-bind="when.date" value="' + esc(w.date) + '" aria-label="Date">';
+  }
+  h += "</div>";
+
+  h += '<label class="switch-row"><div><b>Every year</b><small>Make it a tradition. It comes back each year, even after you\'ve done it.</small></div>' +
+    '<span class="switch"><input type="checkbox" data-act="cap-yearly"' + (d.yearly ? " checked" : "") + '><span></span></span></label>';
+
+  if(d.text.trim()){
+    const preview = {when: normalizeWhen(d.when), yearly: d.yearly, kind: d.kind, doneYears: d.id && idea(d.id) ? idea(d.id).doneYears : [], plan: null};
+    h += '<p class="promise">' + esc(promiseText(preview)) + "</p>";
+  }
+  return h;
+}
+function refreshCapture(){
+  const box = $("#cap-rest"); if(box) box.innerHTML = captureRest();
+  const btn = $("#cap-save"); if(btn) btn.disabled = !state.sheet.draft.text.trim();
+}
+
+/* Reading what was typed: names, seasons, months, occasions, the kind of thing.
+   Only fields not already chosen by hand are filled in, and every guess shows as a chip you can undo. */
+function parseHints(text){
+  const t = " " + text.toLowerCase().replace(/[’`]/g, "'") + " ";
+  const h = {people: [], kind: "", months: null, occ: "", birthday: false, yearly: false};
+  db.people.forEach(p => {
+    const parts = [p.name].concat(p.name.split(/\s*(?:&|\band\b|,|\+)\s*/)).map(s => s.trim().toLowerCase()).filter(s => s.length > 1);
+    if(parts.some(n => new RegExp("(^|[^a-zà-ÿ])" + escRe(n) + "('s|s)?(?![a-zà-ÿ])").test(t))) h.people.push(p.id);
+  });
+  if(/\b(gift|present|buy|give|offer)\b/.test(t)) h.kind = "gift";
+  else if(/\b(weekend|trip|travel|getaway|holiday|road ?trip|night away|journey|abroad)\b/.test(t)) h.kind = "trip";
+  else if(/\b(bake|baking|cook|cooking|knit|sew|build|paint|craft|jam|biscuits|cake)\b/.test(t)) h.kind = "make";
+  else if(/\b(letter|card|call|ring|flowers|write|message|postcard|thank)\b/.test(t)) h.kind = "gesture";
+  const sm = /\b(spring|summer|autumn|fall|winter)\b/.exec(t);
+  if(sm) h.months = seasonMonths(sm[1] === "fall" ? "autumn" : sm[1]);
+  const ms = [];
+  MONTHS.forEach((name, k) => {
+    const re = k === 4 ? /\b(in|early|late|mid|end of|this|next|every) may\b/ : new RegExp("\\b" + name.toLowerCase() + "\\b");
+    if(re.test(t)) ms.push(k);
+  });
+  if(/\bsept\b/.test(t) && ms.indexOf(8) < 0) ms.push(8);
+  if(ms.length) h.months = ms;
+  if(/\b(christmas|xmas|noël|noel)\b/.test(t)) h.occ = "h:christmas";
+  else if(/(mother's day|mothers day|mothering sunday|fête des mères)/.test(t)) h.occ = "h:mothers";
+  else if(/(father's day|fathers day|fête des pères)/.test(t)) h.occ = "h:fathers";
+  else if(/\beaster\b/.test(t)) h.occ = "h:easter";
+  else if(/\bvalentine/.test(t)) h.occ = "h:valentine";
+  else if(/\bnew year/.test(t)) h.occ = "h:nye";
+  else if(/\b(birthday|bday|anniversary)\b/.test(t)) h.birthday = true;
+  if(/\b(every year|each year|tradition|annual|yearly|every (spring|summer|autumn|fall|winter|christmas))\b/.test(t)) h.yearly = true;
+  return h;
+}
+function onCaptureText(){
+  const d = state.sheet.draft, h = parseHints(d.text), before = JSON.stringify([d.people, d.when, d.kind, d.yearly]);
+  d.people = d.people.filter(pid => d.auto.people.indexOf(pid) < 0 || h.people.indexOf(pid) >= 0);
+  h.people.forEach(pid => { if(d.people.indexOf(pid) < 0 && d.off.indexOf(pid) < 0) d.people.push(pid); });
+  d.auto.people = h.people.slice();
+  if(!d.set.when){
+    let w = {t: "someday"};
+    if(h.occ) w = {t: "occasion", occ: h.occ};
+    else if(h.birthday){
+      const who = peopleOf(d.people).find(p => p.dates.length);
+      if(who){ const dt = who.dates.find(x => /birthday/i.test(x.label)) || who.dates[0]; w = {t: "occasion", occ: "p:" + who.id + ":" + dt.id}; }
+    }else if(h.months) w = {t: "months", months: h.months};
+    d.when = normalizeWhen(w);
+    d.whenOpen = d.when.t === "months" && !seasonOfSet(d.when.months) ? "months" : "";
+  }
+  if(!d.set.kind) d.kind = h.kind;
+  if(!d.set.yearly) d.yearly = h.yearly;
+  const after = JSON.stringify([d.people, d.when, d.kind, d.yearly]);
+  if(after !== before || !!d.text.trim() !== !!state.sheet.hadText){ state.sheet.hadText = !!d.text.trim(); refreshCapture(); }
+  else updatePromise();
+}
+function updatePromise(){
+  const d = state.sheet.draft, p = $(".promise");
+  if(p && d.text.trim()) p.textContent = promiseText({when: normalizeWhen(d.when), yearly: d.yearly, kind: d.kind, doneYears: [], plan: null});
+}
+function saveCapture(){
+  const d = state.sheet.draft, text = d.text.trim();
+  if(!text) return;
+  const now = new Date().toISOString(), when = normalizeWhen(d.when);
+  let i;
+  if(d.id && idea(d.id)){
+    i = idea(d.id);
+    if(JSON.stringify(i.when) !== JSON.stringify(when)) i.snooze = "";
+    Object.assign(i, {text, people: d.people.slice(), kind: d.kind, when, yearly: d.yearly, note: d.note.trim(), updated: now});
+    i.ex = false;
+  }else{
+    i = {id: uid(), text, people: d.people.slice(), kind: d.kind, when, yearly: d.yearly, note: d.note.trim(),
+      status: "open", plan: null, snooze: "", doneYears: [], created: now, updated: now, ex: false};
+    db.ideas.push(i);
+  }
+  save(); closeSheet(); render();
+  toast((d.id ? "Saved. " : "Kept. ") + promiseText(i));
+}
+
+/* ----- an idea, close up ----- */
+SHEETS.idea = function(){
+  const i = idea(state.sheet.id), T = today();
+  if(!i) return sheetHead("This idea is gone");
+  const mode = state.sheet.mode || "view";
+  const eyebrow = [kindLabel(i.kind), i.yearly ? "a tradition" : ""].filter(Boolean).join(" · ") || "An idea";
+  let h = sheetHead(i.text, eyebrow).replace('<h2 id="sheet-title">', '<h2 id="sheet-title" class="detail-title" style="font-family:var(--f-ui)">');
+
+  if(mode === "plan"){
+    return h + '<div class="group"><span class="eyebrow">When will it be?</span><input type="date" data-bind="date" value="' + esc(state.sheet.draft.date) + '" aria-label="Date"></div>' +
+      '<p class="lede">It will show in Coming up as the day gets closer, and on that month of your year.</p>' +
+      '<div class="sheet-foot"><button class="btn wide" data-act="idea-mode" data-mode="view">Back</button><button class="btn primary wide" data-act="plan-save">' + ic("check") + "Save the date</button></div>";
+  }
+  if(mode === "lived"){
+    const dr = state.sheet.draft;
+    return h + '<div class="group"><span class="eyebrow">' + (i.kind === "gift" ? "When did you give it?" : "When was it?") + '</span><input type="date" data-bind="date" value="' + esc(dr.date) + '" aria-label="Date"></div>' +
+      '<div class="group"><span class="eyebrow">A line to remember it by</span><textarea data-bind="note" rows="3" placeholder="What you did, what someone said, how it felt">' + esc(dr.note) + "</textarea></div>" +
+      (i.yearly ? "" : '<label class="switch-row"><div><b>Make it a tradition</b><small>Bring it back again next year.</small></div><span class="switch"><input type="checkbox" data-bind="tradition"' + (dr.tradition ? " checked" : "") + "><span></span></span></label>") +
+      '<div class="sheet-foot"><button class="btn wide" data-act="idea-mode" data-mode="view">Back</button><button class="btn primary wide" data-act="lived-save">' + ic("heart") + "Keep this moment</button></div>";
+  }
+
+  const facts = [];
+  if(i.people.length) facts.push([ "person", avatars(i.people) + " " + esc(names(i.people)) ]);
+  const w = i.status === "open" ? nextWindow(i, T) : null;
+  let whenLine = esc(whenText(i)) + (i.yearly ? ", every year" : "");
+  if(w && !i.plan){
+    const n = daysBetween(T, w.start);
+    whenLine += i.when.t === "months" ? (n <= 0 ? " · in season now" : " · " + rel(n)) : " · " + esc(fmtDay(w.start)) + ", " + rel(n);
+  }
+  if(!(i.plan && i.when.t === "someday")) facts.push(["clock", whenLine]);
+  if(i.plan){ const pd = parseYmd(i.plan.date); facts.push(["cal", "Planned for <b>" + esc(fmtDay(pd)) + "</b>, " + esc(rel(daysBetween(T, pd))) + ' <button class="link" data-act="unplan" data-id="' + esc(i.id) + '">Unplan</button>']); }
+  if(i.note) facts.push(["note", '<span class="row-note">' + esc(i.note) + "</span>"]);
+  if(i.status === "done") facts.push(["heart", "Lived"]);
+  if(i.status === "gone") facts.push(["close", "You let this one go"]);
+  h += '<div class="facts-list">' + facts.map(f => '<div class="fact">' + ic(f[0]) + "<span>" + f[1] + "</span></div>").join("") + "</div>";
+
+  const history = db.lived.filter(l => l.ideaId === i.id).sort((a, b) => a.date < b.date ? 1 : -1);
+  if(history.length) h += '<div class="group"><span class="eyebrow">Times you\'ve done it</span><div class="list">' + history.map(l => livedRow(l, T, {showDate: false})).join("") + "</div></div>";
+
+  if(i.status === "gone"){
+    return h + '<div class="btns"><button class="btn primary wide" data-act="revive" data-id="' + esc(i.id) + '">Bring it back</button>' +
+      '<button class="btn danger wide" data-act="idea-delete" data-id="' + esc(i.id) + '">' + (state.sheet.confirm ? "Tap again to delete" : "Delete for good") + "</button></div>";
+  }
+  if(i.status === "done"){
+    return h + '<div class="btns"><button class="btn wide" data-act="revive" data-id="' + esc(i.id) + '">Do it again someday</button><button class="btn wide" data-act="idea-edit" data-id="' + esc(i.id) + '">Edit</button></div>';
+  }
+  h += '<div class="btns"><button class="btn wide" data-act="idea-mode" data-mode="plan">' + ic("cal") + (i.plan ? "Change the date" : "Plan it") + "</button>" +
+    '<button class="btn primary wide" data-act="idea-mode" data-mode="lived">' + ic("heart") + (i.kind === "gift" ? "Given" : "It happened") + "</button></div>";
+  if(i.plan && canCalendar()) h += '<button class="btn" data-act="ics-one" data-id="' + esc(i.id) + '">' + ic("cal") + "Add to my calendar</button>";
+  const canRest = !i.plan && (i.when.t === "someday" || (w && daysBetween(T, w.start) <= leadDays(i)));
+  h += '<div class="btns">' + (canRest ? '<button class="btn quiet" data-act="rest" data-id="' + esc(i.id) + '">' + (i.when.t === "someday" ? "Not now" : "Not this time") + "</button>" : "") +
+    '<button class="btn quiet" data-act="idea-edit" data-id="' + esc(i.id) + '">Edit</button>' +
+    '<button class="btn quiet" data-act="let-go" data-id="' + esc(i.id) + '">Let it go</button></div>';
+  return h;
+};
+function suggestDate(i, T){
+  const w = nextWindow(i, T);
+  let d = addDays(T, 5);
+  if(w){
+    if(i.when.t === "months"){ d = w.start > T ? w.start : addDays(T, 5); }
+    else{ d = addDays(w.start, -10); if(d < T) d = addDays(T, 1); }
+  }
+  while(d.getDay() !== 6) d = addDays(d, 1);
+  return ymd(d);
+}
+
+/* ----- a moment lived ----- */
+SHEETS.lived = function(){
+  const T = today(), dr = state.sheet.draft, existing = state.sheet.id ? db.lived.find(l => l.id === state.sheet.id) : null;
+  if(existing && state.sheet.mode !== "edit"){
+    const d = parseYmd(existing.date), src = existing.ideaId ? idea(existing.ideaId) : null;
+    return sheetHead(existing.text, "A moment lived").replace('<h2 id="sheet-title">', '<h2 id="sheet-title" class="detail-title" style="font-family:var(--f-ui)">') +
+      '<div class="facts-list"><div class="fact">' + ic("cal") + "<span>" + esc(DOW_LONG[d.getDay()] + " " + fmtLong(d) + " " + d.getFullYear()) + ", " + esc(rel(daysBetween(T, d))) + "</span></div>" +
+      (existing.people.length ? '<div class="fact">' + ic("person") + "<span>" + avatars(existing.people) + " " + esc(names(existing.people)) + "</span></div>" : "") +
+      (existing.note ? '<div class="fact">' + ic("note") + '<span class="row-note">' + esc(existing.note) + "</span></div>" : "") +
+      (src ? '<div class="fact">' + ic(src.yearly ? "repeat" : "ideas") + '<span>From your idea <button class="link" data-act="idea" data-id="' + esc(src.id) + '">' + esc(src.text) + "</button></span></div>" : "") + "</div>" +
+      '<div class="btns"><button class="btn wide" data-act="lived-edit">Edit</button><button class="btn danger wide" data-act="lived-delete">' + (state.sheet.confirm ? "Tap again to delete" : "Delete") + "</button></div>";
+  }
+  return sheetHead(existing ? "Edit this moment" : "Remember something", existing ? "" : "Something that happened") +
+    '<textarea class="cap-text" data-bind="text" rows="2" placeholder="e.g. Sunday lunch at Mum\'s">' + esc(dr.text) + "</textarea>" +
+    '<div class="group"><span class="eyebrow">With</span><div class="chips">' + db.people.map(p =>
+      '<button class="chip ' + (dr.people.indexOf(p.id) >= 0 ? "on" : "") + '" data-act="lived-person" data-id="' + esc(p.id) + '"><span class="av" style="--c:' + esc(p.color) + '">' + esc(initials(p.name)) + "</span>" + esc(p.name) + "</button>").join("") + "</div></div>" +
+    '<div class="group"><span class="eyebrow">When</span><input type="date" data-bind="date" value="' + esc(dr.date) + '" max="' + ymd(T) + '" aria-label="Date"></div>' +
+    '<div class="group"><span class="eyebrow">A line to remember it by</span><textarea data-bind="note" rows="3">' + esc(dr.note) + "</textarea></div>" +
+    '<div class="sheet-foot"><button class="btn wide" data-act="close-sheet">Cancel</button><button class="btn primary wide" data-act="memory-save">' + ic("heart") + "Keep it</button></div>";
+};
+
+/* ----- a person ----- */
+SHEETS.person = function(){
+  const d = state.sheet.draft;
+  let h = sheetHead(d.id ? "Edit " + (d.name || "person") : "Someone new") +
+    '<label class="field">Name<input type="text" data-bind="name" value="' + esc(d.name) + '" placeholder="Mum, Dad, Clara, the girls…" autocomplete="off"></label>' +
+    '<div class="group"><span class="eyebrow">Their days</span>';
+  d.dates.forEach((dt, k) => {
+    const preset = DATE_LABELS.indexOf(dt.label) >= 0;
+    h += '<div class="panel" style="gap:8px"><div style="display:flex;gap:8px"><select data-bind="dates.' + k + '.kind" data-rerender aria-label="Which day">' +
+      DATE_LABELS.concat(["Other"]).map(l => '<option' + ((preset ? dt.label === l : l === "Other") ? " selected" : "") + ">" + l + "</option>").join("") + "</select>" +
+      '<button class="icon-btn" data-act="pdate-remove" data-k="' + k + '" aria-label="Remove this date">' + ic("close") + "</button></div>" +
+      (preset ? "" : '<input type="text" data-bind="dates.' + k + '.label" value="' + esc(dt.label) + '" placeholder="e.g. Lou\'s birthday">') +
+      '<div class="date-row">' + dayMonthSelects("dates." + k, dt.d, dt.m) + '<input type="number" inputmode="numeric" data-bind="dates.' + k + '.y" data-num value="' + (dt.y || "") + '" placeholder="Year (optional)" aria-label="Year"></div></div>';
+  });
+  h += '<button class="chip add" style="align-self:flex-start" data-act="pdate-add">+ Add a date</button></div>' +
+    '<label class="field">What you know<textarea data-bind="notes" rows="4" placeholder="Things they love, sizes, what they mentioned lately">' + esc(d.notes) + "</textarea></label>" +
+    '<div class="group"><span class="eyebrow">Colour</span><div class="chips">' + PERSON_COLORS.map(c =>
+      '<button class="chip ' + (d.color === c ? "on" : "") + '" data-act="pcolor" data-v="' + c + '" aria-label="Colour"><span class="av" style="--c:' + c + ';margin:0">' + esc(initials(d.name || "?")) + "</span></button>").join("") + "</div></div>";
+  if(d.id) h += '<button class="btn danger" data-act="person-delete">' + (state.sheet.confirm ? "Tap again to remove " + esc(d.name) : "Remove from Almanac") + "</button>";
+  return h + '<div class="sheet-foot"><button class="btn wide" data-act="close-sheet">Cancel</button><button class="btn primary wide" data-act="person-save">Save</button></div>';
+};
+SHEETS.setup = function(){
+  const rows = state.sheet.draft.rows;
+  return sheetHead("Who would you love to make more time for?") +
+    '<p class="lede">Just a name is enough. Add a birthday and Almanac will bring it round a few weeks before.</p>' +
+    rows.map((r, k) => '<div class="panel" style="gap:8px"><input type="text" data-bind="rows.' + k + '.name" value="' + esc(r.name) + '" placeholder="' + esc(["Mum","Dad","My nieces","A friend"][k] || "Name") + '" autocomplete="off">' +
+      '<div class="date-row" style="grid-template-columns:1fr 1.4fr">' + dayMonthSelects("rows." + k, r.d, r.m) + "</div></div>").join("") +
+    '<button class="chip add" style="align-self:flex-start" data-act="setup-more">+ Someone else</button>' +
+    '<div class="sheet-foot"><button class="btn wide" data-act="close-sheet">Later</button><button class="btn primary wide" data-act="setup-save">Done</button></div>';
+};
+
+/* ----- room in an empty month ----- */
+SHEETS.room = function(){
+  const m = state.sheet.m;
+  const open = db.ideas.filter(i => i.status === "open" && !i.plan && (i.when.t === "someday" || !nextWindow(i, today())));
+  return sheetHead("Room in " + MONTHS[m] + "?", "From your someday ideas") +
+    (open.length ? '<div class="list">' + open.map(i => '<button class="row" data-act="room-pick" data-id="' + esc(i.id) + '"><span class="row-main"><span class="row-title">' + esc(i.text) + "</span>" + ideaMeta(i, {noWhen: true}) + "</span>" + ic("plus", "chev") + "</button>").join("") + "</div>"
+      : '<p class="lede">No someday ideas waiting. Keep a new one for ' + MONTHS[m] + ".</p>") +
+    '<button class="btn" data-act="capture" data-months="' + m + '">' + ic("plus") + "Something new for " + MONTHS[m] + "</button>";
+};
+
+/* ----- settings ----- */
+function canCalendar(){ return !window.claude; }
+SHEETS.settings = function(){
+  const s = db.settings, T = today();
+  let h = sheetHead("Settings") + '<div class="settings" style="display:flex;flex-direction:column;gap:22px">';
+  h += '<div class="group"><h3>Your year</h3><div class="panel">' +
+    '<div class="kv"><span>Seasons</span><div class="seg" style="margin:0"><button class="' + (s.hemi === "N" ? "on" : "") + '" data-act="set-hemi" data-v="N">Northern</button><button class="' + (s.hemi === "S" ? "on" : "") + '" data-act="set-hemi" data-v="S">Southern</button></div></div>' +
+    '<div class="kv"><span>Mother\'s Day</span><select id="set-region" style="width:auto" aria-label="Mother\'s Day">' +
+    [["uk","Mothering Sunday (UK)"],["fr","Fête des mères (France)"],["us","Second Sunday of May"]].map(r => '<option value="' + r[0] + '"' + (s.region === r[0] ? " selected" : "") + ">" + r[1] + "</option>").join("") + "</select></div></div></div>";
+
+  h += '<div class="group"><h3>Days in the year</h3><p>Shown on your year and on Now as they get close.</p><div class="panel">' +
+    HOLIDAY_IDS.map(k => '<label class="check"><input type="checkbox" data-act="set-holiday" data-v="' + k + '"' + (s.holidays[k] ? " checked" : "") + ">" + HOLIDAYS[k].label +
+      ' <span class="muted" style="font-size:13px">' + esc(fmtDay(nextOccDate(holidayOcc(k), T))) + "</span></label>").join("") + "</div>";
+  h += '<div class="panel">' + (db.occasions.length ? db.occasions.map(o => '<div class="kv"><span>' + esc(o.label) + ' <span class="muted">' + o.d + " " + MONTHS[o.m] + '</span></span><button class="link" data-act="occ-remove" data-id="' + esc(o.id) + '">Remove</button></div>').join("") : '<p>Your own yearly days: a wedding anniversary, a family reunion, the day the swallows usually come back.</p>') +
+    '<input type="text" data-bind="occ.label" placeholder="Name of the day" value="' + esc(state.sheet.draft.occ.label) + '"><div class="date-row" style="grid-template-columns:1fr 1.4fr auto">' + dayMonthSelects("occ", state.sheet.draft.occ.d, state.sheet.draft.occ.m) +
+    '<button class="btn" data-act="occ-add">Add</button></div></div></div>';
+
+  if(canCalendar()){
+    const c = state.sheet.draft.cal;
+    h += '<div class="group"><h3>Reminders in your calendar</h3><p>Almanac can\'t send notifications by itself, so it can put gentle reminders in your phone\'s calendar instead. Import the file once; it repeats every year on its own.</p><div class="panel">' +
+      [["dates","Birthdays and people's days, two weeks ahead"],["holidays","The days above, three weeks ahead"],["seasons","The turn of each season"],["monthly","A monthly look at the months ahead (first Sunday, 10:00)"],["plans","Things you've planned"]].map(x =>
+        '<label class="check"><input type="checkbox" data-bind="cal.' + x[0] + '"' + (c[x[0]] ? " checked" : "") + ">" + x[1] + "</label>").join("") +
+      '<button class="btn primary" data-act="ics-all">' + ic("cal") + "Create the calendar file</button>" +
+      '<p class="muted" style="font-size:13px">Importing the file twice adds everything twice. For a plan made later, use "Add to my calendar" on that idea.</p></div></div>';
+  }
+
+  h += '<div class="group"><h3>Your data</h3><p>' + (store.cloud
+      ? "Saved to your Claude account, so it's the same wherever you open this page."
+      : "Saved in this browser on this device only. Keep a backup somewhere safe from time to time.") +
+    (s.lastBackup ? " Last backup " + esc(rel(daysBetween(T, parseYmd(s.lastBackup)))) + "." : "") + "</p>" +
+    '<div class="panel"><div class="btns"><button class="btn" data-act="backup">Save a backup</button><button class="btn" data-act="backup-copy">Copy it</button>' +
+    '<label class="btn" style="position:relative">Restore a backup<input type="file" accept=".json,application/json" data-act="restore-file" style="position:absolute;inset:0;opacity:0"></label></div>' +
+    '<textarea id="restore-text" rows="2" placeholder="Or paste a backup here"></textarea><button class="btn" data-act="restore-paste">Restore from pasted text</button></div></div>';
+
+  if(hasExamples()) h += '<button class="btn" data-act="start-own">Remove the examples</button>';
+  h += '<button class="btn danger" data-act="erase">' + (state.sheet.confirm ? "Tap again: this erases everything" : "Erase everything") + "</button>";
+  h += '<p class="muted" style="font-size:13px;text-align:center">Almanac ' + APP_VERSION + "</p></div>";
+  return h;
+};
+
+/* =========================================================
+   15. ACTIONS
+   ========================================================= */
+const ACT = {};
+ACT.tab = el => {
+  const t = el.dataset.tab;
+  if(t === state.tab && t === "people") state.personId = "";
+  state.tab = t; state.sheet = null;
+  try{ history.replaceState(null, "", "#" + t); }catch(e){}
+  render(); window.scrollTo(0, 0);
+};
+ACT["close-sheet"] = () => closeSheet();
+ACT["year-mode"] = el => { state.yearMode = el.dataset.mode; render(); };
+ACT["year-back"] = () => { state.tab = "year"; state.yearMode = "back"; render(); window.scrollTo(0, 0); };
+ACT["wheel-month"] = el => { const t = $("#mon-" + el.dataset.m); if(t) t.scrollIntoView({behavior: "smooth", block: "start"}); };
+ACT.person = el => { state.personId = el.dataset.id; render(); window.scrollTo(0, 0); };
+ACT["people-back"] = () => { state.personId = ""; render(); };
+ACT["f-status"] = el => { state.fStatus = el.dataset.v; render(); };
+ACT["f-person"] = el => { state.fPerson = el.dataset.v; render(); };
+
+ACT.capture = el => {
+  const pre = {};
+  if(el.dataset.people) pre.people = el.dataset.people.split(",").filter(Boolean);
+  if(el.dataset.occ) pre.when = {t: "occasion", occ: el.dataset.occ};
+  if(el.dataset.months) pre.when = {t: "months", months: el.dataset.months.split(",").map(Number)};
+  openSheet({type: "capture", draft: newDraft(pre), seed: Date.now()});
+  const t = $("#cap-text"); if(t) t.focus();
+};
+ACT["cap-person"] = el => {
+  const d = state.sheet.draft, id = el.dataset.id, k = d.people.indexOf(id);
+  if(k >= 0){ d.people.splice(k, 1); if(d.off.indexOf(id) < 0) d.off.push(id); }
+  else{ d.people.push(id); d.off = d.off.filter(x => x !== id); }
+  refreshCapture();
+};
+ACT["cap-adding"] = () => { state.sheet.draft.adding = true; refreshCapture(); const n = $("#cap-newname"); if(n) n.focus(); };
+ACT["cap-addperson"] = () => {
+  const d = state.sheet.draft, name = d.newName.trim();
+  if(!name){ d.adding = false; refreshCapture(); return; }
+  const p = {id: uid(), name, color: PERSON_COLORS[db.people.length % PERSON_COLORS.length], dates: [], notes: "", ex: false};
+  db.people.push(p); save();
+  d.people.push(p.id); d.adding = false; d.newName = "";
+  refreshCapture();
+};
+ACT["cap-kind"] = el => { const d = state.sheet.draft; d.kind = d.kind === el.dataset.v ? "" : el.dataset.v; d.set.kind = true; refreshCapture(); };
+ACT["cap-when"] = el => {
+  const d = state.sheet.draft, v = el.dataset.v; d.set.when = true; d.whenOpen = "";
+  if(v === "someday") d.when = normalizeWhen({});
+  else if(SEASON_BASE[v]) d.when = {t: "months", months: seasonMonths(v), occ: "", date: ""};
+  else if(v === "months"){ d.whenOpen = "months"; if(d.when.t !== "months") d.when = {t: "months", months: [], occ: "", date: ""}; }
+  else if(v === "occasion"){ if(d.when.t !== "occasion") d.when = {t: "occasion", months: [], occ: "", date: ""}; }
+  else if(v === "date"){ if(d.when.t !== "date") d.when = {t: "date", months: [], occ: "", date: ""}; }
+  refreshCapture();
+};
+ACT["cap-month"] = el => {
+  const w = state.sheet.draft.when, m = +el.dataset.m, k = w.months.indexOf(m);
+  if(k >= 0) w.months.splice(k, 1); else w.months.push(m);
+  w.months.sort((a, b) => a - b); state.sheet.draft.whenOpen = "months";
+  refreshCapture();
+};
+ACT["cap-occ"] = el => { state.sheet.draft.when.occ = el.dataset.v; refreshCapture(); };
+ACT["cap-yearly"] = el => { state.sheet.draft.yearly = el.checked; state.sheet.draft.set.yearly = true; refreshCapture(); };
+ACT["cap-save"] = () => saveCapture();
+
+ACT.idea = el => openSheet({type: "idea", id: el.dataset.id, mode: "view"});
+ACT["idea-mode"] = el => {
+  const i = idea(state.sheet.id), mode = el.dataset.mode, T = today();
+  if(mode === "plan") state.sheet.draft = {date: i.plan ? i.plan.date : suggestDate(i, T)};
+  if(mode === "lived"){
+    const pd = i.plan && parseYmd(i.plan.date);
+    state.sheet.draft = {date: pd && pd <= T ? i.plan.date : ymd(T), note: "", tradition: false};
+  }
+  state.sheet.mode = mode; renderSheet();
+};
+ACT["idea-edit"] = el => { const i = idea(el.dataset.id); if(i) openSheet({type: "capture", draft: draftFromIdea(i), seed: 1}); };
+ACT["plan-save"] = () => {
+  const i = idea(state.sheet.id), d = state.sheet.draft.date;
+  if(!parseYmd(d)){ toast("Pick a date first."); return; }
+  i.plan = {date: d}; i.snooze = ""; i.updated = new Date().toISOString(); save();
+  state.sheet.mode = "view"; render();
+  toast("Planned for " + fmtDay(parseYmd(d)) + ".");
+};
+ACT.unplan = el => { const i = idea(el.dataset.id); i.plan = null; save(); render(); toast("Unplanned. It's back with your ideas."); };
+function markLived(i, dateStr, note, tradition){
+  const d = parseYmd(dateStr) || today();
+  const l = {id: uid(), ideaId: i.id, text: i.text, people: i.people.slice(), date: ymd(d), note: (note || "").trim(), ex: false};
+  db.lived.push(l);
+  if(tradition) i.yearly = true;
+  if(i.yearly){
+    const k = turnKeyAt(i, d);
+    if(i.doneYears.indexOf(k) < 0) i.doneYears.push(k);
+    i.plan = null; i.snooze = "";
+  }else{ i.status = "done"; i.plan = null; }
+  i.updated = new Date().toISOString();
+  save();
+  return l;
+}
+ACT["lived-save"] = () => {
+  const i = idea(state.sheet.id), dr = state.sheet.draft;
+  markLived(i, dr.date, dr.note, dr.tradition);
+  closeSheet(); render();
+  toast(i.yearly ? "Kept in your year. It will come round again next time." : "Kept in your year.");
+};
+ACT.happened = el => {
+  const i = idea(el.dataset.id), T = today(), pd = i.plan && parseYmd(i.plan.date);
+  openSheet({type: "idea", id: i.id, mode: "lived", draft: {date: pd && pd <= T ? i.plan.date : (i.when.t === "date" ? i.when.date : ymd(T)), note: "", tradition: false}});
+};
+ACT.didnt = el => {
+  const i = idea(el.dataset.id);
+  if(i.plan) i.plan = null;
+  else if(i.when.t === "date") i.when = normalizeWhen({});
+  i.updated = new Date().toISOString(); save(); render();
+  toast("That's alright. It's back with your ideas.", {label: "Let it go", fn: () => { i.status = "gone"; save(); render(); }});
+};
+ACT["find-time"] = el => {
+  const i = idea(el.dataset.id);
+  openSheet({type: "idea", id: i.id, mode: "plan", draft: {date: suggestDate(i, today())}});
+};
+ACT.rest = el => {
+  const i = idea(el.dataset.id), T = today(), w = nextWindow(i, T);
+  let msg;
+  if(i.when.t === "someday" || !w){ i.snooze = ymd(addDays(T, 60)); msg = "It will come up again in a couple of months."; }
+  else{
+    i.snooze = ymd(addDays(w.end, 1));
+    const nw = nextWindow(i, addDays(w.end, 1));
+    msg = nw ? "Not this time. It will come back " + (i.when.t === "months" ? "next " + (seasonOfSet(i.when.months) ? SEASON_LBL[seasonOfSet(i.when.months)].toLowerCase() : MONTHS[nw.start.getMonth()]) : whenBack(addDays(nw.start, -leadDays(i)), T)) + "." : "Not this time.";
+  }
+  save(); closeSheet(); render();
+  toast(msg, {label: "Undo", fn: () => { i.snooze = ""; save(); render(); }});
+};
+ACT["let-go"] = el => {
+  const i = idea(el.dataset.id); i.status = "gone"; save(); closeSheet(); render();
+  toast("Let go. You'll find it under Ideas, Let go.", {label: "Undo", fn: () => { i.status = "open"; save(); render(); }});
+};
+ACT.revive = el => {
+  const i = idea(el.dataset.id); i.status = "open"; i.snooze = "";
+  if(i.when.t === "date" && parseYmd(i.when.date) < today()) i.when = normalizeWhen({});
+  save(); render(); toast("It's back with your ideas.");
+};
+ACT["idea-delete"] = el => {
+  if(!state.sheet.confirm){ state.sheet.confirm = true; renderSheet(); return; }
+  db.ideas = db.ideas.filter(i => i.id !== el.dataset.id); save(); closeSheet(); render(); toast("Deleted.");
+};
+
+ACT.lived = el => openSheet({type: "lived", id: el.dataset.id, mode: "view"});
+ACT.remember = () => openSheet({type: "lived", id: "", mode: "edit", draft: {text: "", people: [], date: ymd(today()), note: ""}});
+ACT["lived-edit"] = () => {
+  const l = db.lived.find(x => x.id === state.sheet.id);
+  state.sheet.mode = "edit"; state.sheet.draft = {text: l.text, people: l.people.slice(), date: l.date, note: l.note}; renderSheet();
+};
+ACT["lived-person"] = el => {
+  const p = state.sheet.draft.people, k = p.indexOf(el.dataset.id);
+  if(k >= 0) p.splice(k, 1); else p.push(el.dataset.id);
+  renderSheet();
+};
+ACT["memory-save"] = () => {
+  const dr = state.sheet.draft;
+  if(!dr.text.trim()){ toast("Write a few words about it first."); return; }
+  if(!parseYmd(dr.date)){ toast("Pick a date first."); return; }
+  const existing = state.sheet.id && db.lived.find(x => x.id === state.sheet.id);
+  if(existing) Object.assign(existing, {text: dr.text.trim(), people: dr.people.slice(), date: dr.date, note: dr.note.trim(), ex: false});
+  else db.lived.push({id: uid(), ideaId: "", text: dr.text.trim(), people: dr.people.slice(), date: dr.date, note: dr.note.trim(), ex: false});
+  save(); closeSheet(); render(); toast("Kept in your year.");
+};
+ACT["lived-delete"] = () => {
+  if(!state.sheet.confirm){ state.sheet.confirm = true; renderSheet(); return; }
+  const l = db.lived.find(x => x.id === state.sheet.id);
+  db.lived = db.lived.filter(x => x.id !== state.sheet.id);
+  const i = l && l.ideaId && idea(l.ideaId);
+  if(i){
+    const rest = db.lived.filter(x => x.ideaId === i.id);
+    if(i.yearly) i.doneYears = Array.from(new Set(rest.map(x => turnKeyAt(i, parseYmd(x.date)))));
+    else if(!rest.length && i.status === "done") i.status = "open";
+  }
+  save(); closeSheet(); render(); toast("Deleted.");
+};
+
+ACT["person-new"] = () => openSheet({type: "person", draft: {id: "", name: "", color: PERSON_COLORS[db.people.length % PERSON_COLORS.length], dates: [{id: uid(), label: "Birthday", kind: "Birthday", d: 0, m: -1, y: 0}], notes: ""}});
+ACT["person-edit"] = el => {
+  const p = person(el.dataset.id);
+  openSheet({type: "person", id: p.id, draft: {id: p.id, name: p.name, color: p.color, notes: p.notes,
+    dates: p.dates.map(dt => Object.assign({}, dt, {kind: DATE_LABELS.indexOf(dt.label) >= 0 ? dt.label : "Other"}))}});
+};
+ACT["pdate-add"] = () => { state.sheet.draft.dates.push({id: uid(), label: "Birthday", kind: "Birthday", d: 0, m: -1, y: 0}); renderSheet(); };
+ACT["pdate-remove"] = el => { state.sheet.draft.dates.splice(+el.dataset.k, 1); renderSheet(); };
+ACT.pcolor = el => { state.sheet.draft.color = el.dataset.v; renderSheet(); };
+ACT["person-save"] = () => {
+  const d = state.sheet.draft, name = d.name.trim();
+  if(!name){ toast("Give them a name first."); return; }
+  const dates = d.dates.filter(dt => dt.d >= 1 && dt.m >= 0).map(dt => ({id: dt.id, label: dt.kind === "Other" ? (dt.label.trim() || "A special day") : dt.kind, m: dt.m, d: dt.d, y: dt.y > 1900 ? dt.y : 0}));
+  let p = d.id && person(d.id);
+  if(p) Object.assign(p, {name, color: d.color, dates, notes: d.notes.trim(), ex: false});
+  else{ p = {id: uid(), name, color: d.color, dates, notes: d.notes.trim(), ex: false}; db.people.push(p); }
+  save(); closeSheet(); render(); toast(d.id ? "Saved." : name + " is in your almanac.");
+};
+ACT["person-delete"] = () => {
+  if(!state.sheet.confirm){ state.sheet.confirm = true; renderSheet(); return; }
+  const id = state.sheet.draft.id;
+  db.people = db.people.filter(p => p.id !== id);
+  db.ideas.forEach(i => { i.people = i.people.filter(x => x !== id); if(i.when.occ && i.when.occ.indexOf("p:" + id + ":") === 0) i.when = normalizeWhen({}); });
+  db.lived.forEach(l => { l.people = l.people.filter(x => x !== id); });
+  state.personId = ""; save(); closeSheet(); render(); toast("Removed.");
+};
+ACT["people-setup"] = () => openSheet({type: "setup", draft: {rows: [0, 1, 2].map(() => ({name: "", d: 0, m: -1}))}});
+ACT["setup-more"] = () => { state.sheet.draft.rows.push({name: "", d: 0, m: -1}); renderSheet(); };
+ACT["setup-save"] = () => {
+  let n = 0;
+  state.sheet.draft.rows.forEach(r => {
+    const name = r.name.trim(); if(!name) return;
+    db.people.push({id: uid(), name, color: PERSON_COLORS[db.people.length % PERSON_COLORS.length],
+      dates: r.d >= 1 && r.m >= 0 ? [{id: uid(), label: "Birthday", m: r.m, d: r.d, y: 0}] : [], notes: "", ex: false});
+    n++;
+  });
+  db.settings.started = db.settings.started || ymd(today());
+  save(); closeSheet(); render();
+  if(n) toast("Lovely. Now tap + whenever something comes to mind.");
+};
+ACT["start-own"] = () => {
+  db.people = db.people.filter(p => !p.ex);
+  db.ideas = db.ideas.filter(i => !i.ex);
+  db.lived = db.lived.filter(l => !l.ex);
+  db.settings.started = db.settings.started || ymd(today());
+  state.personId = ""; save();
+  state.sheet = null; render();
+  if(!db.people.length) ACT["people-setup"]();
+};
+
+ACT.room = el => openSheet({type: "room", m: +el.dataset.m});
+ACT["room-pick"] = el => {
+  const i = idea(el.dataset.id), m = state.sheet.m;
+  i.when = normalizeWhen({t: "months", months: [m]}); i.snooze = ""; save(); closeSheet(); render();
+  toast("Moved to " + MONTHS[m] + ".");
+};
+
+ACT.settings = () => openSheet({type: "settings", draft: {occ: {label: "", d: 0, m: -1}, cal: {dates: true, holidays: true, seasons: true, monthly: true, plans: true}}});
+ACT["set-hemi"] = el => { db.settings.hemi = el.dataset.v; save(); render(); };
+ACT["set-holiday"] = el => { db.settings.holidays[el.dataset.v] = el.checked; save(); render(); };
+ACT["occ-add"] = () => {
+  const o = state.sheet.draft.occ;
+  if(!o.label.trim() || o.d < 1 || o.m < 0){ toast("Give the day a name, a day and a month."); return; }
+  db.occasions.push({id: uid(), label: o.label.trim(), d: o.d, m: o.m});
+  state.sheet.draft.occ = {label: "", d: 0, m: -1}; save(); render();
+};
+ACT["occ-remove"] = el => { db.occasions = db.occasions.filter(o => o.id !== el.dataset.id); save(); render(); };
+ACT.erase = () => {
+  if(!state.sheet.confirm){ state.sheet.confirm = true; renderSheet(); return; }
+  db = emptyDb(); db.settings.started = ymd(today()); save(); state.personId = ""; closeSheet(); render(); toast("Everything is erased.");
+};
+ACT["toast-action"] = () => { const fn = store.toastAction; store.toastAction = null; $("#toast").classList.remove("on"); if(fn) fn(); };
+
+/* ----- files: backup, restore, calendar ----- */
+async function offerFile(name, text, mime){
+  if(store.dl){
+    try{ await store.dl.save({filename: name, data: text}); return true; }
+    catch(e){ if(e && e.code !== "declined") toast("Couldn't save the file here. Use Copy instead."); return false; }
+  }
+  if(window.claude) { toast("Saving files isn't available here. Use Copy instead."); return false; }
+  const file = new File([text], name, {type: mime});
+  if(/iPhone|iPad|Android/i.test(navigator.userAgent) && navigator.canShare && navigator.canShare({files: [file]})){
+    try{ await navigator.share({files: [file], title: name}); return true; }catch(e){ if(e && e.name === "AbortError") return false; }
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  return true;
+}
+ACT.backup = async () => {
+  const ok = await offerFile("almanac-backup-" + ymd(today()) + ".json", JSON.stringify(db, null, 2), "application/json");
+  if(ok){ db.settings.lastBackup = ymd(today()); save(); render(); toast("Backup saved."); }
+};
+ACT["backup-copy"] = () => {
+  const text = JSON.stringify(db);
+  const done = () => { db.settings.lastBackup = ymd(today()); save(); renderSheet(); toast("Copied. Paste it into a note or an email to yourself."); };
+  try{
+    navigator.clipboard.writeText(text).then(done, () => { const t = $("#restore-text"); if(t){ t.value = text; t.select(); } toast("Select the text in the box and copy it."); });
+  }catch(e){ const t = $("#restore-text"); if(t){ t.value = text; t.select(); } }
+};
+function restoreFrom(text){
+  try{
+    const p = JSON.parse(text);
+    if(!p || (!Array.isArray(p.ideas) && !Array.isArray(p.people))) throw new Error("not an Almanac backup");
+    const before = db;
+    db = normalizeDb(p); save(); closeSheet(); render();
+    toast("Restored " + db.ideas.length + " ideas and " + db.people.length + " people.", {label: "Undo", fn: () => { db = before; save(); render(); }});
+  }catch(e){ toast("That doesn't look like an Almanac backup."); }
+}
+ACT["restore-paste"] = () => { const t = $("#restore-text"); if(t && t.value.trim()) restoreFrom(t.value.trim()); };
+
+function icsText(s){ return String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n"); }
+function icsFold(line){ const out = []; while(line.length > 74){ out.push(line.slice(0, 74)); line = " " + line.slice(74); } out.push(line); return out.join("\r\n"); }
+function icsDate(d){ return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()); }
+function appUrl(){ try{ return location.protocol.indexOf("http") === 0 ? location.origin + location.pathname : ""; }catch(e){ return ""; } }
+function icsEvent(o){
+  const L = ["BEGIN:VEVENT", "UID:" + o.uid + "@almanac", "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z"];
+  if(o.time){ L.push("DTSTART:" + icsDate(o.date) + "T" + o.time + "00", "DURATION:PT20M"); }
+  else L.push("DTSTART;VALUE=DATE:" + icsDate(o.date), "DTEND;VALUE=DATE:" + icsDate(addDays(o.date, 1)), "TRANSP:TRANSPARENT");
+  if(o.rrule) L.push("RRULE:" + o.rrule);
+  L.push("SUMMARY:" + icsText(o.title));
+  const url = appUrl();
+  if(o.desc || url) L.push("DESCRIPTION:" + icsText((o.desc || "") + (url ? (o.desc ? "\n\n" : "") + "Open Almanac: " + url : "")));
+  if(url) L.push("URL:" + url);
+  (o.alarms || []).forEach(a => L.push("BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + icsText(a.text || o.title), "TRIGGER:" + a.trigger, "END:VALARM"));
+  L.push("END:VEVENT");
+  return L.map(icsFold).join("\r\n");
+}
+function icsWrap(events){
+  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Almanac//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:Almanac"].join("\r\n") + "\r\n" +
+    events.join("\r\n") + "\r\nEND:VCALENDAR\r\n";
+}
+function planEvent(i){
+  const d = parseYmd(i.plan.date);
+  return icsEvent({uid: "plan-" + i.id + "-" + i.plan.date, date: d, title: i.text, desc: i.people.length ? "With " + names(i.people) : "",
+    alarms: [{trigger: "-PT6H", text: "Tomorrow: " + i.text}]});
+}
+ACT["ics-one"] = el => { const i = idea(el.dataset.id); if(i && i.plan) offerFile("almanac-plan.ics", icsWrap([planEvent(i)]), "text/calendar"); };
+ACT["ics-all"] = () => {
+  const c = state.sheet.draft.cal, T = today(), ev = [];
+  if(c.dates) db.people.forEach(p => p.dates.forEach(dt => {
+    const o = personOcc(p, dt), d = nextOccDate(o, T);
+    ev.push(icsEvent({uid: "date-" + p.id + "-" + dt.id, date: d, rrule: "FREQ=YEARLY", title: o.label,
+      alarms: [{trigger: "-P13DT15H", text: o.label + " is in two weeks. Anything you'd like to do?"}, {trigger: "PT9H", text: o.label + " today"}]}));
+  }));
+  if(c.holidays){
+    HOLIDAY_IDS.filter(h => db.settings.holidays[h]).forEach(h => {
+      const o = holidayOcc(h);
+      for(let y = T.getFullYear(); y < T.getFullYear() + 3; y++){
+        const d = o.date(y); if(d < T) continue;
+        ev.push(icsEvent({uid: "h-" + h + "-" + y, date: d, title: o.label, alarms: [{trigger: "-P20DT15H", text: o.label + " is three weeks away."}]}));
+      }
+    });
+    db.occasions.forEach(x => { const o = customOcc(x); ev.push(icsEvent({uid: "c-" + x.id, date: nextOccDate(o, T), rrule: "FREQ=YEARLY", title: o.label, alarms: [{trigger: "-P13DT15H", text: o.label + " is in two weeks."}]})); });
+  }
+  if(c.seasons) SEASONS.forEach(sn => {
+    const m = seasonMonths(sn)[0]; let d = new Date(T.getFullYear(), m, 1); if(d < T) d = new Date(T.getFullYear() + 1, m, 1);
+    ev.push(icsEvent({uid: "season-" + sn, date: d, rrule: "FREQ=YEARLY", title: SEASON_LBL[sn] + " begins", desc: "See what you'd hoped to do this " + sn + ".",
+      alarms: [{trigger: "PT9H", text: SEASON_LBL[sn] + " begins. Have a look at your Almanac."}]}));
+  });
+  if(c.monthly){
+    let d = nthSunday(T.getFullYear(), T.getMonth() + 1, 1);
+    ev.push(icsEvent({uid: "monthly", date: d, time: "1000", rrule: "FREQ=MONTHLY;BYDAY=1SU", title: "Look at the months ahead",
+      desc: "Ten minutes with your Almanac: what's coming, what's in season, what you'd love to make room for.", alarms: [{trigger: "PT0M"}]}));
+  }
+  if(c.plans) db.ideas.filter(i => i.status === "open" && i.plan && parseYmd(i.plan.date) >= T).forEach(i => ev.push(planEvent(i)));
+  if(!ev.length){ toast("Choose at least one kind of reminder."); return; }
+  offerFile("almanac-reminders.ics", icsWrap(ev), "text/calendar");
+};
+
+/* =========================================================
+   16. EVENTS
+   ========================================================= */
+let toastTimer = 0;
+function toast(msg, action){
+  const el = $("#toast");
+  el.innerHTML = "<span>" + esc(msg) + "</span>" + (action ? '<button data-act="toast-action">' + esc(action.label) + "</button>" : "");
+  store.toastAction = action ? action.fn : null;
+  el.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.classList.remove("on"); store.toastAction = null; }, action ? 6500 : 4200);
+}
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-act]");
+  if(!el || el.tagName === "INPUT") return;
+  const fn = ACT[el.dataset.act];
+  if(fn){ e.preventDefault(); fn(el, e); }
+});
+document.addEventListener("change", e => {
+  const el = e.target;
+  if(el.dataset.bind && (el.tagName === "SELECT" || el.type === "checkbox")) bindField(el);
+  if(el.dataset.act === "cap-yearly" || el.dataset.act === "set-holiday") ACT[el.dataset.act](el);
+  if(el.dataset.act === "restore-file" && el.files && el.files[0]){
+    const r = new FileReader(); r.onload = () => restoreFrom(String(r.result)); r.readAsText(el.files[0]);
+  }
+  if(el.id === "set-region"){ db.settings.region = el.value; save(); render(); }
+});
+document.addEventListener("input", e => {
+  const el = e.target;
+  if(el.id === "q"){ state.q = el.value; const box = $("#ideas-list"); if(box) box.innerHTML = ideasList(today()); return; }
+  bindField(el);
+});
+let lastBound = "";
+function bindField(el){
+  const path = el.dataset.bind;
+  if(!path || !state.sheet || !state.sheet.draft) return;
+  let v = el.type === "checkbox" ? el.checked : el.value;
+  if(el.dataset.num !== undefined) v = v === "" ? 0 : Number(v);
+  setPath(state.sheet.draft, path, v);
+  if(/^dates\.\d+\.kind$/.test(path)){
+    const dt = state.sheet.draft.dates[+path.split(".")[1]];
+    if(v !== "Other") dt.label = v; else if(DATE_LABELS.indexOf(dt.label) >= 0) dt.label = "";
+  }
+  const sig = path + "=" + v;
+  if(sig === lastBound && el.tagName !== "TEXTAREA" && el.type !== "text") return;   // input and change both fired
+  lastBound = sig;
+  if(state.sheet.type === "capture"){
+    if(path === "text") onCaptureText();
+    else if(el.dataset.rerender !== undefined) refreshCapture();
+    else updatePromise();
+  }else if(el.dataset.rerender !== undefined) renderSheet();
+}
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape" && state.sheet) closeSheet();
+  if(e.key === "Enter" && e.target.id === "cap-newname"){ e.preventDefault(); ACT["cap-addperson"](); }
+  if(e.key === "Enter" && e.target.id === "cap-text" && !e.shiftKey){ e.preventDefault(); if(state.sheet.draft.text.trim()) saveCapture(); }
+});
+window.addEventListener("scroll", () => { $("#bar").classList.toggle("scrolled", window.scrollY > 4); }, {passive: true});
+document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible" && !state.sheet) render(); });
+
+/* =========================================================
+   17. START
+   ========================================================= */
+$("#settings-btn").innerHTML = ic("sliders");
+const initialTab = (location.hash || "").replace("#", "");
+if(["now","year","people","ideas"].indexOf(initialTab) >= 0) state.tab = initialTab;
+if(!load()) db = exampleDb();
+render();
+connectCloud();
+if(!window.claude && "serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
